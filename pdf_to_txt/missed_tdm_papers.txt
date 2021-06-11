@@ -1,0 +1,11 @@
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1711.07566v1.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1504.08200.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1812.01527v2.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1804.01508v10.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1711.07566v1.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1909.13476v1.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1911.10807v3.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1904.05408v2.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/2002.02050v3.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1907.09665v10.pdf
+../task-dataset-metric-extraction/data/paperwithcode/pdf/1810.06682v2.pdf

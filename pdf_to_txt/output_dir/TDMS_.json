@@ -1,0 +1,2544 @@
+{
+    "paper_id": "TDMS",
+    "header": {
+        "generated_with": "S2ORC 1.0.0",
+        "date_generated": "2021-05-25T12:26:10.137163Z"
+    },
+    "title": "Identification of Tasks, Datasets, Evaluation Metrics, and Numeric Scores for Scientific Leaderboards Construction",
+    "authors": [
+        {
+            "first": "Yufang",
+            "middle": [],
+            "last": "Hou",
+            "suffix": "",
+            "affiliation": {
+                "laboratory": "",
+                "institution": "IBM Research -Ireland Dublin",
+                "location": {
+                    "country": "Ireland"
+                }
+            },
+            "email": ""
+        },
+        {
+            "first": "Charles",
+            "middle": [],
+            "last": "Jochim",
+            "suffix": "",
+            "affiliation": {
+                "laboratory": "",
+                "institution": "IBM Research -Ireland Dublin",
+                "location": {
+                    "country": "Ireland"
+                }
+            },
+            "email": ""
+        },
+        {
+            "first": "Martin",
+            "middle": [],
+            "last": "Gleize",
+            "suffix": "",
+            "affiliation": {
+                "laboratory": "",
+                "institution": "IBM Research -Ireland Dublin",
+                "location": {
+                    "country": "Ireland"
+                }
+            },
+            "email": ""
+        },
+        {
+            "first": "Francesca",
+            "middle": [],
+            "last": "Bonin",
+            "suffix": "",
+            "affiliation": {
+                "laboratory": "",
+                "institution": "IBM Research -Ireland Dublin",
+                "location": {
+                    "country": "Ireland"
+                }
+            },
+            "email": ""
+        },
+        {
+            "first": "Debasis",
+            "middle": [],
+            "last": "Ganguly",
+            "suffix": "",
+            "affiliation": {
+                "laboratory": "",
+                "institution": "IBM Research -Ireland Dublin",
+                "location": {
+                    "country": "Ireland"
+                }
+            },
+            "email": ""
+        }
+    ],
+    "year": "",
+    "abstract": "While the fast-paced inception of novel tasks and new datasets helps foster active research in a community towards interesting directions, keeping track of the abundance of research activity in different areas on different datasets is likely to become increasingly difficult. The community could greatly benefit from an automatic system able to summarize scientific results, e.g., in the form of a leaderboard. In this paper we build two datasets and develop a framework (TDMS-IE) aimed at automatically extracting task, dataset, metric and score from NLP papers, towards the automatic construction of leaderboards. Experiments show that our model outperforms several baselines by a large margin. Our model is a first step towards automatic leaderboard construction, e.g., in the NLP domain.",
+    "pdf_parse": {
+        "paper_id": "TDMS",
+        "_pdf_hash": "",
+        "abstract": [
+            {
+                "text": "While the fast-paced inception of novel tasks and new datasets helps foster active research in a community towards interesting directions, keeping track of the abundance of research activity in different areas on different datasets is likely to become increasingly difficult. The community could greatly benefit from an automatic system able to summarize scientific results, e.g., in the form of a leaderboard. In this paper we build two datasets and develop a framework (TDMS-IE) aimed at automatically extracting task, dataset, metric and score from NLP papers, towards the automatic construction of leaderboards. Experiments show that our model outperforms several baselines by a large margin. Our model is a first step towards automatic leaderboard construction, e.g., in the NLP domain.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Abstract",
+                "sec_num": null
+            }
+        ],
+        "body_text": [
+            {
+                "text": "Recent years have witnessed a significant increase in the number of laboratory-based evaluation benchmarks in many of scientific disciplines, e.g., in the year 2018 alone, 140,616 papers were submitted to the pre-print repository arXiv 1 and among them, 3,710 papers are under the Computer Science -Computation and Language category. This massive increase in evaluation benchmarks (e.g., in the form of shared tasks) is particularly true for an empirical field such as NLP, which strongly encourages the research community to develop a set of publicly available benchmark tasks, datasets and tools so as to reinforce reproducible experiments.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "Researchers have realized the importance of conducting meta-analysis of a number of comparable publications, i.e., the ones which use similar, if not identical, experimental settings, from shared tasks and proceedings, as shown by special issues dedicated to analysis of reproducibility in experiments (Ferro et al., 2018) , or by detailed comparative analysis of experimental results reported on the same dataset in published papers (Armstrong et al., 2009) .",
+                "cite_spans": [
+                    {
+                        "start": 302,
+                        "end": 322,
+                        "text": "(Ferro et al., 2018)",
+                        "ref_id": "BIBREF14"
+                    },
+                    {
+                        "start": 434,
+                        "end": 458,
+                        "text": "(Armstrong et al., 2009)",
+                        "ref_id": "BIBREF2"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "A useful output of this meta-analysis is often a summary of the results of a comparable set of experiments (in terms of the tasks they are applied on, the datasets on which they are tested and the metrics used for evaluation) in a tabular form, commonly referred to as a leaderboard. Such a meta-analysis summary in the form of a leaderboard is potentially useful to researchers for the purpose of (1) choosing the appropriate existing literature for fair comparisons against a newly proposed method; and (2) selecting strong baselines, which the new method should be compared against.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "Although recently there has been some effort to manually keep an account of progress on various research fields in the form of leaderboards, either by individual researchers 2 or in a moderated crowd-sourced environment by organizations 3 , it is likely to become increasingly difficult and timeconsuming over the passage of time.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "In this paper, we develop a model to automatically identify tasks, datasets, evaluation metrics, and to extract the corresponding best numeric scores from experimental scientific papers. An illustrative example is shown in Figure 1: given the sample paper shown on the left, which carries out research work on three different tasks (i.e., coreference resolution, named entity recognition, and entity linking), the system is supposed to extract the corresponding Task-Dataset-Metric-Score tuples as shown on the right part in Figure 1 . It is noteworthy that we aim to identify a set of pre-",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 223,
+                        "end": 232,
+                        "text": "Figure 1:",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 525,
+                        "end": 533,
+                        "text": "Figure 1",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "\u2026 \u2026 \u2026 \u2026 \u2026",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "Leaderboard Annotations Figure 1 : An illustrative example of leaderboard construction from a sample article. The cue words related to the annotated tasks, datasets, evaluation metrics and the corresponding best scores are shown in blue, red, purple and green, respectively. Note that sometimes the cue words appearing in the article are different from the documentlevel annotations, e.g., Avg. -Avg. F1, NER -Named Entity Recognition.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 24,
+                        "end": 32,
+                        "text": "Figure 1",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "defined Task-Dataset-Metric (TDM) triples from a taxonomy for a paper, and the corresponding cue words appearing in the paper could have a different surface form, e.g., Named Entity Recognition (taxonomy) -Name Tagging (paper).",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "Different from most previous work on information extraction from scientific literature which concentrates mainly on the abstract section or individual paragraphs G\u00e1bor et al., 2018; Luan et al., 2018) , our task needs to analyze the entire paper. More importantly, our main goal is to tag papers using TDM triples from a taxonomy and to use these triples to organize papers. We adopt an approach similar to that used for some natural language inference (NLI) tasks (Bowman et al., 2015; Poliak et al., 2018) . Specifically, given a scientific paper in PDF format, our system first extracts the key contents from the abstract and experimental sections, as well as from the tables. Then, we identify a set of Task-Dataset-Metric (TDM) triples or Dataset-Metric (DM) pairs per paper. Our approach predicts if the textual context matches the TDM/DM label hypothesis, forcing the model to learn the similarity patterns between the text and various TDM triples. For instance, the model will capture the similarities between ROUGE-2 and \"Rg-2\". We further demonstrate that our framework is able to generalize to the new (unobserved) TDM triples at test time in a zero-shot TDM triple identification setup.",
+                "cite_spans": [
+                    {
+                        "start": 162,
+                        "end": 181,
+                        "text": "G\u00e1bor et al., 2018;",
+                        "ref_id": "BIBREF15"
+                    },
+                    {
+                        "start": 182,
+                        "end": 200,
+                        "text": "Luan et al., 2018)",
+                        "ref_id": "BIBREF22"
+                    },
+                    {
+                        "start": 465,
+                        "end": 486,
+                        "text": "(Bowman et al., 2015;",
+                        "ref_id": "BIBREF9"
+                    },
+                    {
+                        "start": 487,
+                        "end": 507,
+                        "text": "Poliak et al., 2018)",
+                        "ref_id": "BIBREF26"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "To evaluate our approach, we create a dataset NLP-TDMS which contains around 800 leaderboard annotations for more than 300 papers. Experiments show that our model outperforms several baselines by a large margin for extracting TDM triples. We further carry out experiments on a much larger dataset ARC-PDN and demonstrate that our system can support the construction of various leaderboards from a large number of scientific papers in the NLP domain.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "To the best of our knowledge, our work is the first attempt towards the creation of NLP Leaderboards in an automatic fashion. We pre-process both datasets (papers in PDF format) using GRO-BID (Lopez, 2009) and an in-house PDF table extractor. The processed datasets and code are publicly available at: https://github.com/ IBM/science-result-extractor.",
+                "cite_spans": [
+                    {
+                        "start": 192,
+                        "end": 205,
+                        "text": "(Lopez, 2009)",
+                        "ref_id": "BIBREF21"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Introduction",
+                "sec_num": "1"
+            },
+            {
+                "text": "A number of studies have recently explored methods for extracting information from scientific papers. Initial interest was shown in the analysis of citations (Athar and Teufel, 2012a,b; Jurgens et al., 2018) and analysis of the topic trends in the scientific communities (Vogel and Jurafsky, 2012) . Gupta and Manning (2011) ; Gbor et al. (2016) propose unsupervised methods for the extraction of entities such as papers' focus and methodology; similarly, in (Tsai et al., 2013) , an unsupervised bootstrapping method is used to identify and cluster the main concepts of a paper. But only in 2017, formalized a new task (SemEval 2017 Task 10) for the identification of three types of entities (called keyphrases, i.e., Tasks, Methods, and Materials) and two relation types (hyponym-of and synonymof ) in a corpus of 500 paragraphs from articles in the domains of Computer Science, Material Sciences and Physics. G\u00e1bor et al. (2018) also presented the task of IE from scientific papers (Se-Macro P Macro R Macro F1 Table caption 79.2 87.0 82.6 Numeric value + IsBolded + Table caption 71.1 77.7 74.0 Numeric value + Row label+ Table caption 55.5 71.4 61.4 Numeric value + Column label + Table caption 49.8 67.2 55.4 Numeric value + IsBolded + Row label + Column label + Table caption 36.6 60.9 43.0 (Luan et al., 2018) , (1) we concentrate on the identification of entities from a taxonomy that are necessary for the reconstruction of leaderboards (i.e., task, dataset, metric);",
+                "cite_spans": [
+                    {
+                        "start": 158,
+                        "end": 185,
+                        "text": "(Athar and Teufel, 2012a,b;",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 186,
+                        "end": 207,
+                        "text": "Jurgens et al., 2018)",
+                        "ref_id": "BIBREF18"
+                    },
+                    {
+                        "start": 271,
+                        "end": 297,
+                        "text": "(Vogel and Jurafsky, 2012)",
+                        "ref_id": "BIBREF28"
+                    },
+                    {
+                        "start": 300,
+                        "end": 324,
+                        "text": "Gupta and Manning (2011)",
+                        "ref_id": "BIBREF16"
+                    },
+                    {
+                        "start": 327,
+                        "end": 345,
+                        "text": "Gbor et al. (2016)",
+                        "ref_id": "BIBREF17"
+                    },
+                    {
+                        "start": 459,
+                        "end": 478,
+                        "text": "(Tsai et al., 2013)",
+                        "ref_id": "BIBREF27"
+                    },
+                    {
+                        "start": 912,
+                        "end": 931,
+                        "text": "G\u00e1bor et al. (2018)",
+                        "ref_id": "BIBREF15"
+                    },
+                    {
+                        "start": 1298,
+                        "end": 1317,
+                        "text": "(Luan et al., 2018)",
+                        "ref_id": "BIBREF22"
+                    }
+                ],
+                "ref_spans": [
+                    {
+                        "start": 1014,
+                        "end": 1027,
+                        "text": "Table caption",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 1070,
+                        "end": 1083,
+                        "text": "Table caption",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 1126,
+                        "end": 1139,
+                        "text": "Table caption",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 1186,
+                        "end": 1199,
+                        "text": "Table caption",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 1269,
+                        "end": 1282,
+                        "text": "Table caption",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Related Work",
+                "sec_num": "2"
+            },
+            {
+                "text": "(2) we analyse the entire paper, not only the abstract (the reason being that the score information is rarely contained in the abstract).",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Related Work",
+                "sec_num": "2"
+            },
+            {
+                "text": "Our method for TDMS identification resembles some approaches used for textual entailment (Dagan et al., 2006) or natural language inference (NLI) (Bowman et al., 2015) . We follow the example of White et al. (2017) and Poliak et al. (2018) who reframe different NLP tasks, including extraction tasks, as NLI problems. Eichler et al. (2017) and Obamuyide and Vlachos (2018) have both used NLI approaches for relation extraction. Our work differs in the information extracted and consequently in what context and hypothesis information we model. Currently, one of the best performing NLI models (e.g., on the SNLI dataset) for three way classification is (Liu et al., 2019) . The authors apply deep neural networks and make use of BERT (Devlin et al., 2019) , a novel language representation model. They reach an accuracy of 91.1%. Kim et al. (2019) exploit denselyconnected co-attentive recurrent neural network, and reach 90% accuracy. In our scenario, we generate pseudo premises and hypotheses, then apply the standard transformer encoder (Ashish et al., 2017; Devlin et al., 2019) to train two NLI models.",
+                "cite_spans": [
+                    {
+                        "start": 89,
+                        "end": 109,
+                        "text": "(Dagan et al., 2006)",
+                        "ref_id": "BIBREF10"
+                    },
+                    {
+                        "start": 146,
+                        "end": 167,
+                        "text": "(Bowman et al., 2015)",
+                        "ref_id": "BIBREF9"
+                    },
+                    {
+                        "start": 219,
+                        "end": 239,
+                        "text": "Poliak et al. (2018)",
+                        "ref_id": "BIBREF26"
+                    },
+                    {
+                        "start": 318,
+                        "end": 339,
+                        "text": "Eichler et al. (2017)",
+                        "ref_id": "BIBREF13"
+                    },
+                    {
+                        "start": 344,
+                        "end": 372,
+                        "text": "Obamuyide and Vlachos (2018)",
+                        "ref_id": "BIBREF24"
+                    },
+                    {
+                        "start": 653,
+                        "end": 671,
+                        "text": "(Liu et al., 2019)",
+                        "ref_id": "BIBREF20"
+                    },
+                    {
+                        "start": 734,
+                        "end": 755,
+                        "text": "(Devlin et al., 2019)",
+                        "ref_id": "BIBREF12"
+                    },
+                    {
+                        "start": 830,
+                        "end": 847,
+                        "text": "Kim et al. (2019)",
+                        "ref_id": "BIBREF19"
+                    },
+                    {
+                        "start": 1041,
+                        "end": 1062,
+                        "text": "(Ashish et al., 2017;",
+                        "ref_id": "BIBREF3"
+                    },
+                    {
+                        "start": 1063,
+                        "end": 1083,
+                        "text": "Devlin et al., 2019)",
+                        "ref_id": "BIBREF12"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Related Work",
+                "sec_num": "2"
+            },
+            {
+                "text": "We create two datasets for testing our approach for task, dataset, metric, and score (TDMS) identification. Both datasets are taken from a collection of NLP papers in PDF format and both require similar pre-processing. First, we parse the PDFs using GROBID (Lopez, 2009) to extract the title, abstract, and for each section, the section title and its corresponding content. Then we apply an improved table parser we developed, built on GROBID's output, to extract all tables containing numeric cells from the paper. Each extracted table contains the table caption and a list of numeric cells. For each numeric cell, we detect whether it has a bold typeface, and associate it to its corresponding row and column headers. For instance, for the sample paper shown in Figure 1 , after processing the table shown, we extract the bolded number \"85.60\" and find its corresponding column headers \"{Test, NER}\".",
+                "cite_spans": [
+                    {
+                        "start": 257,
+                        "end": 270,
+                        "text": "(Lopez, 2009)",
+                        "ref_id": "BIBREF21"
+                    }
+                ],
+                "ref_spans": [
+                    {
+                        "start": 764,
+                        "end": 772,
+                        "text": "Figure 1",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Dataset Construction",
+                "sec_num": "3"
+            },
+            {
+                "text": "We evaluated our table parser on a set of 10 papers from different venues (e.g., EMNLP, Computational Linguistics journal). In total, these papers contain 50 tables with 1,063 numeric content cells. Table 1 shows the results for extracting different table elements. Our table parser achieves a macro F 1 score of 82.6 for identifying table captions, and 74.0 macro F 1 for extracting tuples of <Numeric value, Bolded Info, Table caption>. In general, it obtains higher recall than precision in all evaluation dimensions.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 199,
+                        "end": 206,
+                        "text": "Table 1",
+                        "ref_id": "TABREF0"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Dataset Construction",
+                "sec_num": "3"
+            },
+            {
+                "text": "In the remainder of this section we describe our two datasets in detail.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Dataset Construction",
+                "sec_num": "3"
+            },
+            {
+                "text": "The content of the NLP-progress Github repository 4 provides us with expert annotations of various leaderboards for a few hundred papers in the NLP domain. The repository is organized following a \"language-domain/task-dataset-leaderboard\" structure. After crawling this information together with the corresponding papers (in PDF format), we clean the dataset manually. This includes: (1) normalizing task name, dataset name, and evaluation metrics across leaderboards created by different experts, e.g., using \"F1\" to represent \"Fscore\" and \"Fscore\"; (2) for each leaderboard table, only keeping the best result from the same paper 5 ;",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "NLP-TDMS",
+                "sec_num": "3.1"
+            },
+            {
+                "text": "(3) splitting a leaderboard table into several leaderboard tables if its column headers represent datasets instead of evaluation metrics. The resulting dataset NLP-TDMS (Full) contains 332 papers with 848 leaderboard annotations. Each leaderboard annotation is a tuple containing task, dataset, metric, and score (as shown in Figure 1) . In total, we have 168 distinct leaderboards (i.e., <Task, Dataset, Metric> triples) and only around half of them (77) are associated with at least five papers. We treat these manually curated TDM triples as an NLP knowledge taxonomy and we aim to explore how well we can associate a paper to the corresponding TDM triples.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 326,
+                        "end": 335,
+                        "text": "Figure 1)",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "NLP-TDMS",
+                "sec_num": "3.1"
+            },
+            {
+                "text": "We further create NLP-TDMS (Exp) by removing those leaderboards that are associated with fewer than five papers. If all leaderboard annotations of a paper belong to these removed leaderboards, we tag this paper as \"Unknown\". Table 2 compares statistics of NLP-TDMS (Full) and NLP-TDMS (Exp). All experiments in this paper (except experiments in the zero-shot setup in Section 7) are on NLP-TDMS (Exp) and going forward we will refer to that only as NLP-TDMS. ",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 225,
+                        "end": 232,
+                        "text": "Table 2",
+                        "ref_id": "TABREF2"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "NLP-TDMS",
+                "sec_num": "3.1"
+            },
+            {
+                "text": "To test our model in a more realistic scenario, we create a second dataset ARC-PDN. 6 We select papers (in PDF format) published in ACL, EMNLP, and NAACL between 2010 to 2015 from the most recent version of the ACL Anthology Reference Corpus (ARC) (Bird et al., 2008) . Table 3 shows statistics about papers and extracted tables in this dataset after the PDF parsing described above.",
+                "cite_spans": [
+                    {
+                        "start": 84,
+                        "end": 85,
+                        "text": "6",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 248,
+                        "end": 267,
+                        "text": "(Bird et al., 2008)",
+                        "ref_id": "BIBREF8"
+                    }
+                ],
+                "ref_spans": [
+                    {
+                        "start": 270,
+                        "end": 277,
+                        "text": "Table 3",
+                        "ref_id": "TABREF4"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "ARC-PDN",
+                "sec_num": "3.2"
+            },
+            {
+                "text": "4 Method for TDMS Identification",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "ARC-PDN",
+                "sec_num": "3.2"
+            },
+            {
+                "text": "We represent each leaderboard as a <Task, Dataset, Metric> triple (TDM triple). Given an experimental scientific paper D, we want to identify relevant TDM triples from a taxonomy and extract the best numeric score for each predicted TDM triple. However, scientific papers are often long documents and only some parts of the document are useful to predict TDM triples and the associated scores. Hence, we define a document representation, called DocTAET and a table score representation, called SC (score context), as follows:",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Problem Definition",
+                "sec_num": "4.1"
+            },
+            {
+                "text": "DocTAET. For each scientific paper, its Doc-TAET representation contains the following four parts: Title, Abstract, ExpSetup, and TableInfo. Title and Abstract often help in predicting Task. Ex-pSetup contains all sentences which are likely to describe the experimental setup, which can help to predict Dataset and Metric. We use a few heuristics to extract such sentences. 7 Finally, table captions and column headers are important in predicting Dataset and Metric. We collect them in the 6 PDN comes from the anthology's directory prefixes for ACL, EMNLP, and NAACL, respectively. 7 A sentence is included in ExpSetup if it: (1) contains any of the following cue words/phrases: {experiment on, experiment in, evaluation(s), evaluate, evaluated, dataset(s), corpus, corpora}; and (2) belongs to a section whose title contains any of the following words: {experiment(s), evaluation, dataset(s)}.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Problem Definition",
+                "sec_num": "4.1"
+            },
+            {
+                "text": "TableInfo part. Figure 2 (upper right) illustrates the DocTAET extraction for a given paper.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 16,
+                        "end": 24,
+                        "text": "Figure 2",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Problem Definition",
+                "sec_num": "4.1"
+            },
+            {
+                "text": "For each table in a scientific paper, we focus on boldfaced numeric scores because they are more likely to be the best scores for the corresponding TDM triples. 8 For a specific boldfaced numeric score in a table, its context (SC) contains its corresponding column headers and the table caption. Figure 2 (lower right) shows the extracted SC for the scores 85.60 and 61.71.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 296,
+                        "end": 318,
+                        "text": "Figure 2 (lower right)",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "SC.",
+                "sec_num": null
+            },
+            {
+                "text": "We develop a system called TDMS-IE to associate TDM triples to a given experimental scientific paper. Our system also extracts the best numeric score for each predicted TDM triple. Figure 3 shows the system architecture for TDMS-IE.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 181,
+                        "end": 189,
+                        "text": "Figure 3",
+                        "ref_id": "FIGREF1"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "TDMS-IE System",
+                "sec_num": "4.2"
+            },
+            {
+                "text": "To predict correct TDM triples and associate the appropriate scores, we adopt a natural language inference approach (NLI) (Poliak et al., 2018) and learn a binary classifier for pairs of document contexts and TDM label hypotheses. Specifically, we split the problem into two tasks: (1) given a document representation DocTAET, we would like to predict whether a specific TDM triple can be inferred (e.g., give a document we infer <Summarization, Gigaword, ROUGE-2>);",
+                "cite_spans": [
+                    {
+                        "start": 122,
+                        "end": 143,
+                        "text": "(Poliak et al., 2018)",
+                        "ref_id": "BIBREF26"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "(2) we predict whether a <Dataset, Metric> tuple (DM) can be inferred given a score context SC. 9 This setup has two advantages: first, it naturally captures the inter-relations between different labels by encoding the three types of labels (i.e., task, dataset, metric) into the same hypothesis. Second, similar to approaches for NLI, it forces the model to focus on learning the similarity patterns between DocTAET and various TDM triples. For instance, the model will capture the similarities between ROUGE-2 and \"Rg-2\".",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "Recently, a multi-head self-attention encoder (Ashish et al., 2017) has been shown to perform well in various NLP tasks, including NLI (Devlin et al., 2019) . We apply the standard transformer encoder (Devlin et al., 2019) to train our models, one for TDM triple prediction, and one for score 8 We randomly choose 10 papers from NLP-TDMS (Full) and compare their TDMS tuple annotations with the results reported in the original tables. We found that 78% (18/23) of the annotated tuples contain boldfaced numeric scores. 9 We look for the relation SC-DM, rather then SC-TDM, because rarely the task is mentioned in SC.",
+                "cite_spans": [
+                    {
+                        "start": 46,
+                        "end": 67,
+                        "text": "(Ashish et al., 2017)",
+                        "ref_id": "BIBREF3"
+                    },
+                    {
+                        "start": 135,
+                        "end": 156,
+                        "text": "(Devlin et al., 2019)",
+                        "ref_id": "BIBREF12"
+                    },
+                    {
+                        "start": 201,
+                        "end": 222,
+                        "text": "(Devlin et al., 2019)",
+                        "ref_id": "BIBREF12"
+                    },
+                    {
+                        "start": 293,
+                        "end": 294,
+                        "text": "8",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 520,
+                        "end": 521,
+                        "text": "9",
+                        "ref_id": null
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "extraction. In the following we describe how we generate training instances for these two models. DocTAET-TDM model. Illustrated in Figure 3 (upper left), this model predicts whether a TDM triple can be inferred from a DocTAET. For a set of n TDM triples ({t 1 , t 2 , ..., t n }) from a taxonomy, if a paper d i (DocTAET) is annotated with t 1 and t 2 , we then generate two positive training instances (d i \u21d2 t 1 and d i \u21d2 t 2 ) and n \u2212 2 negative training instances (",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 132,
+                        "end": 140,
+                        "text": "Figure 3",
+                        "ref_id": "FIGREF1"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "d i \u21d2 t j , 2 < j \u2264 n).",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "SC-DM model. Illustrated in Figure 3 (lower left), this model predicts whether a score context SC indicates a DM pair. To form training instances, we start with the list of DM pairs ({p 1 , p 2 , ..., p m }) from a taxonomy and a paper d i , which is annotated with a TDM triple t (containing p 1 ) and a numeric score s. We first try to extract the score contexts (SC) for all bolded numeric scores. If d i 's annotated score s is equal to one of the bolded scores s k (typically there should not be more than one), we generate a positive training instance (SC s k=1 \u21d2 p 1 ). Negative instances can be generated for this context by choosing other DM s not associated with the context, i.e., m \u2212 1 negative training instances (SC s k=1 \u21d2 p j , 1 < j \u2264 m). For example, an SC with \"ROUGE for anonymized CNN/Daily Mail\" might form a positive instance with DM <CNN / Daily Mail, ROUGE-L>, and then a negative instance with DM <Penn Treebank, LAS>. Additional negative training instances come from bolded scores s k which do not match s (e.g., SC s k \u21d2 p j , 1 < k, 1 \u2264 j \u2264 m).",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 28,
+                        "end": 36,
+                        "text": "Figure 3",
+                        "ref_id": "FIGREF1"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "TDMS-IE Classification Models",
+                "sec_num": "4.2.1"
+            },
+            {
+                "text": "During the inference stage (see Figure 3 (right) ), for a given scientific paper in PDF format, our system first uses the PDF parser and table extractor (described in Section 3) to generate the document representation DocTAET. We also extract all boldfaced scores and their contexts from each table. Next, we apply the DocTAET-TDM model to predict TDM triples among all TDM triple candidates for the paper 10 . Then, to extract scores for the predicted TDM triples, we apply the SC-DM model to every extracted score context (SC) and predicted DM pair (taken from the predicted TDM triples). This step tells us how likely it is that a Abstract: We present a joint model of three core tasks in the entity analysis stack: coreference resolution (within-document clustering), named entity recognition (coarse semantic typing), and entity linking (matching to Wikipedia entities). Our model is formally a structured conditional random field. Unary factors encode local features from strong baselines for each task. We then add binary and ternary factors to capture cross-task interactions, such as the constraint that coreferent mentions have the same semantic type. On the ACE 2005 and OntoNotes datasets, we achieve state-of-the-art results for all three tasks. Moreover, joint modeling improves performance on each task over strong independent baselines. ",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 32,
+                        "end": 48,
+                        "text": "Figure 3 (right)",
+                        "ref_id": "FIGREF1"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Inference",
+                "sec_num": "4.2.2"
+            },
+            {
+                "text": "We present a joint model of three core tasks in the entity analysis stack \u2026 ExpSetup We present results on two corpora. First, we use the ACE 2005 corpus (NIST, 2005): \u2026 TableInfo score context suggests a DM pair. Finally, for each predicted TDM triple, we select the score whose context has the highest confidence in predicting a link to the constituent DM pair.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Abstract",
+                "sec_num": null
+            },
+            {
+                "text": "We split NLP-TDMS (described in Section 3) into training and test sets. The partitioning ensures that every TDM triple annotated in NLP-TDMS appears both in the training and test set, so that a classifier will not have to predict unseen labels (or infer unseen hypotheses). Table 4 shows statistics on these two splits. The 77 leaderboards in this dataset constitute the set of n TDM triples we aim to predict (see Section 4.2).",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 274,
+                        "end": 281,
+                        "text": "Table 4",
+                        "ref_id": "TABREF7"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Training/Test Datasets",
+                "sec_num": "5.1"
+            },
+            {
+                "text": "For evaluation, we report macro-and microaveraged precision, recall, and F 1 score for extracting TDM triples and TDMS tuples over papers in the test set.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Training/Test Datasets",
+                "sec_num": "5.1"
+            },
+            {
+                "text": "Both of our models (DocTAET-TDM and SC-DM) have 12 transformer blocks, 768 hidden units, and 12 self-attention heads. For DocTAET-TDM, we first initialize it using BERT BASE , then fine-tune the model for 3 epochs with the learning rate of 5e \u2212 5. During training and testing, the maximum text length is set to 512 tokens. Note that the document representation DocTAET can contain more than 1000 tokens for some scientific papers, often due to very long content in ExpSetup and Table- Info. Therefore, in these cases, we use only the first 150 tokens from ExpSetup and TableInfo respectively.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 478,
+                        "end": 484,
+                        "text": "Table-",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Implementation Details",
+                "sec_num": "5.2"
+            },
+            {
+                "text": "We initialize the SC-DM model using the trained DocTAET-TDM model. We suspect that DocTAET-TDM already captures some of the relationship between score contexts and DM pairs. After initialization, we continue fine-tuning the model for 3 epochs with the learning rate of 5e\u22125. For SC-DM, we set a maximum token length of 128 for both training and testing.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Implementation Details",
+                "sec_num": "5.2"
+            },
+            {
+                "text": "In this section, we introduce three baselines against which we can evaluate our method.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Baselines",
+                "sec_num": "5.3"
+            },
+            {
+                "text": ". Given a paper, for each TDM triple, we first check whether the content of the title, abstract, or introduction contains the name of the task. Then we inspect the contexts of all extracted boldfaced scores to check whether:",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "(1) the name of the dataset is mentioned in the table caption and one of the associated column headers matches the metric name; or (2) the metric name is mentioned in the table caption and one of the associated column headers matches the dataset name. If more than one numeric score is identified during the previous step, we choose the highest or lowest value according to the property of the metric (e.g., accuracy should be high, while perplexity should be low).",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "Finally, if all of the above conditions are satisfied for a given paper, we predict the TDM triple along with the chosen score. Otherwise, we tag the paper as \"Unknown\".",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "Multi-label classification (MLC). For a machine learning baseline, we treat this task as a multi-class, multi-label classification problem where we would like to predict the TDM label for a given paper (as opposed to predicting whether we can infer a given TDM label based on the paper). The class labels are TDM triples and each paper can have multiple TDM labels as they may report results from different tasks, datasets, and with different metrics. For this classification we ignore instances with the 'Unknown' label in training because this does not form a coherent class (and would otherwise dominate the other classes). Then, for each paper, we extract bag-of-word features with tf-idf weights from the DocTAET representation described in Section 4. We train a multinomial logistic regression classifier implemented in scikit-learn (Pedregosa et al., 2011) using SAGA optimization (Defazio et al., 2014) . In this multi-label setting, the classifier can return an empty set of labels. When this is the case we take the most likely TDM label as the prediction.",
+                "cite_spans": [
+                    {
+                        "start": 839,
+                        "end": 863,
+                        "text": "(Pedregosa et al., 2011)",
+                        "ref_id": "BIBREF25"
+                    },
+                    {
+                        "start": 888,
+                        "end": 910,
+                        "text": "(Defazio et al., 2014)",
+                        "ref_id": "BIBREF11"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "After predicting TDM labels we need a separate baseline classifier to compare to the SC-DM model. Similar to the SC-DM model, the MLC should predict the best score based on the SC. For training this classifier we form instances from triples of paper, score, and SC (as described in Section 4), with a binary label for whether or not this score is the actual leaderboard score from the paper. This version of the training set for classification has 1647 instances, but is quite skewed with only 67 true labels. This skew is not as problematic because for this baseline we are not classifying whether or not the SC matches the leaderboard score, but instead we simply pick the most likely SC for a given paper. 11 The scores chosen (in this case one per paper) are combined with the TDM predictions above to form the final TDMS predictions reported in Section 6.1.",
+                "cite_spans": [
+                    {
+                        "start": 709,
+                        "end": 711,
+                        "text": "11",
+                        "ref_id": null
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "EntityLinking (EL) for TDM triples prediction. We apply the state-of-the-art IE system on scientific literature (Luan et al., 2018) to extract task, material and metric mentions from DocTAET. We then generate possible TDM triples by combining these three types of mentions (note that many combinations could be invalid TDM triples). Finally we link these candidates to the valid TDM triples in a taxonomy 12 based on Jaccard similarity. Specifically, we predict a TDM triple for a paper if the similarity score between the triple and a candidate is greater than \u03b1 (\u03b1 is estimated in the training set). If none of TDM triples was identified, we tag the paper as \"Unknown\".",
+                "cite_spans": [
+                    {
+                        "start": 112,
+                        "end": 131,
+                        "text": "(Luan et al., 2018)",
+                        "ref_id": "BIBREF22"
+                    }
+                ],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "6 Experimental Results",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "StringMatch (SM)",
+                "sec_num": null
+            },
+            {
+                "text": "We evaluate our TDMS-IE on the test dataset of NLP-TDMS. Table 5 shows the results of our model compared to baselines in different evaluation settings: TDM extraction (Table 5a) , TDM extraction excluding papers with \"Unknown\" annotation (Table 5b) , and TDMS extraction excluding papers with \"Unknown\" annotation (Table 5c ).",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 57,
+                        "end": 64,
+                        "text": "Table 5",
+                        "ref_id": "TABREF9"
+                    },
+                    {
+                        "start": 167,
+                        "end": 177,
+                        "text": "(Table 5a)",
+                        "ref_id": "TABREF9"
+                    },
+                    {
+                        "start": 238,
+                        "end": 248,
+                        "text": "(Table 5b)",
+                        "ref_id": "TABREF9"
+                    },
+                    {
+                        "start": 314,
+                        "end": 323,
+                        "text": "(Table 5c",
+                        "ref_id": "TABREF9"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Extraction Results on NLP-TDMS",
+                "sec_num": "6.1"
+            },
+            {
+                "text": "TDMS-IE outperforms baselines by a large margin in all evaluation metrics for the first two evaluation scenarios, where the task is to extract triples <Task, Dataset, Metric>. On testing papers with at least one TDM triple annotation, it achieves a macro F 1 score of 56.6 and a micro F 1 score of 66.0 for predicting TDM triples, versus the 37.3 macro F 1 , and 33.6 micro F 1 of the multi-label classification approach.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Extraction Results on NLP-TDMS",
+                "sec_num": "6.1"
+            },
+            {
+                "text": "However, when we add the score extraction (TDMS), even if TDMS-IE outperforms the baselines, the overall performances are still unsatisfactory, underlining the challenging nature of the task. A qualitative analysis showed that many of the errors were triggered by the noise from the table parser, e.g., failing to identify bolded numeric scores or column headers (see Table 1 ). Sometimes a few papers bold the numeric scores for methods from the previous work when comparing to the state-of-the-art results, and our model wrongly predicts these bolded scores for the targeting TDM triples.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 368,
+                        "end": 375,
+                        "text": "Table 1",
+                        "ref_id": "TABREF0"
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Extraction Results on NLP-TDMS",
+                "sec_num": "6.1"
+            },
+            {
+                "text": "To understand the effect of ExpSetup and Table- Info in document representation DocTAET for predicting TDM triples, we carry out an ablation experiment.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 41,
+                        "end": 47,
+                        "text": "Table-",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Ablations",
+                "sec_num": "6.2"
+            },
+            {
+                "text": "We train and test our system with DocTAET containing only Ti-tle+Abstract, Title+Abstract+ExpSetup, and Ti-tle+Abstract+TableInfo respectively. Table 6 reports the results of different configurations for DocTAET. We observe that both ExpSetup and TableInfo are helpful for predicting TDM triples. It also seems that descriptions from table captions and headers (TableInfo) are more informative than descriptions of experiments (ExpSetup).",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 144,
+                        "end": 151,
+                        "text": "Table 6",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Ablations",
+                "sec_num": "6.2"
+            },
+            {
+                "text": "To test whether our system can support to construct various leaderboards from a large number of NLP papers, we apply our model trained on the NLP-TDMS training set to ARC-PDN. We exclude five papers which also appear in the training set and predict TDMS tuples for each paper.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Results on ARC-PDN",
+                "sec_num": "6.3"
+            },
+            {
+                "text": "The set of 77 candidate TDM triples comes from the training data, and many of these contain datasets that appear only after 2015. Consequently, fewer papers are tagged with these triples. Therefore, for evaluation we manually choose ten TDM triples among all TDM triples with at least ten associated papers. These ten TDM triples cover various research areas in NLP and contain datasets appearing before 2015. For each chosen TDM triple, we rank predicted papers according to the confidence score from the DocTAET-TDM model and manually evaluate the top ten results. Table 7 reports P@1, P@3, P@5, and P@10 for each leaderboard (i.e., TDM triple). The macro Table 6 : Ablation experiments results of TDMS-IE for Task + Dataset + Metric prediction.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 567,
+                        "end": 574,
+                        "text": "Table 7",
+                        "ref_id": null
+                    },
+                    {
+                        "start": 658,
+                        "end": 665,
+                        "text": "Table 6",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Results on ARC-PDN",
+                "sec_num": "6.3"
+            },
+            {
+                "text": "Task:Dataset:Metric P@1 P@3 P@5 P@10 #Correct Score #Wrong Task Dependency parsing:Penn Treebank:UAS 1.0 1.0 0.8 0.9 2 0 Summarization: Table 7 : Results of TDMS-IE for ten leaderboards on ARC-PDN.",
+                "cite_spans": [],
+                "ref_spans": [
+                    {
+                        "start": 136,
+                        "end": 143,
+                        "text": "Table 7",
+                        "ref_id": null
+                    }
+                ],
+                "eq_spans": [],
+                "section": "Results on ARC-PDN",
+                "sec_num": "6.3"
+            },
+            {
+                "text": "average P@1 and P@3 are 0.70 and 0.67, respectively, which is encouraging. Overall, 86% of papers are related to the target task T. We found that most false positives are due to the fact that these papers conduct research on the target task T, but report results on a different dataset or use the target dataset D as a resource to extract features. For instance, most predicted papers for the leaderboard <Machine translation, WMT 2014 EN-FR, BLEU> are papers about Machine translation but these papers report results on the dataset WMT 2012 EN-FR or WMT 2014 EN-DE. For TDMS extraction, only five extracted TDMS tuples are correct. This is a challenging task and more efforts are required to address it in the future.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Results on ARC-PDN",
+                "sec_num": "6.3"
+            },
+            {
+                "text": "Since our framework in principle captures the similarities between DocTAET and various TDM triples, we estimate that it can perform zero-shot classification of new TDM triples at test time.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Zero-shot TDM Classification",
+                "sec_num": "7"
+            },
+            {
+                "text": "We split NLP-TDMS (Full) into the training/test sets. The training set contains 210 papers with 96 (distinctive) TDM triple annotations and the test set contains 108 papers whose TDM triple annotations do not appear in the training set. We train our DocTAET-TDM model on the training set as described in Section 4.2.1. At test time, we use all valid TDM triples from NLP-TDMS (Full) to form the hypothesis space. To improve efficiency, one could also reduce this hypothesis space by focusing on the related Task or Dataset mentioned in the paper.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Zero-shot TDM Classification",
+                "sec_num": "7"
+            },
+            {
+                "text": "On the test set of zero-shot TDM pairs classification, our model achieves a macro F 1 score of 41.6 and a micro F 1 score of 54.9, versus the 56.6 macro F 1 , and 66.0 micro F 1 of the few-shot TDM pairs classification described in Section 6.1.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Zero-shot TDM Classification",
+                "sec_num": "7"
+            },
+            {
+                "text": "In this paper, we have reported a framework to automatically extract tasks, datasets, evaluation metrics and scores from a set of published scientific papers in PDF format, in order to reconstruct the leaderboards for various tasks. We have proposed a method, inspired by natural language inference, to facilitate learning similarity patterns between labels and the content words of papers. Our first model extracts <Task, Dataset, Metric> (TDM) triples, and our second model associates the best score reported in the paper to the corresponding TDM triple. We created two datasets in the NLP domain to test our system. Experiments show that our model outperforms the baselines by a large margin in the identification of TDM triples.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Conclusions",
+                "sec_num": "8"
+            },
+            {
+                "text": "In the future, more effort is needed to extract the best score. Also the work reported in this paper is based on a small TDM taxonomy, we plan to construct a TDM knowledge base and provide an applicable system for a wide range of NLP papers.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Conclusions",
+                "sec_num": "8"
+            },
+            {
+                "text": "https://arxiv.org/",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "",
+                "sec_num": null
+            },
+            {
+                "text": "https://github.com/sebastianruder/ NLP-progress",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "",
+                "sec_num": null
+            },
+            {
+                "text": "In this paper, we focus on tagging papers with different leaderboards (i.e., TDM triples). For each leaderboard table, an ideal situation would be to extract all results reported in the same paper and associate them to different methods, we leave this for future work.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "",
+                "sec_num": null
+            },
+            {
+                "text": "The TDM triple candidates could be the valid TDM triples from the training set, or a set of TDM triples from a taxonomy.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "",
+                "sec_num": null
+            },
+            {
+                "text": "Papers in the test set have an average of 47.3 scores to choose between.12 In this experiment, the taxonomy consists of 77 TDM triples reported inTable 4.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "",
+                "sec_num": null
+            }
+        ],
+        "back_matter": [
+            {
+                "text": "The authors appreciate the valuable feedback from the anonymous reviewers.",
+                "cite_spans": [],
+                "ref_spans": [],
+                "eq_spans": [],
+                "section": "Acknowledgments",
+                "sec_num": null
+            }
+        ],
+        "bib_entries": {
+            "BIBREF0": {
+                "ref_id": "b0",
+                "title": "Construction of the literature graph in semantic scholar",
+                "authors": [
+                    {
+                        "first": "Waleed",
+                        "middle": [],
+                        "last": "Ammar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dirk",
+                        "middle": [],
+                        "last": "Groeneveld",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Chandra",
+                        "middle": [],
+                        "last": "Bhagavatula",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Iz",
+                        "middle": [],
+                        "last": "Beltagy",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Miles",
+                        "middle": [],
+                        "last": "Crawford",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Doug",
+                        "middle": [],
+                        "last": "Downey",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Jason",
+                        "middle": [],
+                        "last": "Dunkelberger",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Ahmed",
+                        "middle": [],
+                        "last": "Elgohary",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Sergey",
+                        "middle": [],
+                        "last": "Feldman",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Vu",
+                        "middle": [],
+                        "last": "Ha",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Rodney",
+                        "middle": [],
+                        "last": "Kinney",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Sebastian",
+                        "middle": [],
+                        "last": "Kohlmeier",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Kyle",
+                        "middle": [],
+                        "last": "Lo",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Tyler",
+                        "middle": [],
+                        "last": "Murray",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "",
+                        "middle": [],
+                        "last": "Hsu-Han",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Matthew",
+                        "middle": [],
+                        "last": "Ooi",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Joanna",
+                        "middle": [],
+                        "last": "Peters",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Sam",
+                        "middle": [],
+                        "last": "Power",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Lucy",
+                        "middle": [],
+                        "last": "Skjonsberg",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Chris",
+                        "middle": [],
+                        "last": "Wang",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Zheng",
+                        "middle": [],
+                        "last": "Willhelm",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Madeleine",
+                        "middle": [],
+                        "last": "Yuan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Oren",
+                        "middle": [],
+                        "last": "Van Zuylen",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "",
+                        "middle": [],
+                        "last": "Etzioni",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+                "volume": "3",
+                "issue": "",
+                "pages": "84--91",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Waleed Ammar, Dirk Groeneveld, Chandra Bhagavat- ula, Iz Beltagy, Miles Crawford, Doug Downey, Ja- son Dunkelberger, Ahmed Elgohary, Sergey Feld- man, Vu Ha, Rodney Kinney, Sebastian Kohlmeier, Kyle Lo, Tyler Murray, Hsu-Han Ooi, Matthew Peters, Joanna Power, Sam Skjonsberg, Lucy Wang, Chris Willhelm, Zheng Yuan, Madeleine van Zuylen, and Oren Etzioni. 2018. Construction of the literature graph in semantic scholar. In Proceed- ings of the 2018 Conference of the North American Chapter of the Association for Computational Lin- guistics: Human Language Technologies, Volume 3 (Industry Papers), New Orleans, Louisiana, 1 -6 June 2018, pages 84-91.",
+                "links": null
+            },
+            "BIBREF1": {
+                "ref_id": "b1",
+                "title": "The AI2 system at SemEval-2017 Task 10 (ScienceIE): Semisupervised end-to-end entity and relation extraction",
+                "authors": [
+                    {
+                        "first": "Waleed",
+                        "middle": [],
+                        "last": "Ammar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Matthew",
+                        "middle": [],
+                        "last": "Peters",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Chandra",
+                        "middle": [],
+                        "last": "Bhagavatula",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Russell",
+                        "middle": [],
+                        "last": "Power",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the 11th International Workshop on Semantic Evaluation",
+                "volume": "",
+                "issue": "",
+                "pages": "592--596",
+                "other_ids": {
+                    "DOI": [
+                        "10.18653/v1/S17-2097"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "Waleed Ammar, Matthew Peters, Chandra Bhaga- vatula, and Russell Power. 2017. The AI2 sys- tem at SemEval-2017 Task 10 (ScienceIE): Semi- supervised end-to-end entity and relation extraction. In Proceedings of the 11th International Workshop on Semantic Evaluation (SemEval-2017), Vancou- ver, Canada, 3 -4 August 2017, pages 592-596.",
+                "links": null
+            },
+            "BIBREF2": {
+                "ref_id": "b2",
+                "title": "Improvements that don't add up: Ad-hoc retrieval results since 1998",
+                "authors": [
+                    {
+                        "first": "Timothy",
+                        "middle": [
+                            "G"
+                        ],
+                        "last": "Armstrong",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Alistair",
+                        "middle": [],
+                        "last": "Moffat",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "William",
+                        "middle": [],
+                        "last": "Webber",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Justin",
+                        "middle": [],
+                        "last": "Zobel",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2009,
+                "venue": "Proceedings of the ACM 18th Conference on Information and Knowledge Management (CIKM 2009)",
+                "volume": "",
+                "issue": "",
+                "pages": "601--610",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Timothy G. Armstrong, Alistair Moffat, William Web- ber, and Justin Zobel. 2009. Improvements that don't add up: Ad-hoc retrieval results since 1998. In Proceedings of the ACM 18th Conference on Infor- mation and Knowledge Management (CIKM 2009), Hong Kong, China, 2-6 November 2009, pages 601-610.",
+                "links": null
+            },
+            "BIBREF3": {
+                "ref_id": "b3",
+                "title": "Attention is all you need",
+                "authors": [
+                    {
+                        "first": "Vaswani",
+                        "middle": [],
+                        "last": "Ashish",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Shazeer",
+                        "middle": [],
+                        "last": "Noam",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Parmar",
+                        "middle": [],
+                        "last": "Niki",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Uszkoreit",
+                        "middle": [],
+                        "last": "Jakob",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Jones",
+                        "middle": [],
+                        "last": "Llion",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "N",
+                        "middle": [],
+                        "last": "Gomez Aidan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Kaiser",
+                        "middle": [],
+                        "last": "Lukasz",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Polosukhin",
+                        "middle": [],
+                        "last": "Illia",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Advances in Neural Information Processing Systems",
+                "volume": "30",
+                "issue": "",
+                "pages": "1--11",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Vaswani Ashish, Shazeer Noam, Parmar Niki, Uszko- reit Jakob, Jones Llion, Gomez Aidan N., Kaiser Lukasz, and Polosukhin Illia. 2017. Attention is all you need. In Advances in Neural Information Pro- cessing Systems 30 (NIPS 2017), pages 1-11.",
+                "links": null
+            },
+            "BIBREF4": {
+                "ref_id": "b4",
+                "title": "Contextenhanced citation sentiment detection",
+                "authors": [
+                    {
+                        "first": "Awais",
+                        "middle": [],
+                        "last": "Athar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Simone",
+                        "middle": [],
+                        "last": "Teufel",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2012,
+                "venue": "Proceedings of the 2012 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+                "volume": "",
+                "issue": "",
+                "pages": "597--601",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Awais Athar and Simone Teufel. 2012a. Context- enhanced citation sentiment detection. In Proceed- ings of the 2012 Conference of the North American Chapter of the Association for Computational Lin- guistics: Human Language Technologies, Montr\u00e9al, Qu\u00e9bec, Canada, 3-8 June 2012, pages 597-601.",
+                "links": null
+            },
+            "BIBREF5": {
+                "ref_id": "b5",
+                "title": "Detection of implicit citations for sentiment detection",
+                "authors": [
+                    {
+                        "first": "Awais",
+                        "middle": [],
+                        "last": "Athar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Simone",
+                        "middle": [],
+                        "last": "Teufel",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2012,
+                "venue": "Proceedings of the Workshop on Detecting Structure in Scholarly Discourse",
+                "volume": "",
+                "issue": "",
+                "pages": "18--26",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Awais Athar and Simone Teufel. 2012b. Detection of implicit citations for sentiment detection. In Pro- ceedings of the Workshop on Detecting Structure in Scholarly Discourse, Jeju Island, Republic of Korea, 12 July, pages 18-26.",
+                "links": null
+            },
+            "BIBREF6": {
+                "ref_id": "b6",
+                "title": "ScienceIE -Extracting keyphrases and relations from scientific publications",
+                "authors": [
+                    {
+                        "first": "Isabelle",
+                        "middle": [],
+                        "last": "Augenstein",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Mrinal",
+                        "middle": [],
+                        "last": "Das",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Sebastian",
+                        "middle": [],
+                        "last": "Riedel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Lakshmi",
+                        "middle": [],
+                        "last": "Vikraman",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Andrew",
+                        "middle": [],
+                        "last": "Mccallum",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the 11th International Workshop on Semantic Evaluation",
+                "volume": "10",
+                "issue": "",
+                "pages": "546--555",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Isabelle Augenstein, Mrinal Das, Sebastian Riedel, Lakshmi Vikraman, and Andrew McCallum. 2017. SemEval 2017 Task 10: ScienceIE -Extracting keyphrases and relations from scientific publica- tions. In Proceedings of the 11th International Workshop on Semantic Evaluation (SemEval-2017), Vancouver, Canada, 3 -4 August 2017, pages 546- 555.",
+                "links": null
+            },
+            "BIBREF7": {
+                "ref_id": "b7",
+                "title": "Multitask learning of keyphrase boundary classification",
+                "authors": [
+                    {
+                        "first": "Isabelle",
+                        "middle": [],
+                        "last": "Augenstein",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Anders",
+                        "middle": [],
+                        "last": "S\u00f8gaard",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics",
+                "volume": "2",
+                "issue": "",
+                "pages": "341--346",
+                "other_ids": {
+                    "DOI": [
+                        "10.18653/v1/P17-2054"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "Isabelle Augenstein and Anders S\u00f8gaard. 2017. Multi- task learning of keyphrase boundary classification. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers), Vancouver, Canada, 30 July -4 August 2017, pages 341-346.",
+                "links": null
+            },
+            "BIBREF8": {
+                "ref_id": "b8",
+                "title": "The ACL anthology reference corpus: A reference dataset for bibliographic research in computational linguistics",
+                "authors": [
+                    {
+                        "first": "Steven",
+                        "middle": [],
+                        "last": "Bird",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Robert",
+                        "middle": [],
+                        "last": "Dale",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Bonnie",
+                        "middle": [],
+                        "last": "Dorr",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Bryan",
+                        "middle": [],
+                        "last": "Gibson",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Mark",
+                        "middle": [],
+                        "last": "Joseph",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Min-Yen",
+                        "middle": [],
+                        "last": "Kan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dongwon",
+                        "middle": [],
+                        "last": "Lee",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Brett",
+                        "middle": [],
+                        "last": "Powley",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dragomir",
+                        "middle": [],
+                        "last": "Radev",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Yee",
+                        "middle": [
+                            "Fan"
+                        ],
+                        "last": "Tan",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2008,
+                "venue": "Proceedings of the 6th International Conference on Language Resources and Evaluation",
+                "volume": "",
+                "issue": "",
+                "pages": "1755--1759",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Steven Bird, Robert Dale, Bonnie Dorr, Bryan Gibson, Mark Joseph, Min-Yen Kan, Dongwon Lee, Brett Powley, Dragomir Radev, and Yee Fan Tan. 2008. The ACL anthology reference corpus: A reference dataset for bibliographic research in computational linguistics. In Proceedings of the 6th International Conference on Language Resources and Evaluation, Marrakech, Morocco, 26 May -1 June 2008, pages 1755-1759.",
+                "links": null
+            },
+            "BIBREF9": {
+                "ref_id": "b9",
+                "title": "A large annotated corpus for learning natural language inference",
+                "authors": [
+                    {
+                        "first": "R",
+                        "middle": [],
+                        "last": "Samuel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Gabor",
+                        "middle": [],
+                        "last": "Bowman",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Christopher",
+                        "middle": [],
+                        "last": "Angeli",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Christopher",
+                        "middle": [
+                            "D"
+                        ],
+                        "last": "Potts",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "",
+                        "middle": [],
+                        "last": "Manning",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2015,
+                "venue": "Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing",
+                "volume": "",
+                "issue": "",
+                "pages": "632--642",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Samuel R. Bowman, Gabor Angeli, Christopher Potts, and Christopher D. Manning. 2015. A large anno- tated corpus for learning natural language inference. In Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing, Lisbon, Portugal, 17-21 September 2015, pages 632-642.",
+                "links": null
+            },
+            "BIBREF10": {
+                "ref_id": "b10",
+                "title": "The PASCAL recognising textual entailment challenge",
+                "authors": [
+                    {
+                        "first": "Oren",
+                        "middle": [],
+                        "last": "Ido Dagan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Bernardo",
+                        "middle": [],
+                        "last": "Glickman",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "",
+                        "middle": [],
+                        "last": "Magnini",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2006,
+                "venue": "Machine Learning Challenges",
+                "volume": "",
+                "issue": "",
+                "pages": "177--190",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Ido Dagan, Oren Glickman, and Bernardo Magnini. 2006. The PASCAL recognising textual entailment challenge. In Machine Learning Challenges, pages 177-190, Heidelberg, Germany.",
+                "links": null
+            },
+            "BIBREF11": {
+                "ref_id": "b11",
+                "title": "SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives",
+                "authors": [
+                    {
+                        "first": "Aaron",
+                        "middle": [],
+                        "last": "Defazio",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Francis",
+                        "middle": [],
+                        "last": "Bach",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Simon",
+                        "middle": [],
+                        "last": "Lacoste-Julien",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2014,
+                "venue": "Advances in Neural Information Processing Systems 27 (NIPS 2014)",
+                "volume": "",
+                "issue": "",
+                "pages": "1646--1654",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Aaron Defazio, Francis Bach, and Simon Lacoste- Julien. 2014. SAGA: A fast incremental gradient method with support for non-strongly convex com- posite objectives. In Advances in Neural Infor- mation Processing Systems 27 (NIPS 2014), pages 1646-1654.",
+                "links": null
+            },
+            "BIBREF12": {
+                "ref_id": "b12",
+                "title": "BERT: pre-training of deep bidirectional transformers for language understanding",
+                "authors": [
+                    {
+                        "first": "Jacob",
+                        "middle": [],
+                        "last": "Devlin",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Ming-Wei",
+                        "middle": [],
+                        "last": "Chang",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Kenton",
+                        "middle": [],
+                        "last": "Lee",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Kristina",
+                        "middle": [],
+                        "last": "Toutanova",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2019,
+                "venue": "Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+                "volume": "",
+                "issue": "",
+                "pages": "4171--4186",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: pre-training of deep bidirectional transformers for language under- standing. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Tech- nologies, Minneapolis, USA, 2-7 June 2019, pages 4171-4186.",
+                "links": null
+            },
+            "BIBREF13": {
+                "ref_id": "b13",
+                "title": "Generating pattern-based entailment graphs for relation extraction",
+                "authors": [
+                    {
+                        "first": "Kathrin",
+                        "middle": [],
+                        "last": "Eichler",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Feiyu",
+                        "middle": [],
+                        "last": "Xu",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Hans",
+                        "middle": [],
+                        "last": "Uszkoreit",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Sebastian",
+                        "middle": [],
+                        "last": "Krause",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the 6th Joint Conference on Lexical and Computational Semantics (*SEM 2017)",
+                "volume": "",
+                "issue": "",
+                "pages": "220--229",
+                "other_ids": {
+                    "DOI": [
+                        "10.18653/v1/S17-1026"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "Kathrin Eichler, Feiyu Xu, Hans Uszkoreit, and Sebas- tian Krause. 2017. Generating pattern-based entail- ment graphs for relation extraction. In Proceedings of the 6th Joint Conference on Lexical and Computa- tional Semantics (*SEM 2017), Vancouver, Canada, 3 -4 August 2017, pages 220-229.",
+                "links": null
+            },
+            "BIBREF14": {
+                "ref_id": "b14",
+                "title": "Introduction to the special issue on reproducibility in information retrieval: Evaluation campaigns, collections, and analyses",
+                "authors": [
+                    {
+                        "first": "Nicola",
+                        "middle": [],
+                        "last": "Ferro",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Norbert",
+                        "middle": [],
+                        "last": "Fuhr",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Andreas",
+                        "middle": [],
+                        "last": "Rauber",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Journal of Data and Information Quality",
+                "volume": "10",
+                "issue": "3",
+                "pages": "",
+                "other_ids": {
+                    "DOI": [
+                        "10.1145/3268408"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "Nicola Ferro, Norbert Fuhr, and Andreas Rauber. 2018. Introduction to the special issue on reproducibility in information retrieval: Evaluation campaigns, collec- tions, and analyses. Journal of Data and Informa- tion Quality, 10(3):9:1-9:4.",
+                "links": null
+            },
+            "BIBREF15": {
+                "ref_id": "b15",
+                "title": "Semeval-2018 task 7: Semantic relation extraction and classification in scientific papers",
+                "authors": [
+                    {
+                        "first": "Kata",
+                        "middle": [],
+                        "last": "G\u00e1bor",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Davide",
+                        "middle": [],
+                        "last": "Buscaldi",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Anne-Kathrin",
+                        "middle": [],
+                        "last": "Schumann",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Behrang",
+                        "middle": [],
+                        "last": "Qasemizadeh",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Ha\u00effa",
+                        "middle": [],
+                        "last": "Zargayouna",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Thierry",
+                        "middle": [],
+                        "last": "Charnois",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Proceedings of The 12th International Workshop on Semantic Evaluation, SemEval@NAACL-HLT",
+                "volume": "",
+                "issue": "",
+                "pages": "679--688",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Kata G\u00e1bor, Davide Buscaldi, Anne-Kathrin Schu- mann, Behrang QasemiZadeh, Ha\u00effa Zargayouna, and Thierry Charnois. 2018. Semeval-2018 task 7: Semantic relation extraction and classification in scientific papers. In Proceedings of The 12th International Workshop on Semantic Evaluation, SemEval@NAACL-HLT, New Orleans, Louisiana, June 5-6, 2018, pages 679-688.",
+                "links": null
+            },
+            "BIBREF16": {
+                "ref_id": "b16",
+                "title": "Analyzing the dynamics of research by extracting key aspects of scientific papers",
+                "authors": [
+                    {
+                        "first": "Sonal",
+                        "middle": [],
+                        "last": "Gupta",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Christopher",
+                        "middle": [],
+                        "last": "Manning",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2011,
+                "venue": "Proceedings of 5th international joint conference on natural language processing",
+                "volume": "",
+                "issue": "",
+                "pages": "1--9",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Sonal Gupta and Christopher Manning. 2011. Ana- lyzing the dynamics of research by extracting key aspects of scientific papers. In Proceedings of 5th international joint conference on natural language processing, Chiang Mai, Thailand, 8-13 November 2011, pages 1-9.",
+                "links": null
+            },
+            "BIBREF17": {
+                "ref_id": "b17",
+                "title": "Semantic annotation of the ACL anthology corpus for the automatic analysis of scientific literature",
+                "authors": [
+                    {
+                        "first": "Kata",
+                        "middle": [],
+                        "last": "Gbor",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Haifa",
+                        "middle": [],
+                        "last": "Zargayouna",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Davide",
+                        "middle": [],
+                        "last": "Buscaldi",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2016,
+                "venue": "Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016)",
+                "volume": "",
+                "issue": "",
+                "pages": "23--28",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Kata Gbor, Haifa Zargayouna, Davide Buscaldi, Is- abelle Tellier, and Thierry Charnois. 2016. Seman- tic annotation of the ACL anthology corpus for the automatic analysis of scientific literature. In Pro- ceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portoro, Slovenia, 23-28 May 2016.",
+                "links": null
+            },
+            "BIBREF18": {
+                "ref_id": "b18",
+                "title": "Measuring the evolution of a scientific field through citation frames",
+                "authors": [
+                    {
+                        "first": "David",
+                        "middle": [],
+                        "last": "Jurgens",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Srijan",
+                        "middle": [],
+                        "last": "Kumar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Raine",
+                        "middle": [],
+                        "last": "Hoover",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dan",
+                        "middle": [],
+                        "last": "Mc-Farland",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dan",
+                        "middle": [],
+                        "last": "Jurafsky",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Transactions of the Association for Computational Linguistics",
+                "volume": "6",
+                "issue": "",
+                "pages": "391--406",
+                "other_ids": {
+                    "DOI": [
+                        "10.1162/tacl_a_00028"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "David Jurgens, Srijan Kumar, Raine Hoover, Dan Mc- Farland, and Dan Jurafsky. 2018. Measuring the evolution of a scientific field through citation frames. Transactions of the Association for Computational Linguistics, 6:391-406.",
+                "links": null
+            },
+            "BIBREF19": {
+                "ref_id": "b19",
+                "title": "Semantic sentence matching with densely-connected recurrent and co-attentive information",
+                "authors": [
+                    {
+                        "first": "Seonhoon",
+                        "middle": [],
+                        "last": "Kim",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Jin-Hyuk",
+                        "middle": [],
+                        "last": "Hong",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Inho",
+                        "middle": [],
+                        "last": "Kang",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "No",
+                        "middle": [],
+                        "last": "",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2019,
+                "venue": "Proceedings of the 33rd AAAI Conference on Artificial Intelligence",
+                "volume": "",
+                "issue": "",
+                "pages": "",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Seonhoon Kim, Jin-Hyuk Hong, Inho Kang, and No- jun Kwak. 2019. Semantic sentence matching with densely-connected recurrent and co-attentive infor- mation. In Proceedings of the 33rd AAAI Con- ference on Artificial Intelligence, Hawaii, USA, 27",
+                "links": null
+            },
+            "BIBREF20": {
+                "ref_id": "b20",
+                "title": "Multi-task deep neural networks for natural language understanding",
+                "authors": [
+                    {
+                        "first": "Xiaodong",
+                        "middle": [],
+                        "last": "Liu",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Pengcheng",
+                        "middle": [],
+                        "last": "He",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Weizhu",
+                        "middle": [],
+                        "last": "Chen",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Jianfeng",
+                        "middle": [],
+                        "last": "Gao",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2019,
+                "venue": "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+                "volume": "",
+                "issue": "",
+                "pages": "",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Xiaodong Liu, Pengcheng He, Weizhu Chen, and Jian- feng Gao. 2019. Multi-task deep neural networks for natural language understanding. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics, Florence, Italy, 28 July- 2 August 2019.",
+                "links": null
+            },
+            "BIBREF21": {
+                "ref_id": "b21",
+                "title": "GROBID: combining automatic bibliographic data recognition and term extraction for scholarship publications",
+                "authors": [
+                    {
+                        "first": "Patrice",
+                        "middle": [],
+                        "last": "Lopez",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2009,
+                "venue": "The 13th European Conference on Digital Libraries",
+                "volume": "",
+                "issue": "",
+                "pages": "473--474",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Patrice Lopez. 2009. GROBID: combining automatic bibliographic data recognition and term extraction for scholarship publications. In The 13th Euro- pean Conference on Digital Libraries (ECDL 2009), Corfu, Greece, 27 September 27 -2 October, 2009, pages 473-474.",
+                "links": null
+            },
+            "BIBREF22": {
+                "ref_id": "b22",
+                "title": "Multi-task identification of entities, relations, and coreference for scientific knowledge graph construction",
+                "authors": [
+                    {
+                        "first": "Yi",
+                        "middle": [],
+                        "last": "Luan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Luheng",
+                        "middle": [],
+                        "last": "He",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Mari",
+                        "middle": [],
+                        "last": "Ostendorf",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Hannaneh",
+                        "middle": [],
+                        "last": "Hajishirzi",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+                "volume": "",
+                "issue": "",
+                "pages": "3219--3232",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Yi Luan, Luheng He, Mari Ostendorf, and Hannaneh Hajishirzi. 2018. Multi-task identification of enti- ties, relations, and coreference for scientific knowl- edge graph construction. In Proceedings of the 2018 Conference on Empirical Methods in Natural Lan- guage Processing, Brussels, Belgium, 31 October- 4 November 2018, pages 3219-3232.",
+                "links": null
+            },
+            "BIBREF23": {
+                "ref_id": "b23",
+                "title": "Scientific information extraction with semisupervised neural tagging",
+                "authors": [
+                    {
+                        "first": "Yi",
+                        "middle": [],
+                        "last": "Luan",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Mari",
+                        "middle": [],
+                        "last": "Ostendorf",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Hannaneh",
+                        "middle": [],
+                        "last": "Hajishirzi",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing",
+                "volume": "",
+                "issue": "",
+                "pages": "2641--2651",
+                "other_ids": {
+                    "DOI": [
+                        "10.18653/v1/D17-1279"
+                    ]
+                },
+                "num": null,
+                "urls": [],
+                "raw_text": "Yi Luan, Mari Ostendorf, and Hannaneh Hajishirzi. 2017. Scientific information extraction with semi- supervised neural tagging. In Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing, Copenhagen, Denmark, 7-11 November 2017, pages 2641-2651.",
+                "links": null
+            },
+            "BIBREF24": {
+                "ref_id": "b24",
+                "title": "Zeroshot relation classification as textual entailment",
+                "authors": [
+                    {
+                        "first": "Abiola",
+                        "middle": [],
+                        "last": "Obamuyide",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Andreas",
+                        "middle": [],
+                        "last": "Vlachos",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Proceedings of the First Workshop on Fact Extraction and VERification (FEVER)",
+                "volume": "",
+                "issue": "",
+                "pages": "72--78",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Abiola Obamuyide and Andreas Vlachos. 2018. Zero- shot relation classification as textual entailment. In Proceedings of the First Workshop on Fact Extrac- tion and VERification (FEVER), Brussels, Belgium, 1 November 2018, pages 72-78.",
+                "links": null
+            },
+            "BIBREF25": {
+                "ref_id": "b25",
+                "title": "Scikit-learn: Machine learning in Python",
+                "authors": [
+                    {
+                        "first": "F",
+                        "middle": [],
+                        "last": "Pedregosa",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "G",
+                        "middle": [],
+                        "last": "Varoquaux",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "A",
+                        "middle": [],
+                        "last": "Gramfort",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "V",
+                        "middle": [],
+                        "last": "Michel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "B",
+                        "middle": [],
+                        "last": "Thirion",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "O",
+                        "middle": [],
+                        "last": "Grisel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "M",
+                        "middle": [],
+                        "last": "Blondel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "P",
+                        "middle": [],
+                        "last": "Prettenhofer",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "R",
+                        "middle": [],
+                        "last": "Weiss",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "V",
+                        "middle": [],
+                        "last": "Dubourg",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "J",
+                        "middle": [],
+                        "last": "Vanderplas",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "A",
+                        "middle": [],
+                        "last": "Passos",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "D",
+                        "middle": [],
+                        "last": "Cournapeau",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "M",
+                        "middle": [],
+                        "last": "Brucher",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "M",
+                        "middle": [],
+                        "last": "Perrot",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "E",
+                        "middle": [],
+                        "last": "Duchesnay",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2011,
+                "venue": "Journal of Machine Learning Research",
+                "volume": "12",
+                "issue": "",
+                "pages": "2825--2830",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "F. Pedregosa, G. Varoquaux, A. Gramfort, V. Michel, B. Thirion, O. Grisel, M. Blondel, P. Pretten- hofer, R. Weiss, V. Dubourg, J. Vanderplas, A. Pas- sos, D. Cournapeau, M. Brucher, M. Perrot, and E. Duchesnay. 2011. Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12:2825-2830.",
+                "links": null
+            },
+            "BIBREF26": {
+                "ref_id": "b26",
+                "title": "Collecting diverse natural language inference problems for sentence representation evaluation",
+                "authors": [
+                    {
+                        "first": "Adam",
+                        "middle": [],
+                        "last": "Poliak",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Aparajita",
+                        "middle": [],
+                        "last": "Haldar",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Rachel",
+                        "middle": [],
+                        "last": "Rudinger",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "J",
+                        "middle": [
+                            "Edward"
+                        ],
+                        "last": "Hu",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Ellie",
+                        "middle": [],
+                        "last": "Pavlick",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Aaron",
+                        "middle": [
+                            "Steven"
+                        ],
+                        "last": "White",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Benjamin",
+                        "middle": [],
+                        "last": "Van Durme",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2018,
+                "venue": "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+                "volume": "",
+                "issue": "",
+                "pages": "",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Adam Poliak, Aparajita Haldar, Rachel Rudinger, J. Edward Hu, Ellie Pavlick, Aaron Steven White, and Benjamin Van Durme. 2018. Collecting di- verse natural language inference problems for sen- tence representation evaluation. In Proceedings of the 2018 Conference on Empirical Methods in Nat- ural Language Processing, Brussels, Belgium, 31",
+                "links": null
+            },
+            "BIBREF27": {
+                "ref_id": "b27",
+                "title": "Concept-based analysis of scientific literature",
+                "authors": [
+                    {
+                        "first": "Chen-Tse",
+                        "middle": [],
+                        "last": "Tsai",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Gourab",
+                        "middle": [],
+                        "last": "Kundu",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dan",
+                        "middle": [],
+                        "last": "Roth",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2013,
+                "venue": "Proceedings of the ACM 22nd Conference on Information and Knowledge Management (CIKM 2013)",
+                "volume": "",
+                "issue": "",
+                "pages": "1733--1738",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Chen-Tse Tsai, Gourab Kundu, and Dan Roth. 2013. Concept-based analysis of scientific literature. In Proceedings of the ACM 22nd Conference on Infor- mation and Knowledge Management (CIKM 2013), San Francisco, California, 27 October-1 November 2013, pages 1733-1738.",
+                "links": null
+            },
+            "BIBREF28": {
+                "ref_id": "b28",
+                "title": "He said, she said: Gender in the acl anthology",
+                "authors": [
+                    {
+                        "first": "Adam",
+                        "middle": [],
+                        "last": "Vogel",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Dan",
+                        "middle": [],
+                        "last": "Jurafsky",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2012,
+                "venue": "Proceedings of the ACL-2012 Special Workshop on Rediscovering 50 Years of Discoveries",
+                "volume": "",
+                "issue": "",
+                "pages": "33--41",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Adam Vogel and Dan Jurafsky. 2012. He said, she said: Gender in the acl anthology. In Proceedings of the ACL-2012 Special Workshop on Rediscover- ing 50 Years of Discoveries, Jeju Island, Republic of Korea, 10 July, pages 33-41.",
+                "links": null
+            },
+            "BIBREF29": {
+                "ref_id": "b29",
+                "title": "Inference is everything: Recasting semantic resources into a unified evaluation framework",
+                "authors": [
+                    {
+                        "first": "Aaron",
+                        "middle": [],
+                        "last": "Steven White",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Pushpendre",
+                        "middle": [],
+                        "last": "Rastogi",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Kevin",
+                        "middle": [],
+                        "last": "Duh",
+                        "suffix": ""
+                    },
+                    {
+                        "first": "Benjamin",
+                        "middle": [],
+                        "last": "Van Durme",
+                        "suffix": ""
+                    }
+                ],
+                "year": 2017,
+                "venue": "Proceedings of the Eighth International Joint Conference on Natural Language Processing",
+                "volume": "",
+                "issue": "",
+                "pages": "996--1005",
+                "other_ids": {},
+                "num": null,
+                "urls": [],
+                "raw_text": "Aaron Steven White, Pushpendre Rastogi, Kevin Duh, and Benjamin Van Durme. 2017. Inference is ev- erything: Recasting semantic resources into a uni- fied evaluation framework. In Proceedings of the Eighth International Joint Conference on Natural Language Processing (IJCNLP 2017), Taipei, Tai- wan, 27 November -1 December 2017, pages 996- 1005.",
+                "links": null
+            }
+        },
+        "ref_entries": {
+            "FIGREF0": {
+                "num": null,
+                "type_str": "figure",
+                "uris": null,
+                "text": "for Entity Analysis: Coreference, Typing, and Linking"
+            },
+            "FIGREF1": {
+                "num": null,
+                "type_str": "figure",
+                "uris": null,
+                "text": "System architecture for TDMS-IE."
+            },
+            "TABREF0": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table><tr><td>mEval 2018 Task 7) with a dataset of 350 anno-</td></tr><tr><td>tated abstracts. Ammar et al. (2017, 2018); Luan</td></tr><tr><td>et al. (2017); Augenstein and S\u00f8gaard (2017) ex-</td></tr><tr><td>ploit these datasets to test neural models for IE</td></tr><tr><td>on scientific literature. Luan et al. (2018) extend</td></tr><tr><td>those datasets by adding more relation types and</td></tr><tr><td>cross-sentence relations using coreference links.</td></tr><tr><td>The authors also develop a framework called Sci-</td></tr><tr><td>entific Information Extractor for the extraction of</td></tr><tr><td>six types of scientific entities (Task, Method, Met-</td></tr><tr><td>ric, Material, Other-ScientificTerm and Generic)</td></tr><tr><td>and seven relation types (Compare, Part-of, Con-</td></tr><tr><td>junction, Evaluate-for, Feature-of, Used-for, and</td></tr><tr><td>Hyponym-of ). They reach 64.2 F 1 on entity recog-</td></tr><tr><td>nition and 39.2 F 1 on relation extraction. Differ-</td></tr><tr><td>ently from</td></tr></table>",
+                "text": "Table extraction results of our table parser on 50 tables from 10 NLP papers in PDF format."
+            },
+            "TABREF2": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table/>",
+                "text": ""
+            },
+            "TABREF4": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table/>",
+                "text": "Statistics of papers and extracted tables in ARC-PDN."
+            },
+            "TABREF5": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table><tr><td/><td/><td/><td/><td>Title</td></tr><tr><td/><td/><td/><td/><td>Abstract</td></tr><tr><td/><td/><td/><td/><td>ExpSetup:</td><td>sentences describing experimental</td></tr><tr><td/><td/><td/><td/><td>setup</td></tr><tr><td/><td/><td/><td/><td>TableInfo:</td><td>concatenation of the table caption</td></tr><tr><td/><td/><td/><td/><td>and column headers for all tables</td></tr><tr><td/><td/><td/><td/><td>Test \u2026 Table2: \u2026</td></tr><tr><td/><td>\u2026</td><td colspan=\"3\">Score context representation</td><td>Corresponding column headers Table caption</td></tr><tr><td/><td/><td colspan=\"2\">Score</td><td>Score Context</td></tr><tr><td/><td/><td colspan=\"2\">85.60</td><td>Test NER Table 1: Results on the ACE 2005 dev and test sets for the INDEP. (Task-specific factors only) and Joint models.</td></tr><tr><td/><td/><td colspan=\"2\">61.71</td><td>Avg. F1 Table 4: CoNLL metric scores for our systems on the CoNLL 2012 blind test set. \u2026</td></tr><tr><td/><td/><td>\u2026</td><td/><td>\u2026</td></tr><tr><td colspan=\"5\">Figure 2: Examples of document representation (DocTAET) and score context (SC) representation.</td></tr><tr><td colspan=\"2\">Training Stage</td><td/><td/><td>Inference Stage</td></tr><tr><td colspan=\"2\">DocTAET-TDM entailment Model</td><td>PDF/</td><td/><td>Extract &lt;Task, Dataset, Metric&gt;</td></tr><tr><td colspan=\"2\">True/False</td><td colspan=\"2\">Entails</td><td>Hypothesis space: &lt;Task, Dataset, Metric&gt; triples from a taxonomy</td></tr><tr><td/><td/><td/><td colspan=\"2\">\u2713</td><td>H: Named entity recognition, ACE 2005 (Test), Accuracy</td></tr><tr><td colspan=\"2\">Transformer Encoder</td><td>Document representation</td><td colspan=\"2\">\u2715 \u2713 \u2713</td><td>H: Entity linking, ACE 2005 (Test), Accuracy H: Coreference resolution, CoNLL 2012 (Test), Avg. F1 H: Dependency parsing, Penn Treebank, UAS</td></tr><tr><td>DocTAET</td><td>Task, Dataset, Metric</td><td/><td/><td>H: \u2026</td></tr><tr><td>Text</td><td>Hypothesis</td><td/><td/></tr><tr><td/><td/><td/><td colspan=\"2\">Extract &lt;Task, Dataset, Metric, Score&gt;</td></tr><tr><td colspan=\"2\">SC-DM entailment Model</td><td/><td colspan=\"2\">Entails</td><td>Hypothesis space: Predicted &lt;Dataset, Metric&gt;</td></tr><tr><td colspan=\"2\">True/False</td><td>Score1: s 1 context</td><td/><td>0.87 0.25</td><td>H: ACE 2005 (Test), Accuracy</td></tr><tr><td/><td/><td>Score2: s 2 context</td><td>0.68</td></tr><tr><td colspan=\"2\">Transformer Encoder</td><td>\u2026</td><td>0.35 0.05</td><td>H: CoNLL 2012 (Test), Avg. F1</td></tr><tr><td/><td/><td>Score n : s n context</td><td colspan=\"2\">0.75</td></tr><tr><td>Score Context (SC)</td><td>Dataset, Metric</td><td colspan=\"3\">For each predicted &lt;Task, Dataset, Metric&gt;, associate the score whose context has the</td></tr><tr><td>Text</td><td>Hypothesis</td><td colspan=\"3\">highest confidence score to \"entail\" &lt;Dataset, Metric&gt;</td></tr></table>",
+                "text": "Results on the ACE 2005 \u2026 and Joint models. Dev MUC B3 CEAFe Avg. NER Link"
+            },
+            "TABREF7": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table/>",
+                "text": "Statistics of training/test sets in NLP-TDMS."
+            },
+            "TABREF9": {
+                "num": null,
+                "type_str": "table",
+                "content": "<table/>",
+                "text": "Leaderboard extraction results of TDMS-IE and several baselines on the NLP-TDMS test dataset."
+            }
+        }
+    }
+}
