@@ -1,5 +1,4 @@
 # Imports 
-
 import os
 import json
 import argparse
@@ -9,7 +8,6 @@ import spacy
 import torch
 import optuna
 import pickle
-
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,7 +33,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 # Internal inport 
-from utils.helpers import tokenize_and_cut, count_parameters, epoch_time, AverageMeter
+from utils.helpers import count_parameters, epoch_time, AverageMeter, processors #,tokenize_and_cut
 from utils.helpers import train, evaluate, predict_TDM_from_pdf, get_top_n_prediction_label, write_evaluation_result
 
 from model.transformer import TransformersNLI
@@ -47,29 +45,24 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--model_name", default="SciBert", help="Huggingface model name")
     parser.add_argument("-ne", "--numb_epochs", default=2, help="Number of Epochs")
     parser.add_argument("-bs", "--batch_size", default=32, help="Batch size")
+    parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
     parser.add_argument("-o", "--output", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/", help="Output Path to save the trained model and other metadata")
 
     args = parser.parse_args()
 
     train_path = args.path_train
     valid_path = args.path_valid
-    N_EPOCHS = args.numb_epochs
+    N_EPOCHS = int(args.numb_epochs)
     model_name = args.model_name
     output_path = args.output
-    bs = args.batch_size
+    bs = int(args.batch_size)
+    max_input_len = int(args.max_input_len)
 
-    processors = {
-      "Bert": [BertTokenizer, BertForSequenceClassification, "bert-base-uncased"],
-      "SciBert": [BertTokenizer, BertForSequenceClassification, "allenai/scibert_scivocab_uncased"],
-      "XLNet": [XLNetTokenizer, XLNetForSequenceClassification, "xlnet-base-cased"],
-      "BigBird": [BigBirdTokenizer, BigBirdForSequenceClassification, "google/bigbird-roberta-base"],
-      "Longformer": [LongformerTokenizer, LongformerForSequenceClassification, "allenai/longformer-base-4096"],
-    }
 
     if model_name in processors.keys():
         selected_processor = processors[model_name]
     else:
-        Print(f"Model not available check selected model only {list(processors.keys())} as supported")
+        print(f"Model not available check selected model only {list(processors.keys())} as supported")
         quit()
 
     start_time = time.time()
@@ -78,7 +71,7 @@ if __name__ == '__main__':
         tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
     else:
         tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
-    
+
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
@@ -95,6 +88,8 @@ if __name__ == '__main__':
     else:
         max_input_length = tokenizer.max_model_input_sizes[selected_processor[2]]
     
+    if not max_input_length:
+        max_input_length = max_input_len
 
     print(f"Maximun sequence lenght {max_input_length}")
 
@@ -108,15 +103,34 @@ if __name__ == '__main__':
     print(valid_df.head())
 
     TDM_dataset = TransformersNLI(tokenizer, max_input_length)
+    
+    if os.path.exists(f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth'):
+        train_loader = torch.load(f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth')
+    else:
+        train_loader = TDM_dataset.get_train_data(train_df, batch_size=bs, shuffle=True)
+        # Save dataloader
+        torch.save(train_loader, f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth')
 
-    train_loader = TDM_dataset.get_train_data(train_df, batch_size=bs, shuffle=True)
-    valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
+    if os.path.exists(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth'):
+        valid_loader = torch.load(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+    else:
+        valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
+        # Save dataloader
+        torch.save(valid_loader, f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+
+    # Model loading
+    # model = BertForSequenceClassification.from_pretrained(model_key, num_labels=2)
+    model = selected_processor[1].from_pretrained(
+                                    selected_processor[2], num_labels=2)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Device: {device}")
 
-    # model = BertForSequenceClassification.from_pretrained(model_key, num_labels=2)
-    model = selected_processor[1].from_pretrained(selected_processor[2], num_labels=2)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+    else:
+        print(f"Device: {device}")
+
     model = model.to(device)
 
     param_optimizer = list(model.named_parameters())
@@ -142,7 +156,7 @@ if __name__ == '__main__':
         start_time_inner = time.time()
         
         train_loss, train_acc, train_macro_avg_p, train_macro_avg_r, train_macro_avg_f1, train_micro_avg_p, train_micro_avg_r, train_micro_avg_f1 = train(model, train_loader, optimizer, epoch)
-        val_macro_avg_p, val_macro_avg_r, val_macro_avg_f1, val_micro_avg_p, val_micro_avg_r, val_micro_avg_f1 = evaluate(model, valid_loader, optimizer)
+        valid_loss, valid_acc, val_macro_avg_p, val_macro_avg_r, val_macro_avg_f1, val_micro_avg_p, val_micro_avg_r, val_micro_avg_f1 = evaluate(model, valid_loader, optimizer)
         
         end_time_inner = time.time()
 
@@ -155,15 +169,13 @@ if __name__ == '__main__':
         print(f"Micro Precision: {train_micro_avg_p}; Micro Recall : {train_micro_avg_r}; Micro F1 : {train_micro_avg_f1}")
         print('------------------------------------------------------------')
 
-        valid_metric_avg = (val_macro_avg_p, val_macro_avg_r+val_macro_avg_f1+val_micro_avg_p+val_micro_avg_r+val_micro_avg_f1)/6
+        valid_metric_avg = (val_macro_avg_p + val_macro_avg_r + val_macro_avg_f1+val_micro_avg_p + val_micro_avg_r + val_micro_avg_f1)/6
         if valid_metric_avg > best_valid_metric_avg : #and abs(valid_loss - best_valid_loss) < 1e-1
             best_valid_metric_avg = valid_metric_avg
             print('Saving Model ...')
             torch.save(model.state_dict(), f'{output_path}Model_{model_name}_avg_metric_{str(best_valid_metric_avg)[:4]}.pt')
             print('****************************************************************************')
-            print('best record: [epoch %d], [val loss %.5f], [val acc %.5f], [val f1 %.5f]' % (epoch, valid_loss, valid_acc, valid_f1))
-
-            print(f"Validation Accuracy Score : {val_acc.avg}; Vadidation loss : {val_loss.avg}")
+            print('best record: [epoch %d], [val loss %.5f], [val acc %.5f], [val avg. metric %.5f]' % (epoch, valid_loss, valid_acc, valid_metric_avg))
             print(f"Macro Precision : {val_macro_avg_p}; Macro Recall : {val_macro_avg_r}; Macro F1 : {val_macro_avg_f1}")
             print(f"Micro Precision : {val_micro_avg_p}; Micro Recall : {val_micro_avg_r}; Micro F1 : {val_micro_avg_f1}")
             print('****************************************************************************')

@@ -35,7 +35,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
 
 # Internal inport 
-from utils.helpers import tokenize_and_cut, count_parameters, epoch_time, AverageMeter
+from utils.helpers import count_parameters, epoch_time, AverageMeter, processors
 from utils.helpers import train, evaluate, predict_TDM_from_pdf, get_top_n_prediction_label
 
 from model.transformer import TransformersNLI
@@ -44,11 +44,11 @@ from model.transformer import TransformersNLI
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run TDM testing on save model")
     parser.add_argument("-ptest", "--path_test", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/jar/10Neg20unk/testOutput.tsv", help="Path to the test file")
-    parser.add_argument("-ptest_res", "--path_test_prediction", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/jar/10Neg20unk/test_results.tsv", help="Path to the result file")
+    # parser.add_argument("-ptest_res", "--path_test_prediction", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/jar/10Neg20unk/test_results.tsv", help="Path to the result file")
     parser.add_argument("-pt", "--model_checkpoint", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/Longformer/Model_f1_0.93.pt", help="Path to the best saved model checkpoint")
-    parser.add_argument("-mk", "--model_key", default="bert-base-uncased", help="Huggingface model name")
     parser.add_argument("-n", "--number_top_tdm", default=2, help="Number of top TDM predicted")
     parser.add_argument("-bs", "--batch_size", default=6, help="Batch size")
+    parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
     parser.add_argument("-m", "--model_name", default='bert-base-uncased', help="The name of the model used")
     parser.add_argument("-o", "--output", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/jar/10Neg20unk/", help="Output Path to save the trained model and other metadata")
 
@@ -57,14 +57,25 @@ if __name__ == '__main__':
     test_path = args.path_test
     model_pt_path = args.model_checkpoint
 
-    model_key = args.model_key
-    n = args.number_top_tdm
-    test_prediction_path = args.path_test_prediction
+    model_name = args.model_name
+    top_n = int(args.number_top_tdm)
+    # test_prediction_path = args.path_test_prediction
     output_path = args.output
-    bs = args.batch_size
+    bs = int(args.batch_size)
+    max_input_len = int(args.max_input_len)
 
 
-    tokenizer = BertTokenizer.from_pretrained(model_key)
+    if model_name in processors.keys():
+        selected_processor = processors[model_name]
+    else:
+        print(f"Model not available check selected model only {list(processors.keys())} as supported")
+        quit()
+
+    # tokenizer = BertTokenizer.from_pretrained(model_key)
+    if model_name == "SciBert":
+        tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
+    else:
+        tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
@@ -76,22 +87,37 @@ if __name__ == '__main__':
     pad_token_idx = tokenizer.convert_tokens_to_ids(pad_token)
     unk_token_idx = tokenizer.convert_tokens_to_ids(unk_token)
 
-    max_input_length = tokenizer.max_model_input_sizes[model_key]
-
+    if model_name == "SciBert":
+        max_input_length = tokenizer.max_model_input_sizes["bert-base-uncased"]
+    else:
+        max_input_length = tokenizer.max_model_input_sizes[selected_processor[2]]
+    
+    if not max_input_length:
+        max_input_length = max_input_len
+    
     print(f"Maximun sequence lenght {max_input_length}")
 
     
     TDM_dataset = TransformersNLI(tokenizer, max_input_length)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Device: {device}")
+    
+    # Model loading
+    model = selected_processor[1].from_pretrained(
+                                    selected_processor[2], num_labels=2)
 
-    model = BertForSequenceClassification.from_pretrained(model_key, num_labels=2)
-    # model = BertForSequenceClassification.from_pretrained("allenai/scibert_scivocab_uncased", num_labels=2)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+    else:
+        print(f"Device: {device}")
+
     model = model.to(device)
 
     param_optimizer = list(model.named_parameters())
+
     no_decay = ['bias', 'gamma', 'beta']
+
     optimizer_grouped_parameters = [
         {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)],
         'weight_decay_rate': 0.01},
@@ -114,15 +140,24 @@ if __name__ == '__main__':
 
     test_df.head()
 
-    test_loader = TDM_dataset.get_inference_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
+    test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
 
-    predict_TDM_from_pdf(model, tokenizer, test_loader, output_path)
+    # It doesnt make sens to save the test_loader as the test file will
+    # often be different 
+    # if os.path.exists(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth'):
+    #     test_loader = torch.load(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
+    # else:
+    #     test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
+    #     # Save dataloader
+    #     torch.save(test_loader, f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
+
+    predict_TDM_from_pdf(model, tokenizer, test_loader, model_name, output_path)
 
     results_tdm = get_top_n_prediction_label(
         path_to_test_file=test_path,
-        path_to_prediction_file=test_prediction_path, 
+        model_name=model_name, 
         output_path=output_path,
-        n = n)
+        n = top_n)
 
     runtime = round(time.time() - start_time, 3)
     print("runtime: %s seconds " % (runtime))
