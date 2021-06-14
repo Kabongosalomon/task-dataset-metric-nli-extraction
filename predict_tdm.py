@@ -150,7 +150,10 @@ if __name__ == '__main__':
     #     test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
     #     # Save dataloader
     #     torch.save(test_loader, f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
-
+    
+    # Rm the testfile if it exist already
+    if os.path.exists(f"{output_path}test_results_{model_name}.tsv"):
+        os.remove(f"{output_path}test_results_{model_name}.tsv")
     predict_TDM_from_pdf(model, tokenizer, test_loader, model_name, output_path)
 
     results_tdm = get_top_n_prediction_label(
