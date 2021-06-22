@@ -8,6 +8,7 @@ import spacy
 import torch
 import optuna
 import pickle
+import logging
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -16,14 +17,15 @@ import numpy as np
 from tqdm import tqdm
 from collections import deque
 
+
 import torch.optim as optim
 from torchtext import data
-import torch.nn as nn
+
 import torch.nn.functional as F
 from torchsummary import summary
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from transformers import RobertaTokenizer, BertModel, TransfoXLTokenizer, TransfoXLModel, AdamW
+from transformers import RobertaTokenizer, BertModel, TransfoXLTokenizer, TransfoXLModel, AdamW, get_linear_schedule_with_warmup
 from transformers import BigBirdTokenizer, BigBirdForSequenceClassification
 from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import LongformerTokenizer, LongformerForSequenceClassification
@@ -43,6 +45,8 @@ if __name__ == '__main__':
     parser.add_argument("-ptrain", "--path_train", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/train.tsv", help="path to train file")
     parser.add_argument("-pvalid", "--path_valid", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/dev.tsv", help="Path to the dev file")
     parser.add_argument("-m", "--model_name", default="SciBert", help="Huggingface model name")
+    parser.add_argument("-init_pt", "--model_init_checkpoint", default=None, help="A checkpoint to start training the model from")
+
     parser.add_argument("-ne", "--numb_epochs", default=2, help="Number of Epochs")
     parser.add_argument("-bs", "--batch_size", default=32, help="Batch size")
     parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
@@ -54,10 +58,15 @@ if __name__ == '__main__':
     valid_path = args.path_valid
     N_EPOCHS = int(args.numb_epochs)
     model_name = args.model_name
+    model_init_checkpoint = args.model_init_checkpoint
     output_path = args.output
     bs = int(args.batch_size)
     max_input_len = int(args.max_input_len)
 
+    if not os.path.exists(f"{output_path}"):
+        os.mkdir(f"{output_path}")
+
+    logging.info(args)
 
     if model_name in processors.keys():
         selected_processor = processors[model_name]
@@ -106,17 +115,23 @@ if __name__ == '__main__':
     
     if os.path.exists(f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth'):
         train_loader = torch.load(f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth')
+        # os.remove(f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth')
     else:
         train_loader = TDM_dataset.get_train_data(train_df, batch_size=bs, shuffle=True)
         # Save dataloader
         torch.save(train_loader, f'{output_path}train_loader_{bs}_seq_{max_input_length}.pth')
 
     if os.path.exists(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth'):
-        valid_loader = torch.load(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
-    else:
-        valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
-        # Save dataloader
-        torch.save(valid_loader, f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+        # valid_loader = torch.load(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+        os.remove(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+    # else:
+    #     valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
+    #     # Save dataloader
+    #     torch.save(valid_loader, f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+
+    # train_loader = TDM_dataset.get_train_data(train_df, batch_size=bs, shuffle=True)
+    valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=False)
+
 
     # Model loading
     # model = BertForSequenceClassification.from_pretrained(model_key, num_labels=2)
@@ -127,11 +142,15 @@ if __name__ == '__main__':
 
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = nn.DataParallel(model)
+        model = torch.nn.DataParallel(model)
     else:
         print(f"Device: {device}")
 
     model = model.to(device)
+
+    if model_init_checkpoint:
+        # Reload from given checkpoint
+        model.load_state_dict(torch.load(model_init_checkpoint))
 
     param_optimizer = list(model.named_parameters())
 
@@ -144,9 +163,18 @@ if __name__ == '__main__':
         'weight_decay_rate': 0.0}
     ]
 
-    optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5, correct_bias=False)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=5e-5, correct_bias=False)
+    # optimizer = AdamW(model.parameters(), lr=5e-5, correct_bias=False)
 
-    print(f'The model has {count_parameters(model):,} trainable parameters')
+    total_steps = len(train_loader) * N_EPOCHS
+    scheduler = get_linear_schedule_with_warmup(
+        optimizer,
+        num_warmup_steps=0,
+        num_training_steps=total_steps
+        )
+
+    print(f'The model has {count_parameters(model)[0]:,} trainable parameters')
+    print(f'The model has {count_parameters(model)[1]:,} non-trainable parameters')
 
     best_valid_loss = 0.30 #float('inf')
     best_valid_metric_avg = 0.3
@@ -155,7 +183,7 @@ if __name__ == '__main__':
 
         start_time_inner = time.time()
         
-        train_loss, train_acc, train_macro_avg_p, train_macro_avg_r, train_macro_avg_f1, train_micro_avg_p, train_micro_avg_r, train_micro_avg_f1 = train(model, train_loader, optimizer, epoch)
+        train_loss, train_acc, train_macro_avg_p, train_macro_avg_r, train_macro_avg_f1, train_micro_avg_p, train_micro_avg_r, train_micro_avg_f1 = train(model, train_loader, optimizer, scheduler, epoch)
         valid_loss, valid_acc, val_macro_avg_p, val_macro_avg_r, val_macro_avg_f1, val_micro_avg_p, val_micro_avg_r, val_micro_avg_f1 = evaluate(model, valid_loader, optimizer)
         
         end_time_inner = time.time()
@@ -169,11 +197,17 @@ if __name__ == '__main__':
         print(f"Micro Precision: {train_micro_avg_p}; Micro Recall : {train_micro_avg_r}; Micro F1 : {train_micro_avg_f1}")
         print('------------------------------------------------------------')
 
-        valid_metric_avg = (val_macro_avg_p + val_macro_avg_r + val_macro_avg_f1+val_micro_avg_p + val_micro_avg_r + val_micro_avg_f1)/6
+        # TODO: Shoul we focus only on precision or only f1 score ?
+        # valid_metric_avg = (val_macro_avg_p + val_macro_avg_r + val_macro_avg_f1 + val_micro_avg_p + val_micro_avg_r + val_micro_avg_f1)/6
+        valid_metric_avg = (val_macro_avg_f1 + val_micro_avg_f1)/2
+        # valid_metric_avg = val_macro_avg_p
+
         if valid_metric_avg > best_valid_metric_avg : #and abs(valid_loss - best_valid_loss) < 1e-1
             best_valid_metric_avg = valid_metric_avg
+
             print('Saving Model ...')
-            torch.save(model.state_dict(), f'{output_path}Model_{model_name}_avg_metric_{str(best_valid_metric_avg)[:4]}.pt')
+            torch.save(model.state_dict(), f'{output_path}Model_{model_name}_Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt')
+
             print('****************************************************************************')
             print('best record: [epoch %d], [val loss %.5f], [val acc %.5f], [val avg. metric %.5f]' % (epoch, valid_loss, valid_acc, valid_metric_avg))
             print(f"Macro Precision : {val_macro_avg_p}; Macro Recall : {val_macro_avg_r}; Macro F1 : {val_macro_avg_f1}")

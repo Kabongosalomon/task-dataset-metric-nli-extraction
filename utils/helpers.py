@@ -125,14 +125,16 @@ def train(model, iterator, optimizer, scheduler, epoch):
         #                     labels=labels).values()          
         
         loss.backward()
-        # New
-        nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+        # # New
+        # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
         optimizer.step()
-        # New
-        scheduler.step()
-        # New
-        optimizer.zero_grad()
+        
+        # # New
+        # scheduler.step()
+        # # New
+        # optimizer.zero_grad()
                 
         prediction = torch.log_softmax(prediction, dim=1).argmax(dim=1)
 

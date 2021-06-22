@@ -33,7 +33,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 # Internal inport 
-from utils.helpers import count_parameters, epoch_time, AverageMeter, processors
+from utils.helpers import count_parameters, epoch_time, AverageMeter, processors, compute_metrics
 from utils.helpers import train, evaluate, predict_TDM_from_pdf, get_top_n_prediction_label, write_evaluation_result
 
 from model.transformer import TransformersNLI
@@ -42,6 +42,8 @@ from model.transformer import TransformersNLI
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run TDM testing on save model")
     parser.add_argument("-pvalid", "--path_valid", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/dev.tsv", help="Path to the dev file")
+    parser.add_argument("-ptest_res", "--path_test_prediction", default=None, help="Path to the result file")
+
     parser.add_argument("-pt", "--model_checkpoint", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/Longformer/Model_f1_0.93.pt", help="Path to the best saved model checkpoint")
     parser.add_argument("-bs", "--batch_size", default=6, help="Batch size")
     parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
@@ -56,6 +58,28 @@ if __name__ == '__main__':
     output_path = args.output
     bs = int(args.batch_size)
     max_input_len = int(args.max_input_len)
+
+    test_prediction_path = args.path_test_prediction
+
+    if not os.path.exists(f"{output_path}"):
+        os.mkdir(f"{output_path}")
+        
+
+    if test_prediction_path:
+        with open(f"{valid_path}") as f:
+            list_test_file = f.read().splitlines()
+
+        with open(f"{test_prediction_path}") as f:
+            list_test_pred_file = f.read().splitlines()
+
+        assert len(list_test_file) == len(list_test_pred_file), "Error in Lenght valid path <> predict"
+
+        compute_metrics(list_gold=list_test_file, 
+                list_pred=list_test_pred_file, 
+                model_name=model_name, output_path=output_path)
+
+        print("Done.")
+        quit()
 
     if model_name in processors.keys():
         selected_processor = processors[model_name]
@@ -117,7 +141,8 @@ if __name__ == '__main__':
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5, correct_bias=False)
 
-    print(f'The model has {count_parameters(model):,} trainable parameters')
+    print(f'The model has {count_parameters(model)[0]:,} trainable parameters')
+    print(f'The model has {count_parameters(model)[1]:,} non-trainable parameters')
 
     start_time = time.time()
 
@@ -130,13 +155,15 @@ if __name__ == '__main__':
     valid_df.head()
 
     if os.path.exists(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth'):
-        valid_loader = torch.load(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
-    else:
-        valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
-        # Save dataloader
-        torch.save(valid_loader, f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+        # valid_loader = torch.load(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+        os.remove(f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
+    # else:
+    #     valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=True)
+    #     # Save dataloader
+    #     torch.save(valid_loader, f'{output_path}valid_loader_{bs}_seq_{max_input_length}.pth')
 
-
+    valid_loader = TDM_dataset.get_valid_data(valid_df, batch_size=bs, shuffle=False)
+    
     valid_loss, valid_acc, val_macro_avg_p, val_macro_avg_r, val_macro_avg_f1, val_micro_avg_p, val_micro_avg_r, val_micro_avg_f1 = evaluate(model, valid_loader, optimizer)
 
     write_evaluation_result(val_macro_avg_p, val_macro_avg_r, val_macro_avg_f1, val_micro_avg_p, val_micro_avg_r, val_micro_avg_f1, model_name, output_path)
