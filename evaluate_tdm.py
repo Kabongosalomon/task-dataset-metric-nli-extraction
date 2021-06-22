@@ -61,6 +61,9 @@ if __name__ == '__main__':
 
     test_prediction_path = args.path_test_prediction
 
+    if not os.path.exists(f"{output_path}"):
+        os.makedirs(f"{output_path}")
+
     if test_prediction_path:
         with open(f"{valid_path}") as f:
             list_test_file = f.read().splitlines()

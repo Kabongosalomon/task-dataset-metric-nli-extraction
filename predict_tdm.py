@@ -65,7 +65,7 @@ if __name__ == '__main__':
     max_input_len = int(args.max_input_len)
 
     if not os.path.exists(f"{output_path}"):
-        os.mkdir(f"{output_path}")
+        os.makedirs(f"{output_path}")
 
 
     if model_name in processors.keys():
