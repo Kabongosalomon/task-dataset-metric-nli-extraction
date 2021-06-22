@@ -1,9 +1,0 @@
-2021-06-22 10:26:00.281923: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
-Traceback (most recent call last):
-  File "train_tdm.py", line 38, in <module>
-    from utils.helpers import count_parameters, epoch_time, AverageMeter, processors #,tokenize_and_cut
-  File "/nfs/home/kabenamualus/Research/task-dataset-metric-nli-extraction/utils/helpers.py", line 145
-    print(f"Micro Precision: {train_micro_p.avg}; Micro Recall : {train_micro_r.avg}; Micro F1 : {train_micro_f1.avg}")    print('------------------------------------------------------------')
-                                                                                                                               ^
-SyntaxError: invalid syntax
-srun: error: devbox5: task 0: Exited with exit code 1
