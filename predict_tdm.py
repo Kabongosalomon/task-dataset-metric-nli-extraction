@@ -35,7 +35,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
 
 # Internal inport 
-from utils.helpers import count_parameters, epoch_time, AverageMeter, processors
+from utils.helpers import count_parameters, epoch_time, AverageMeter, processors, inference
 from utils.helpers import train, evaluate, predict_TDM_from_pdf, get_top_n_prediction_label
 
 from model.transformer import TransformersNLI
@@ -63,6 +63,9 @@ if __name__ == '__main__':
     output_path = args.output
     bs = int(args.batch_size)
     max_input_len = int(args.max_input_len)
+
+    if not os.path.exists(f"{output_path}"):
+        os.mkdir(f"{output_path}")
 
 
     if model_name in processors.keys():
@@ -127,7 +130,8 @@ if __name__ == '__main__':
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5, correct_bias=False)
 
-    print(f'The model has {count_parameters(model):,} trainable parameters')
+    print(f'The model has {count_parameters(model)[0]:,} trainable parameters')
+    print(f'The model has {count_parameters(model)[1]:,} non-trainable parameters')
 
     start_time = time.time()
 
@@ -140,7 +144,7 @@ if __name__ == '__main__':
 
     test_df.head()
 
-    test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
+    test_loader = TDM_dataset.get_inference_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
 
     # It doesnt make sens to save the test_loader as the test file will
     # often be different 
@@ -154,7 +158,10 @@ if __name__ == '__main__':
     # Rm the testfile if it exist already
     if os.path.exists(f"{output_path}test_results_{model_name}.tsv"):
         os.remove(f"{output_path}test_results_{model_name}.tsv")
+        
     predict_TDM_from_pdf(model, tokenizer, test_loader, model_name, output_path)
+    # TODO: This function below enables prediction one by one without using data loader 
+    # inference(model, tokenizer, test_path, max_input_length, model_name, output_path)
 
     results_tdm = get_top_n_prediction_label(
         path_to_test_file=test_path,

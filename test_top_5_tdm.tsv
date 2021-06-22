@@ -1,0 +1,5 @@
+Chinese Named Entity Recognition; Weibo NER; F1	0.9176629781723022
+Chinese Named Entity Recognition; Resume NER; F1	0.9176692366600037
+Action Detection; Charades; mAP	0.9176993370056152
+Grammatical Error Correction; JFLEG; GLEU	0.9177271723747253
+Grammatical Error Correction; JFLEG; GLEU	0.9177271723747253
