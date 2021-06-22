@@ -163,7 +163,7 @@ if __name__ == '__main__':
         'weight_decay_rate': 0.0}
     ]
 
-    optimizer = AdamW(optimizer_grouped_parameters, lr=5e-5, correct_bias=False)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=1e-5, correct_bias=False)
     # optimizer = AdamW(model.parameters(), lr=5e-5, correct_bias=False)
 
     total_steps = len(train_loader) * N_EPOCHS
