@@ -84,7 +84,6 @@ def train(model, iterator, optimizer, scheduler, epoch):
     train_micro_f1 = AverageMeter()
     
     for batch_idx, (pair_token_ids, mask_ids, seg_ids, y) in tqdm(enumerate(iterator), total=len(iterator)):
-        
         optimizer.zero_grad()
         
         pair_token_ids = pair_token_ids.to(device)
@@ -107,13 +106,13 @@ def train(model, iterator, optimizer, scheduler, epoch):
         
         loss.backward()
         # New
-        nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
         optimizer.step()
         # New
-        scheduler.step()
+        # scheduler.step()
         # New
-        optimizer.zero_grad()
+        # optimizer.zero_grad()
                 
         prediction = torch.log_softmax(prediction, dim=1).argmax(dim=1)       
 
@@ -143,7 +142,8 @@ def train(model, iterator, optimizer, scheduler, epoch):
     print(f"[epoch {epoch+1}] [iter {(batch_idx + 1)}/{len(iterator)}]")
     print('------------------------------------------------------------')
     print(f"Macro Precision: {train_macro_p.avg}; Macro Recall : {train_macro_r.avg}; Macro F1 : {train_macro_f1.avg}")
-    print(f"Micro Precision: {train_micro_p.avg}; Micro Recall : {train_micro_r.avg}; Micro F1 : {train_micro_f1.avg}")    print('------------------------------------------------------------')
+    print(f"Micro Precision: {train_micro_p.avg}; Micro Recall : {train_micro_r.avg}; Micro F1 : {train_micro_f1.avg}")    
+    print('------------------------------------------------------------')
 
     return train_loss.avg, train_acc.avg, train_macro_p.avg, train_macro_r.avg, train_macro_f1.avg, train_micro_p.avg, train_micro_r.avg, train_micro_f1.avg
 
