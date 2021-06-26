@@ -169,4 +169,5 @@ if __name__ == '__main__':
 
     runtime = round(time.time() - start_time, 3)
     print("runtime: %s seconds " % (runtime))
+    print(args)
     print('done.')

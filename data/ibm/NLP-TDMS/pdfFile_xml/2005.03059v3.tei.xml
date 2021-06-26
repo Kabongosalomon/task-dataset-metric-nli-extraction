@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/../grobid-0.6.0/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">CovidCTNet: An Open-Source Deep Learning Approach to Identify Covid-19 Using CT Image</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tahereh</forename><surname>Javaheri</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Health Informatics Lab</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Morteza</forename><surname>Homayounfar</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Biomedical Engineering</orgName>
+								<orgName type="institution">Amirkabir University of Technology</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Zohreh</forename><surname>Amoozgar</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Department of Radiation Oncology</orgName>
+								<orgName type="institution" key="instit1">Massachusetts General Hospital</orgName>
+								<orgName type="institution" key="instit2">Harvard Medical School</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Reza</forename><surname>Reiazi</surname></persName>
+							<email>rezar@bu.edu</email>
+							<affiliation key="aff3">
+								<orgName type="department">Princess Margaret Cancer Centre</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff4">
+								<orgName type="department">Department of Medical Biophysics</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff5">
+								<orgName type="department" key="dep1">Department of Medical Physics</orgName>
+								<orgName type="department" key="dep2">School of Medicine</orgName>
+								<orgName type="department" key="dep3">university of Medical Sciences</orgName>
+								<address>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Fatemeh</forename><surname>Homayounieh</surname></persName>
+							<affiliation key="aff6">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution" key="instit1">Massachusetts General Hospital</orgName>
+								<orgName type="institution" key="instit2">Harvard Medical School</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Engy</forename><surname>Abbas</surname></persName>
+							<affiliation key="aff7">
+								<orgName type="department">Joint Department of Medical Imaging</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Azadeh</forename><surname>Laali</surname></persName>
+							<affiliation key="aff8">
+								<orgName type="department">Department of Infectious Diseases</orgName>
+								<orgName type="institution">Firoozgar Hospital</orgName>
+								<address>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff9">
+								<orgName type="institution">University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Reza</forename><surname>Amir</surname></persName>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Radmard</surname></persName>
+							<affiliation key="aff10">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution" key="instit1">Shariati Hospital</orgName>
+								<orgName type="institution" key="instit2">Tehran University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mohammad</forename><forename type="middle">Hadi</forename><surname>Gharib</surname></persName>
+							<affiliation key="aff11">
+								<orgName type="department">Department of Radiology and Gloestan Rheumatology Research Center</orgName>
+								<orgName type="institution">Golestan University of Medical Sciences</orgName>
+								<address>
+									<settlement>Gorgan</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Seyed</forename><surname>Ali</surname></persName>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Javad</forename><surname>Mousavi</surname></persName>
+							<affiliation key="aff12">
+								<orgName type="department">Department of Internal Medicine</orgName>
+								<orgName type="institution">University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country>Iran, Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Omid</forename><surname>Ghaemi</surname></persName>
+							<affiliation key="aff10">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution" key="instit1">Shariati Hospital</orgName>
+								<orgName type="institution" key="instit2">Tehran University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Rosa</forename><surname>Babaei</surname></persName>
+							<affiliation key="aff13">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution">University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country>Iran, Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hadi</forename><forename type="middle">Karimi</forename><surname>Mobin</surname></persName>
+							<affiliation key="aff13">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution">University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country>Iran, Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mehdi</forename><surname>Hosseinzadeh</surname></persName>
+							<affiliation key="aff14">
+								<orgName type="department">Institute of Research and Development</orgName>
+								<orgName type="institution">Duy Tan University</orgName>
+								<address>
+									<postCode>550000</postCode>
+									<settlement>Da Nang</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff15">
+								<orgName type="institution" key="instit1">Health Management and Economics Research Center</orgName>
+								<orgName type="institution" key="instit2">Iran University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Rana</forename><surname>Jahanban-Esfahlan</surname></persName>
+							<affiliation key="aff16">
+								<orgName type="department" key="dep1">Department of Medical Biotechnology</orgName>
+								<orgName type="department" key="dep2">School of Advanced Medical Sciences</orgName>
+								<orgName type="institution">Tabriz University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tabriz</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Khaled</forename><surname>Seidi</surname></persName>
+							<affiliation key="aff16">
+								<orgName type="department" key="dep1">Department of Medical Biotechnology</orgName>
+								<orgName type="department" key="dep2">School of Advanced Medical Sciences</orgName>
+								<orgName type="institution">Tabriz University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tabriz</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mannudeep</forename><forename type="middle">K</forename><surname>Kalra</surname></persName>
+							<affiliation key="aff6">
+								<orgName type="department">Department of Radiology</orgName>
+								<orgName type="institution" key="instit1">Massachusetts General Hospital</orgName>
+								<orgName type="institution" key="instit2">Harvard Medical School</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guanglan</forename><surname>Zhang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Health Informatics Lab</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+							<affiliation key="aff17">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><forename type="middle">T</forename><surname>Chitkushev</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Health Informatics Lab</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+							<affiliation key="aff17">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Benjamin</forename><surname>Haibe-Kains</surname></persName>
+							<affiliation key="aff3">
+								<orgName type="department">Princess Margaret Cancer Centre</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff4">
+								<orgName type="department">Department of Medical Biophysics</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff18">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution">University of Toronto</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<region>Ontario</region>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff19">
+								<orgName type="institution">Ontario Institute for Cancer Research</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<region>Ontario</region>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff20">
+								<orgName type="institution">Vector Institute for Artificial Intelligence</orgName>
+								<address>
+									<settlement>Toronto</settlement>
+									<region>Ontario</region>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Reza</forename><surname>Malekzadeh</surname></persName>
+							<affiliation key="aff21">
+								<orgName type="department">Digestive Disease Research Center</orgName>
+								<orgName type="institution">Tehran University of Medical Sciences</orgName>
+								<address>
+									<settlement>Tehran</settlement>
+									<country key="IR">Iran</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Reza</forename><surname>Rawassizadeh</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Health Informatics Lab</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+							<affiliation key="aff17">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution" key="instit1">Metropolitan College</orgName>
+								<orgName type="institution" key="instit2">Boston University</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>US</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">CovidCTNet: An Open-Source Deep Learning Approach to Identify Covid-19 Using CT Image</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<note>1 † Equal contribution in the paper ‡ Corresponding author,</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+
+		<encodingDesc>
+			<appInfo>
+				<application version="0.6.0" ident="GROBID-SDO" when="2021-06-26T10:27+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid-sdo"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Coronavirus disease 2019 (Covid-19) is highly contagious with limited treatment options. Early and accurate diagnosis of Covid-19 is crucial in reducing the spread of the disease and its accompanied mortality. Currently, detection by reverse transcriptase polymerase chain reaction (RT-PCR) is the gold standard of outpatient and inpatient detection of Covid-19. RT-PCR is a rapid method, however, its accuracy in detection is only ~70-75%.</head><p>Another approved strategy is computed tomography (CT) imaging. CT imaging has a much higher sensitivity of ~80-98%, but similar accuracy of 70%. To enhance the accuracy of CT imaging detection, we developed an opensource set of algorithms called CovidCTNet that successfully differentiates Covid-19 from community-acquired pneumonia (CAP) and other lung diseases. CovidCTNet increases the accuracy of CT imaging detection to 90% compared to radiologists (70%). The model is designed to work with heterogeneous and small sample sizes independent of the CT imaging hardware. In order to facilitate the detection of Covid-19 globally and assist radiologists and physicians in the screening process, we are releasing all algorithms and parametric details in an open-source format. Open-source sharing of our CovidCTNet enables developers to rapidly improve and optimize services, while preserving user privacy and data ownership.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In the era of communication, the current epidemic of highly contagious Covid-19 (SARS-Cov-2) has negatively impacted the global health, trade and economy. To date the mortality rate of Covid-19 is estimated to be 35-45 times higher than the pandemic influenza, accounting for more than 200,000 deaths <ref type="bibr" target="#b0">[1]</ref><ref type="bibr">[2]</ref><ref type="bibr" target="#b1">[3]</ref><ref type="bibr" target="#b2">[4]</ref> . Covid-19 has surpassed its predecessors SARS-CoV, and MERS-CoV in morbidity and mortality <ref type="bibr" target="#b3">5</ref> . Unfortunately, the long-term studies on SARS-CoV, the cause of SARS <ref type="bibr" target="#b4">6</ref> , did not result in finding effective and safe treatments <ref type="bibr" target="#b5">7</ref> . Lack of effective therapy underlines the importance of early diagnosis, rapid isolation, and strict infection control to minimize the spread of Covid-19.</p><p>Currently, diagnosis is mainly based on the patient's medical history, RT-PCR, and CT imaging <ref type="bibr" target="#b6">[8]</ref><ref type="bibr" target="#b7">[9]</ref><ref type="bibr" target="#b8">[10]</ref><ref type="bibr" target="#b9">[11]</ref><ref type="bibr" target="#b10">[12]</ref> . High error (30-35%) of RT-PCR <ref type="bibr" target="#b6">8,</ref><ref type="bibr" target="#b7">9,</ref><ref type="bibr" target="#b11">13</ref> , lack of distinction between viral contamination versus disease bearing individuals <ref type="bibr" target="#b12">14</ref> or false negative <ref type="bibr" target="#b13">15</ref> may have contributed to high prevalence of Covid-19 and the dismal therapeutic outcomes. Here, CT imaging plays a critical role in Covid-19 diagnosis since it not only detects the presence of disease in the lung but also enables identifying the stage of the disease by scoring the CT images <ref type="bibr" target="#b7">9,</ref><ref type="bibr" target="#b14">16,</ref><ref type="bibr" target="#b15">17</ref> . CT imaging, however, has its own limitations that needs to be addressed. The lack of specificity and the similarities between the lung lesions generated by other types of viral infection or community-acquired pneumonia (CAP) may contribute to misdiagnosis for Covid-19 <ref type="bibr" target="#b16">[18]</ref><ref type="bibr" target="#b17">[19]</ref><ref type="bibr" target="#b18">[20]</ref> . We hypothesized that the use of robust tools such as machine learning can resolve the CT imaging technical bias and also corrects for human errors <ref type="bibr" target="#b19">[21]</ref><ref type="bibr" target="#b20">[22]</ref><ref type="bibr" target="#b21">[23]</ref><ref type="bibr" target="#b22">[24]</ref><ref type="bibr" target="#b23">[25]</ref><ref type="bibr" target="#b24">[26]</ref> .</p><p>An appropriate machine learning strategy for Covid-19 detection should (i) be able to assist radiologists and their staff to rapidly and accurately detect Covid-19, (ii) be compatible with a wide range of image scanning hardware's, and (iii) be user friendly to the medical community without computer-science expertise. In our effort to address the clinical diagnostic needs in the Covid-19 pandemic crisis, we designed a pipeline of deep learning algorithms, CovidCTNet, that is trained on identifying Covid-19 lesions in lung CT images to improve the process of Covid-19 detection.</p><p>While deep convolutional neural network approach requires a large dataset 27,28 , CovidCTNet by employing BCDU-Net 29 requires only a small sample size for training to achieve accurate detection of Covid-19 by maintaining its robustness to the inevitable biases in the CT image set.</p><p>Under institutional review board (IRB) approval, we analyzed the lung CT images to develop a model for accurate detection of Covid-19 from CAP and Control. We acquired CT images from multiple institutions including the publicly available dataset from lung nodule classification (LUNGx) challenge, an archive generated by the University of Chicago <ref type="bibr" target="#b27">30,</ref><ref type="bibr" target="#b28">31</ref> ; and five medical centers in Iran, a country that is highly affiliated with Covid-19. The dataset from Iran was collected from 12 different CT scanner models of five different brands. We collected a heterogeneous dataset to ensure that our algorithm can address the needs of hospitals across the globe, irrespective of the sample size, imaging device (hardware) or the imaging software. Collected CT images covered a variety of image sizes, slice thicknesses, and different configurations of a range of CT scanning devices. Depending on the device and the radiologist decision, the number of scans (e.g., 60, 70, etc.), the image resolution (e.g., 512×512 pixels, 768×768 pixels, etc.), and pixel spaces in the CT images varied. Together these factors allowed us to generate a heterogeneous collection that accounts for differences in CT imaging that exist among the medical community. This broad heterogeneity within the image collection aimed to resolve the potential bias in image analysis towards a specific image quality or types of CT imaging device.</p><p>We assessed a dataset consisting of 89,145 slices of all CT scan images from 287 patients. Among this dataset, 109 (32,230 CT slices) patients were infected with Covid-19 with a confirmed RT-PCR, patient's medical history and radiologist diagnosis. The second cohort was 104 (25,699 CT slices) patients infected with CAP or other viral sources with CT images that can be potentially misdiagnosed for Covid-19. Our Control group consists of a cohort of patients 97 (31,216 CT slices) with healthy lungs or other non-Covid-19/non-CAP diseases. Within the Control group 65 cases (20,317 CT slices) were selected from SPIE-AAPM-NCI lung nodule classification challenge dataset <ref type="bibr" target="#b27">30,</ref><ref type="bibr" target="#b29">32</ref> , a heterogeneous dataset that contains lung cancer as well.</p><p>In the first step, the CT slices were resampled along three axes (z, y, x) to account for the variety of voxel dimensions among the CT slices (voxel is a single pixel, but in three dimensions). We used the distances of 1×1×1 millimeter for all voxel dimensions. Our method unified CT scans into the same scale and created a resampled dataset from the original dataset, known as resampling to an isomorphic resolution <ref type="bibr" target="#b30">33</ref>  <ref type="figure">(Fig.1a</ref>). In the second preprocessing step, pixel value of the resampled CT images (3D) was optimized to have a proper range of Hounsfield Units (HU). In our dataset, the least dense object such as air takes a value of -1,000. Lung is an organ filled with air and thus acquires a HU value of -700 to -600. Other organs that may interfere with our analysis include water (HU of 0), fat (HU of -90 to -120) soft tissue (HU of 100 to 300), and bone (HU of 300 to 1900). Consequently, we filtered CT slices (2D) to remove non-lung tissue (e.g. skin, bone or scanner bed) that may negatively impact our analysis and to keep only the lung related parts with an HU value ranging from -1000 to 400. Next, a min-max normalization is applied to rescale the -1000 and 400 numerical ranges of pixels to a 0.0 and 1.0 scale <ref type="figure">(Fig.1b</ref>). In the third step of preprocessing, all CT slices of various pixel sizes were resized to a uniform 240×240 pixels on their x and y dimensions but the number of slices (z) remained intact ( <ref type="figure">Fig.1b</ref>) <ref type="bibr">Fig</ref>.1| Schematic representation of the preprocessing phases. a, Each patient's CT image (3D) was resampled to isomorphic resolution, while x and y are the image coordinates and z represents the number of slices. b, All CT slices (2D) with different sizes were resized to have 240×240 pixels on the x and y axis, but the z axis that depicts the number of slices remained intact. Here, a 512×512 pixels CT slice is resized into a 240×240 pixels CT slice.</p><p>Covid-19 and CAP are associated with lung infection. To model and identify Covid-19 in lung, we generated pseudo-infection anomalies in the CT Control images using the state-of-the-art BCDU-Net <ref type="bibr" target="#b31">34</ref> , which is designed based on the U-Net <ref type="bibr" target="#b33">35,</ref><ref type="bibr" target="#b34">36</ref> , a convolutional network for biomedical image analysis. BCDU-Net has the advantage of having a memory (LSTM cells) allowing the model to remember the structure of the healthy lung. BCDU-Net helped us to increase the accuracy and rate of model convergence by using the initialization of the model that is trained on the Kaggle dataset for lung segmentation 37 . Transfer learning enabled the use of smaller datasets compared to training neural network models from scratch. BCDU-Net focused on lung infection by generating perlin noise 38 (pseudo-infection) and detecting infections. We used the dual function of BCDU-Net in terms of both the anomaly detection and noise cancelation in a unified application. A subset of Control images mixed of noisy and non-noisy were given to BCDU-Net as an input. At the same time, the original Control images of noisy or non-noisy subsets were targeted in the model as output, mimicking the Covid-19 and CAP anomalies in the Control cases ( <ref type="figure">Fig.2a</ref>). Feeding the BCDU-Net with CT images without noise, the model learned to identify and remove unnecessary image content, such as heart tissue. In contrast, feeding the BCDU-Net with noisy CT images, the model learned to identify and detect infections or lesions. To this end, we specified the input which is a combination of original healthy CT images and the CT images with noise. We defined the target of our model to be the same input CT images but without noise. Consequently, the output of BCDU-Net is de-noised and reconstructed CT images from the original and noisy CT images. Reconstructing the CT images helped the model to learn the pattern of the Control lung and reconstruct the original Control image as output by noise reduction (de-noised) and infection removal ( <ref type="figure">Fig.2a2-3)</ref>. Thus, Covid-19 or CAP images could not be reconstructed correctly at this stage. Identifying the Control lung pattern led to recognition of non-Control slices such as Covid-19 or CAP.</p><p>In the first step, the training phase ( <ref type="figure">Fig.2a</ref>) starts by randomly selecting a dataset of 67 Control patients (22,249 slices) and applying the preprocessing steps on their CT images ( <ref type="figure">Fig.2a1-2)</ref>. The dataset was divided into two subsets: (i) the original CT images of 11,124 slices ( <ref type="figure">Fig.2a3 right)</ref>, and (ii) CT images of 11,125 slices with applied perlin noise 38 <ref type="figure">(Fig.2a3 left)</ref>. The BCDU-Net model was trained with two noisy and non-noisy subsets of Control images. The trained model was frozen at this step <ref type="figure">(Fig.2a4</ref>).</p><p>Next, we preprocessed the entire dataset (excluding the used images in training step) of CT slices including Control, CAP and Covid-19 ( <ref type="figure">Fig.2b5-6</ref>) and fed these data into the frozen BCDU-Net model <ref type="figure">(Fig.2b7)</ref>. The output of the BCDU-Net is the de-noised CT slices <ref type="figure">(Fig.2b8)</ref>. The algorithm subtracted the output of BCDU-Net, the lung slices without infection, <ref type="figure">(Fig.2b9</ref>) from the preprocessed CT slices, infected lung with Covid-19 or CAP <ref type="figure">(Fig.2b5-6</ref>) to acquire the infected areas of lung <ref type="figure">(Fig.2b9</ref>). Because the outcome of subtraction <ref type="figure">(Fig.2b9</ref>) depicted the highlighted infection area (Covid-19 and CAP) without other tissues or artifacts ( <ref type="figure">Fig.2b</ref> image in violet colour and 3b), it provided a reliable source for the infection classification as Covid-19 or CAP. In the validation, we observed that the subtraction resulted from original non-infected CT slices versus the output of BCDU-Net was insignificant, confirming the accuracy of detecting noise as an indication for the infected area.</p><p>The slices at z axis were concatenated to generate a 3D CT image that was the input of threedimensional convolutional neural network (CNN) model <ref type="figure">(Fig.2b10</ref>). The outcome of CT slices was resized due to high variation among the number of CT slices for each patient <ref type="figure">(Fig.2b11</ref>). Resizing ensures that all CT images have equal sizes, which is required by CNN to have a unified size (50×240×240). Here, 50 in the z axis indicates that all the patients' CT slices were resized to 50 slices. These 3D images were already labeled by radiologists as Covid-19, CAP or Control. To implement the classification algorithm, we used CNN. In the final step, the result of <ref type="figure">Fig.2b11</ref> was fed into the CNN model <ref type="figure">(Fig.2c12)</ref> as a training dataset. In the training phase, the model learned to distinguish Covid-19, CAP and Control. CNN model was then validated by using 24 cases that were selected randomly and were never used before in any of the training and preceding steps. The output of the CNN algorithm is a numerical value that classifies the given patient CT images as Covid-19 or CAP or Control <ref type="figure">(Fig.2c12)</ref>. The slices at z axis were concatenated to generate a 3D CT image that was the input of three-dimensional convolutional neural network (CNN) model <ref type="figure">(Fig.2b10</ref>). The outcome of CT slices was resized due to high variation among the number of CT slices for each patient <ref type="figure">(Fig.2b11</ref>). Resizing ensures that all CT images have equal sizes, which is required by CNN to have a unified size (50×240×240). Here, 50 in the z axis indicates that all the patients' CT slices were resized to 50 slices. These 3D images were already labeled by radiologists as Covid-19, CAP or Control. To implement the classification algorithm, we used CNN. In the final step, the result of <ref type="figure">Fig.2b11</ref> was fed into the CNN model <ref type="figure">(Fig.2c12)</ref> as a training dataset. In the training phase, the model learned to distinguish Covid-19, CAP and Control. CNN model was then validated by using 24 cases that were selected randomly and were never used before in any of the training and preceding steps. The output of the CNN algorithm is a numerical value that classifies the given patient CT images as Covid-19 or CAP or Control <ref type="figure">(Fig.2c12</ref>). The results of step 9 is a 2D image. The slices at z axis concatenated to generate 3D CT image, the input of CNN model. c, CNN model classifies the images that were constructed in the previous stage. To integrate this pipeline into an application the user needs to start from stage (b) and then the CNN algorithm recognizes whether the given CT images of a given patient presents Covid-19, CAP or Control. The number outside the parentheses in CNN model, present the number of channels in the CNN model.</p><p>If we feed the original CT images <ref type="figure">(Fig.3a)</ref> or preprocessed CT images into our CNN classification algorithm, the algorithm will not be able to distinguish precisely between Covid-19, CAP and Control lungs in the small dataset. BCDU-Net module <ref type="figure">(Fig.3</ref>) plays a critical role in allowing the detection of infections that has numerous features in a small dataset. Here, the use of a small dataset could compromise model performance while using BCDU-Net, and targeting the infected area at the training phase bypasses the size of dataset. An example of the subtracted data (violet CT slices resulted from <ref type="figure">Fig.2b11</ref>) depicts the infection area in the lung <ref type="figure">(Fig.3b</ref>). In CNN assessment, the dataset was split in 90% to train the algorithm, and 10% to validate the model in the hold-out. The area under receiver operating characteristics (ROC) curve (AUC) for Covid-19 at the validation phase was 95%, with an accuracy of 91.66% when CNN classified Covid-19 versus non-Covid-19 (two classes). CNN achieved the accuracy of 87.5% when it classified Covid-19 vs CAP and versus Control (three classes). The detection sensitivity of 87.5% and specificity of 94% were recorded for Covid-19 ( <ref type="figure">Fig.4</ref>). To test the CNN model, an independent dataset consisting of 20 cases mixed of Control, Covid-19 and CAP were assessed using our model and in parallel by four certified and independent radiologists that were not involved in the process of data collection. The average reader performance of four radiologists showed a sensitivity of 79% for Covid-19 and specificity of 82.14%. The CNN, however outperformed the radiologists and achieved Covid-19 detection with sensitivity and specificity of 83% and 92.85% respectively. Radiologists performance accuracy was 81%, while CNN achieved a 90% accuracy when the question was detecting between Covid-19 versus non-Covid-19 (2 classes). When we asked to detect Covid-19 versus CAP versus Control (3 classes), again the machine outperformed the radiologists with an accuracy of 85% compared with human accuracy of 71%. The AUC of the model in Covid-19 detection vs reader test was 93% <ref type="figure">(Fig.5</ref>). The accuracy, sensitivity and specificity of the model showed a significantly higher validity compared to the average of radiologists. In this study, we developed multiple computational models to accurately detect Covid-19 infection. Due to the high value of patch-based classification <ref type="bibr" target="#b36">39</ref> we implemented it as one of our models that did not perform as well as CovidCTNet (Extended Data <ref type="figure">Fig.1</ref>). This finding demonstrated the need for decision support tools that assist radiologists in Covid-19 detection. CovidCTNet is an open-source pipeline of a multi-step modelling system (https://gitlab.com/Mohofar/covidctnet.git) that improves the accuracy and consistency of lung screening for Covid-19 detection through a ready-to-use platform with a sensitivity of 83% and accuracy of 90%. In a recent study, it was reported the average sensitivity of radiologists to detect the Covid-19 infection is around 70% <ref type="bibr" target="#b18">20</ref> . In contrast to recent works <ref type="bibr" target="#b23">25,</ref><ref type="bibr" target="#b37">40,</ref><ref type="bibr" target="#b38">41,</ref><ref type="bibr" target="#b41">44</ref> our dataset used in this study is smaller and highly heterogeneous. While the broad similarity of patterns and image features of Covid-19 and CAP posed a challenge for algorithm training, the high accuracy of the model indicates the potential for CovidCTNet to be further refined and adapted as a clinical decision support tool. We propose, (i) addition of other samples as the CT scans using in this study are mostly from Iranian patients, (ii) inclusion of the patient's age, gender and medical history to develop a predictive model, (iii) testing the model with a larger number of CT scan databases to further validate and broaden the application of our strategy.</p><p>Beyond optimizing and improving Covid-19 detection, CovidCTNet has the potential to significantly impact the clinical workflow and patient care by offering a rapid, inexpensive and accurate methodology to empower healthcare workers during the pandemic and in the future. Importantly, when an infection type is hard to diagnose by the human eye, and when a consensus among radiologists cannot be made, CovidCTNet can be operated as a reliable source of diagnosis. CovidCTNet is the first open-source computational system, designed to assist healthcare professionals in particular radiologists, that allows researchers and developers to adjust and build other applications based on it in a fraction of time <ref type="bibr" target="#b39">42,</ref><ref type="bibr" target="#b40">43</ref> . Moreover, the addition of patient scans across the course of therapy should enable continuous monitoring of the patient's response to treatment and further development of diagnostic software.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Online content</head><p>Source data, statements of code and data availability and associated accession codes are available at https://gitlab.com/Mohofar/covidctnet.git. Due to the confidentiality of the codes at the time of submission, the repository is in private mode and can therefore be accessed with request to the corresponding author. Upon the article's acceptance, the code will be available to the public.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 2|</head><label>2|</label><figDesc>Multi step pipeline of deep learning algorithm to detect Covid-19 from CT images. a, Training step of the model for learning the structure of Control CT slices. b, Images subtracting and lung reconstructing from CT slices with highlighted Covid-19 or CAP infection (violet colour).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 3|</head><label>3|</label><figDesc>Schematic representation of BCDU-Net module to detect the infection in CT images. a, The original CT images visualized in point cloud. b, Reconstructed lung image acquired by feeding the CT slices (Fig2b8) into BCDU-Net. The Covid-19 infection area is highlighted in b, which serve as the input of CNN classification model (Fig.2c).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 4|</head><label>4|</label><figDesc>Performance of CovidCTNet in detecting Control, Covid-19 and CAP. The model's AUC for Covid-19 detection is 0.95 (n=24 cases). The accuracy, sensitivity and specificity of the model are shown. The model operation in 3 classes demonstrates the detection of all three classes including Covid-19 vs CAP and vs Control and in 2 classes indicates the detection of Covid-19 as one class versus non-Covid-19 (CAP and Control) as second class.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 5|</head><label>5|</label><figDesc>Comparison of the outcome of CovidCTNet vs reader study. Performance of model and radiologists (reader) in a pool of chest CT dataset mixed of Control, Covid-19 and CAP. AUC of Covid-19 is 0.93 (n=20 cases). The accuracy, sensitivity and specificity of readers vs model are shown. The model operation in 3 classes demonstrates the detection of all three classes including Covid-19, CAP and Control separately and in 2 classes indicates the detection of Covid-19 as one class versus CAP and Control as second class.</figDesc></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Acknowledgement: This project was not supported by national or private funding, all authors contributed solely as volunteer. We acknowledge the assistance of Reza Yousefi-Nooraei from University of Rochester, U.S. and Bita Mesgarpour from National Institute for Medical Research Development, Iran for establishing the connections between scientists from different places in the world in a very short time. Besides, we warmly appreciate Ali Babaei Jandaghi from Princess Margaret Cancer Centre, Canada and Nahid Sadighi, from Tehran University of Medical Sciences, Iran for sharing their expertise on CT images annotation. We dedicate our results to all nurses and physicians around the world and especially in Iran, who are risking their lives despite sanctions and international isolation.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Pandemic potential of a strain of influenza A (H1N1): early findings</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Fraser</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.1176062</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">324</biblScope>
+			<biblScope unit="page" from="1557" to="1561" />
+			<date type="published" when="2009" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Communicating the Risk of Death from Novel Coronavirus Disease (COVID-19)</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Kobayashi</surname></persName>
+		</author>
+		<idno type="DOI">10.3390/jcm9020580</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Clinical Medicine</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Pattern of early human-to-human transmission of Wuhan</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Riou</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">L</forename><surname>Althaus</surname></persName>
+		</author>
+		<idno type="DOI">10.2807/1560-7917.ES.2020.25.4.2000058</idno>
+		<ptr target="https://doi.org/10.2807/1560-7917.ES.2020.25.4.2000058" />
+		<imprint>
+			<date type="published" when="2019-01" />
+		</imprint>
+	</monogr>
+	<note>novel coronavirus (2019-nCoV</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">COVID-19: Lessons from SARS and MERS</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><forename type="middle">S</forename><surname>Thwaites</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">J</forename><surname>Openshaw</surname></persName>
+		</author>
+		<idno type="DOI">10.1002/eji.202070035</idno>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="volume">50</biblScope>
+			<biblScope unit="page" from="308" to="311" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Epidemiology and cause of severe acute respiratory syndrome (SARS) in Guangdong, People&apos;s Republic of China</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">N</forename><forename type="middle">S</forename><surname>Zhong</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/S0140-6736(03)14630-2</idno>
+	</analytic>
+	<monogr>
+		<title level="j">The Lancet</title>
+		<imprint>
+			<biblScope unit="volume">362</biblScope>
+			<biblScope unit="page" from="1353" to="1358" />
+			<date type="published" when="2003-02" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Severe acute respiratory syndrome and coronavirus</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><forename type="middle">S</forename><surname>Hui</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">K</forename><surname>Chan</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.idc.2010.04.009</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Infectious disease clinics of North America</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="619" to="638" />
+			<date type="published" when="2010" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Sensitivity of Chest CT for COVID-19: Comparison to RT-PCR. Radiol 0</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Fang</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200432</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Correlation of Chest CT and RT-PCR Testing in Coronavirus Disease 2019 (COVID-19) in China: A Report of 1014 Cases. Radiol 0</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Ai</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200642</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Chest CT Findings in Coronavirus Disease-19 (COVID-19): Relationship to Duration of Infection</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Bernheim</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200463</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+	<note>Radiol 0</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Association of radiologic findings with mortality of patients infected with 2019 novel coronavirus in Wuhan, China</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Z</forename><surname>Tao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Hu</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pone.0230548</idno>
+	</analytic>
+	<monogr>
+		<title level="j">PLOS ONE</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">CT image visual quantitative evaluation and clinical classification of coronavirus disease (COVID-19)</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/s00330-020-06817-6</idno>
+	</analytic>
+	<monogr>
+		<title level="j">European Radiology</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Chest CT for Typical 2019-nCoV Pneumonia: Relationship to Negative RT-PCR Testing</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Xie</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200343</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Radiology</title>
+		<imprint>
+			<biblScope unit="volume">0</biblScope>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Community Prevalence of SARS-CoV-2 Among Patients With Influenzalike Illnesses Presenting to a Los Angeles Medical Center</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Spellberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1001/jama.2020.4958</idno>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA</title>
+		<imprint>
+			<date type="published" when="2020-03" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Covert COVID-19 and false-positive dengue serology in Singapore</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Yan</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/S1473-3099(20)30158-4</idno>
+	</analytic>
+	<monogr>
+		<title level="m">The Lancet Infectious Diseases</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Chest CT Severity Score: An Imaging Tool for Assessing Severe COVID-19. 2, e200047</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Yang</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/ryct.2020200047</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">A deep learning algorithm using CT images to screen for Corona Virus Disease (COVID-19). medRxiv</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<idno type="DOI">10.1101/2020.02.14.20023028</idno>
+		<imprint>
+			<date type="published" when="2002" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">COVID-19): Role of Chest CT in Diagnosis and Management</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Xia</surname></persName>
+		</author>
+		<idno type="DOI">10.2214/AJR.20.22954</idno>
+	</analytic>
+	<monogr>
+		<title level="j">American Journal of Roentgenology</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="7" />
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+	<note>Coronavirus Disease</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">CT Imaging Features of 2019 Novel Coronavirus (2019-nCoV)</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Chung</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200230</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Radiol</title>
+		<imprint>
+			<biblScope unit="volume">295</biblScope>
+			<biblScope unit="page" from="202" to="207" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiol 0</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><forename type="middle">X</forename><surname>Bai</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200823</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Automated deep-learning system for Gleason grading of prostate cancer using biopsies: a diagnostic study</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Bulten</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1470-2045</idno>
+	</analytic>
+	<monogr>
+		<title level="j">The Lancet. Oncology</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">19</biblScope>
+			<biblScope unit="page" from="30739" to="30748" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title/>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Shen</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41598-019-48995-4</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Deep Learning to Improve Breast Cancer Detection on Screening Mammography. Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page">12495</biblScope>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Prostate Cancer Detection using Deep Convolutional Neural Networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Yoo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><surname>Gujrathi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><forename type="middle">A</forename><surname>Haider</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Khalvati</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41598-019-55972-4</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">End-to-end lung cancer screening with three-dimensional deep learning on low-dose chest computed tomography</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Ardila</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41591-019-0447-x</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Medicine</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="954" to="961" />
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Artificial Intelligence Distinguishes COVID-19 from</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2020200905</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Community Acquired Pneumonia on Chest CT. Radiol</title>
+		<imprint>
+			<biblScope unit="volume">0</biblScope>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Covid-19: automatic detection from X-ray images utilizing transfer learning with convolutional neural networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><forename type="middle">D</forename><surname>Apostolopoulos</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><forename type="middle">A</forename><surname>Mpesiana</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/s13246-020-00865-4</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys Eng Sci Med</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="6" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+				<ptr target="http://openaccess.thecvf.com/content_iccv_2017/html/Sun_Revisiting_Unreasonable_Effec……….tiveness_ICCV_2017_paper.html" />
+		<title level="m">27……</title>
+		<imprint>
+			<date type="published" when="2020-04-28" />
+		</imprint>
+	</monogr>
+	<note>Last accessed 25</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Deep Learning in Radiology: Does One Size Fit All</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><forename type="middle">J</forename><surname>Erickson</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.jacr.2017.12.027</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American College of Radiology</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="521" to="526" />
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">SPIE-AAPM-NCI lung nodule classification challenge dataset</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Iii</forename><surname>Armato</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">G</forename><surname>Hadjiiski</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Tourassi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><forename type="middle">D</forename><surname>Drukker</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Giger</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><forename type="middle">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Redmond</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Farahani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Kirby</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">S</forename><surname>Clarke</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><forename type="middle">P</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Cancer Imaging Arch</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page">9</biblScope>
+			<date type="published" when="2015" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">LUNGx Challenge for computerized lung nodule classification</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">S</forename><surname>Kirby</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J Med Imag 3 J Journal of Medical Imaging</title>
+		<imprint>
+			<biblScope unit="page">44506</biblScope>
+			<date type="published" when="2016" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">LUNGx Challenge for computerized lung nodule classification</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">G</forename><surname>Armato</surname></persName>
+		</author>
+		<idno type="DOI">10.1117/1.JMI.3.4.044506</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J Med Imaging</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page">44506</biblScope>
+			<date type="published" when="2016" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Automated pulmonary nodule detection in CT images using deep convolutional neural networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">N</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.patcog.2018.07.031</idno>
+		<ptr target="https://doi.org/10.1016/j.patcog.2018.07.031" />
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="volume">85</biblScope>
+			<biblScope unit="page" from="109" to="119" />
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Reza</forename><surname>Azad</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><forename type="middle">A</forename></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">.-A</forename></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mahmood</forename><surname>Fathy</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergio</forename><surname>Escalera</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Bi-Directional ConvLSTM U-Net with Densley Connected Convolutions. Image and Video Processing</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+				<idno type="arXiv">arXiv:1909.00166[eess.IV</idno>
+		<title level="m">Computer Vision and Pattern Recognition (cs.CV)</title>
+		<imprint>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Fully Dense UNet for 2D Sparse Photoacoustic Tomography Artifact Removal</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Khan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Sikdar</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Chitnis</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/JBHI.2019.2912935</idno>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal of Biomedical and Health Informatics PP</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="1" />
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title/>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">O</forename><surname>Ronneberger</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Brox</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Medical Image Computing and Computer-Assisted Intervention -MICCAI</title>
+		<editor>Nassir Navab, Joachim Hornegger, William M. Wells, &amp; Alejandro F. Frangi</editor>
+		<imprint>
+			<biblScope unit="page" from="234" to="241" />
+			<date type="published" when="2015" />
+			<publisher>Springer International Publishing</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">An image synthesizer</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Perlin</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/325165.325247</idno>
+	</analytic>
+	<monogr>
+		<title level="j">SIGGRAPH Comput. Graph</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page" from="287" to="296" />
+			<date type="published" when="1985" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Patch-based Convolutional Neural Network for Whole Slide Tissue Image Classification. Computer Vision and Pattern Recognition (cs</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Le</forename><surname>Hou</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><forename type="middle">S</forename><surname>Tahsin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Kurc</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Yi</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">James</forename><forename type="middle">E</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Joel</forename><forename type="middle">H</forename><surname>Saltz</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<title level="m" type="main">COVID-Net: A Tailored Deep Convolutional Neural Network Design for Detection of COVID-19 Cases from Chest X-Ray Images</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Linda</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">W</forename></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.09871[eess.IV</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">AI-Driven CT-based quantification, staging and short-term outcome prediction of COVID-19 pneumonia</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Chassagnon</surname></persName>
+		</author>
+		<idno type="DOI">10.1101/2020.04.17.20069187JmedRxiv</idno>
+		<imprint>
+			<date type="published" when="2004" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Time for NIH to lead on data sharing</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><surname>Sim</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.aba4456</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J Science</title>
+		<imprint>
+			<biblScope unit="volume">367</biblScope>
+			<biblScope unit="page" from="1308" to="1309" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+	<note>Science</note>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Benjamin</forename><surname>Haibe-Kains</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><forename type="middle">A A</forename></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>Hosny</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Farnoosh</forename><surname>Khodakarami</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Maqc Society</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Levi</forename><surname>Board</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Bo</forename><surname>Waldron</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Chris</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Anshul</forename><surname>Mcintosh</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Casey</forename><forename type="middle">S</forename><surname>Kundaje</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><forename type="middle">M</forename><surname>Greene</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jeffrey</forename><forename type="middle">T</forename><surname>Hoffman</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Wolfgang</forename><surname>Leek</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alvis</forename><surname>Huber</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Joelle</forename><surname>Brazma</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Robert</forename><surname>Pineau</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Trevor</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">A</forename><surname>John</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">John</forename><surname>Ioannidis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Quackenbush</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">W L</forename><surname>Hugo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Aerts</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.00898</idno>
+		<title level="m">The importance of transparency and reproducibility in artificial intelligence research</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+	<note>stat.AP</note>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Clinically Applicable AI System for Accurate Diagnosis, Quantitative Measurements and Prognosis of COVID-19 Pneumonia Using Computed Tomography</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cell.2020.04.045</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

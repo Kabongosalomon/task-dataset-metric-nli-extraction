@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/../grobid-0.6.0/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">MammoGANesis: Controlled Generation of High-Resolution Mammograms for Radiology Education</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Cyril</forename><surname>Zakka</surname></persName>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ghida</forename><surname>Saheb</surname></persName>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Elie</forename><surname>Najem</surname></persName>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ghina</forename><surname>Berjawi</surname></persName>
+						</author>
+						<title level="a" type="main">MammoGANesis: Controlled Generation of High-Resolution Mammograms for Radiology Education</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+
+		<encodingDesc>
+			<appInfo>
+				<application version="0.6.0" ident="GROBID-SDO" when="2021-06-26T07:03+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid-sdo"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>During their formative years, radiology trainees are required to interpret hundreds of mammograms per month, with the objective of becoming apt at discerning the subtle patterns differentiating benign from malignant lesions. Unfortunately, medico-legal and technical hurdles make it difficult to access and query medical images for training.</p><p>In this paper we train a generative adversarial network (GAN) to synthesize 512 x 512 high-resolution mammograms. The resulting model leads to the unsupervised separation of high-level features (e.g. the standard mammography views and the nature of the breast lesions), with stochastic variation in the generated images (e.g. breast adipose tissue, calcification), enabling user-controlled global and local attribute-editing of the synthesized images.</p><p>We demonstrate the model's ability to generate anatomically and medically relevant mammograms by achieving an average AUC of 0.54 in a double-blind study on four expert mammography radiologists to distinguish between generated and real images, ascribing to the high visual quality of the synthesized and edited mammograms, and to their potential use in advancing and facilitating medical education.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Over the course of their medical education, radiology trainees are required to interpret hundreds of images per month in order to obtain basic competency in visual diagnosis <ref type="bibr" target="#b1">[2]</ref>. Performance on these interpretations improves with increasing exposure to mammograms, with higher detection rates of cancers and lower unnecessary work-ups noted in radiologists with additional fellowship training and targeted medical education <ref type="bibr" target="#b0">[1]</ref>.</p><p>Nevertheless, working within the context of medical records and images poses unique legal and technical challenges that can prove to be real barriers for medical education and research <ref type="bibr" target="#b12">[13]</ref>. Clinical data is often heterogeneous and messy <ref type="bibr" target="#b15">[16]</ref>, and often unamenable to simple querying. Despite the availability of structured data (e.g. disease history, lab results, procedures), unstructured information remains ubiquitous especially in the context of progress notes and radiology reports. While existing machine learning approaches, such as Natural Language Processing (NLP), make it possible to extract and retrieve relevant information from medical records, they are far from complete, and unsuited for rapid large scale medical record querying and retrieval <ref type="bibr" target="#b19">[20]</ref>.</p><p>Additionally, medical data often mirrors the underlying disease distribution of a population, reflecting the marked imbalances in the incidence and prevalence rates of many illnesses. This under-representation of certain diseases in medical education as a result of low prevalence has many downstream consequences, resulting in substantial contributions to 'miss' errors in screenings and diagnosis <ref type="bibr" target="#b2">[3]</ref>. Moreover, the use of medical data for research and education comes with its own set of privacy and legal hurdles: the growing availability of electronic medical records affords researchers and educators a range of opportunities, at the cost of growing ethical issues, ranging from debates surrounding the quality of de-identification <ref type="bibr" target="#b5">[6]</ref> to ongoing discussions on data ownership, access and control.</p><p>In this paper, we propose the use of generative adversarial networks (GANs) as a primer for education in the field of radiology. We train a style-based GAN architecture developed by Karras et al. <ref type="bibr" target="#b26">[27]</ref> on an in-house dataset of mammograms collected from the American University of Beirut Medical Center (AUBMC), with approval from the Institutional Review Board (IRB). We then demonstrate the controlled modification of global and local image attributes in the generated images to obtain mammograms with specific characteristics of interest. A double-blind study on four breast radiologists is then performed to assess the visual quality of the resulting images. Finally, we discuss the limitations of our methodology, and provide possible applications for use in clinical settings.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. BACKGROUND</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Generative Adversarial Networks</head><p>Generative Adversarial Networks (GANs), proposed by Goodfellow et al. <ref type="bibr" target="#b3">[4]</ref>, are part of a subset of machine learning algorithms known as generative models that enable the generation of new data points by closely matching the underlying distribution of a dataset. In essence, a GAN pits two neural networks, a generator G and a discriminator D, against each other: the generator must synthesize data in such a way that the discriminator cannot distinguish the real data points from the synthetic ones produced by the generator. In other words, D and G engage in a min-max game with the following value function V (D, G):</p><formula xml:id="formula_0">min G max D V (D, G) = E x∼px [log D(x)] + E z∼pz [log (1 − D(G(z)))],</formula><p>where x is a 'real' sample from the actual dataset, represented by distribution p x , and z is a 'latent vector' sampled from distribution p z , typically noise.</p><p>Since their advent in 2014, the use of GANs for image synthesis has seen a steady increase in the literature, with arXiv:2010.05177v1 [eess.IV] 11 Oct 2020 the introduction of many key innovations to improve on the quality of the generated images and their manipulations. For a thorough review of the GAN literature we refer the reader to recent surveys in <ref type="bibr" target="#b9">[10]</ref>.</p><p>StyleGAN <ref type="bibr" target="#b17">[18]</ref> and the more recent StyleGAN2 <ref type="bibr" target="#b26">[27]</ref> are GANs that attempt to learn disentangled representations of images, or rather, representations of images with the ability to consistently manipulate the appearance of a semantic attribute in a generated image, independently of any other attribute.</p><p>StyleGAN's generator has two sub-networks, one for mapping and one for synthesis. First, the mapping sub-network M maps the input z into an intermediate latent vector w. This can be modeled by the following function:</p><formula xml:id="formula_1">y i = G i (y i−1 , w) with w = M (z)</formula><p>with M being an 8-layer multilayer perceptron, and y i being the input to subsequent layers in the network. The resulting vector is injected as input to all intermediate layers of the synthesis sub-network (G). The authors demonstrate that by allowing each layer to have its own w i , better disentanglement properties are achieved <ref type="bibr" target="#b23">[24]</ref>.</p><p>It is important to note that despite all of the recent improvements made to GANs, mode collapse is a phenomenon that has often been described in the context of GAN training. Simply, the generator fails to learn the underlying distribution of the data and only produces a limited variety of samples <ref type="bibr" target="#b11">[12]</ref>. While some improvements to the loss function of the GAN (e.g. Wasserstein loss, spectral regularization) have been shown to reduce the likelihood of this phenomenon, caution should be exercised when using GANs in clinical settings, especially for tasks such as data augmentation in machine learning where mode collapse could lead to the amplification of underlying biases or unwanted distribution shifts.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Semantic Editing of Generated Images</head><p>Recent advancements in generative networks have focused primarily on making improvements to the quality of the generated images, and have provided little in terms of controlling the generated outputs. Network architectures like StyleGAN and Conditional GANs, while offering the ability to transfer style vectors or sample from different image classes <ref type="bibr" target="#b4">[5]</ref>, are still limited in terms of the extent of their editing abilities.</p><p>For this reason, several works have explored different methods for semantic image editing, ranging from activationbased techniques to latent code-based approaches.</p><p>Activation-based techniques directly manipulate activation tensors at specific layers of the generator to modify an image. While previous works have shown success in this direction, they often require some form of supervised learning, which can be difficult and expensive, especially when it comes to medical imaging. For this reason, Härkönen </p><formula xml:id="formula_2">w = w + V x,</formula><p>where the individual entries x k of x correspond to different edits, many of which control mostly large-scale variations in the images.</p><p>On the other hand, latent code-based techniques learn a manifold in latent space, and perform semantic edits by traversing paths along this manifold <ref type="bibr" target="#b7">[8]</ref>; <ref type="bibr" target="#b8">[9]</ref>, usually making use of heavy external supervision. In their seminal paper, Collins et al. <ref type="bibr" target="#b24">[25]</ref> propose a latent code-based approach that permits local edits by borrowing attributes of interest from reference images. This is achieved by applying spherical kmeans clustering along the activation layers of a given layer of a trained generator to obtain clusters corresponding to semantic parts of an image <ref type="bibr" target="#b13">[14]</ref>. A simplified understanding of the conditional interpolation of the feature of interest can then be modeled by:</p><formula xml:id="formula_3">i = s + Q(r − s)</formula><p>with I being the generated image, S and R being the target and reference images respectively, and Q being the query vector, a diagonal matrix containing the values of a semantic cluster controlling a region of interest, along with a function to control the strength of the interpolation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Motivation and Related Work</head><p>Modern Electronic Health Records (EHRs) provide troves of data ripe for use in human and machine learning. However, this opportunity presents itself with a new set of challenges and limitations.</p><p>Despite the growing number of medical imaging performed each year, it is frequently the case that medical datasets suffer from severe class imbalances, along with incompletely annotated or insufficient data <ref type="bibr" target="#b15">[16]</ref>  <ref type="bibr" target="#b12">[13]</ref>. Images are often accompanied by unstructured data with language irregularities and ambiguities, that complicate the use of common machine learning methodologies. This makes it difficult to query and fetch relevant data pertaining to a specific disease or its clinical presentation.</p><p>Additionally, medical datasets commonly exhibit strong class imbalances and bias. While healthy individuals might be underrepresented in hospital settings, the opposite is also true for most screening programs, including mammography. For example, the prevalence of breast cancer in a screening population is often cited as laying between 0.5 and 1.0% (Global Burden of Disease Study, 2017). With the inclusion of both standard views (CC and MLO) for each breast in a dataset, along with the observation that malignancies in both sides is relatively rare, it is possible that as many as 99.7% of the images will be benign <ref type="bibr" target="#b21">[22]</ref>. These imbalances coupled with the privacy and legal constraints surrounding work with sensitive health records, and a relative inability to freely share them across institutions, make it difficult in many cases for individual researchers and medical trainees to compile sufficient examples for human or machine learning tasks.</p><p>A number of attempts have been made to apply GANs to medical imaging datasets <ref type="bibr" target="#b6">[7]</ref>[11] <ref type="bibr" target="#b18">[19]</ref>[23] ranging from the generation of synthetic MRI images with brain tumors, to the modification of contrast CT images for segmentation. Moreover, several approaches have demonstrated the feasibility of generating high-resolution mammograms for use in data augmentation and domain transfer <ref type="bibr" target="#b20">[21]</ref>  <ref type="bibr" target="#b16">[17]</ref>. In 2018, Finlayson et al. <ref type="bibr" target="#b14">[15]</ref> proposed the idea of utilizing GAN generated images for radiology education but only demonstrated that the trained GAN had learned clinicallyrelevant features sufficient for machine learning.</p><p>In this paper, we demonstrate the possibility of utilizing GANs as a source of training for humans through mammogram generation, and reveal global and local editing capabilities for the modification of attributes of interest, to provide an exceptionally large set of examples for human training and visualization of common and rare breast pathologies.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. METHODS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IRB approval was granted for all stages of this study.</head><p>A dataset of 162,988 mammograms consisting of the four standard views used in breast cancer screening (R-CC, L-CC, R-MLO, L-MLO) was collected from (AUBMC) for all women aged 18+ between the dates of January 1, 2012 and September 05, 2019.</p><p>Data preprocessing consisted of several steps. In order to speed up computations and work within the scope of the available hardware resources, all mammograms were first downsized to a height of 512 pixels before appending black pixels to the edge of the mammogram opposing the breast to obtain square images of shape (512, 512). Mammograms were then flipped along the vertical axis in order to align all of the breasts and increase StyleGAN training stability. The dataset was then split into 152,973 images for training and 10,015 images for testing.</p><p>Several initial experiments were first conducted to assess the scope of the study, and to determine best practices. The model was initially trained on low-resolution images, with all breasts centered along their horizontal axes of symmetry, the latter of which yielded sub-optimal results due to the inevitable cropping of lower and apical breast tissue.</p><p>The final model's implementation, leveraged from Karras et al. 2019 with hardware-specific modifications and some memory optimizations to account for the size of the dataset, was trained for 4 days on a single Tensor Processing Unit (TPU) v3 to synthesize high-resolution (512 x 512) mammograms, for a total of 10,000,000 images exposed to the discriminator.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. EXPERIMENTS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Global Editing of Attributes</head><p>To carry out global edits of generated mammograms, PCA analysis was conducted in the intermediate W latent space of StyleGAN2 using 100 components. Random components were visually inspected by modifying edit directions and constraining the variations to only a subset of layers, while leaving other layers' inputs unchanged. For truncation, we use a value of 0.65, since greater values tended to produce anatomically distorted mammograms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Local Editing of Attributes</head><p>Local editing of attributes of interest was achieved by performing spherical k-means clustering with k=10 on the first 8×8 resolution layer of the generator. We set ρ such that ρ 1+ρ = 0.1 and tune 20 ≤ ≤ 100 for best performance based on the target image and region of interest. The process of qualitative evaluation required only minutes of human supervision.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Visual Turing Test</head><p>A double-blind study on four expert mammography radiologists was carried out in order to determine the quality of the generated images. The radiologists have all previously completed a fellowship in breast radiology, and average more than 8 years of clinical experience.</p><p>The dataset was created by first sampling more than 1000 images from our GAN with a truncation value set at 0.65, and applying a random edit to the generated images with a probability = 0.35. An image is then sampled without replacement at random from either the test set of real radiographs or the pool of synthesized and edited mammograms to obtain a dataset of 100 images. Edits consisted of semantic changes to breast size and shape, tissue density, radiologic view, breast position, as well as the presence and size of implants <ref type="figure" target="#fig_1">(Figs. 2, &amp; 3</ref>  In the first task framed as a binary classification problem, the radiologists were presented with a series of images from the dataset and were tasked with classifying each image as real or generated. Performance was measured after the classification of all of the images in the dataset.</p><p>In the second task, the radiologists were presented with six random images simultaneously (five real and one synthesized mammogram), and were tasked with determining the generated image in each round. Performance was measured after three wrong answers. Results of the Visual Turing Test experiments are presented in <ref type="table" target="#tab_1">Table II</ref>. For the binary classification task <ref type="table" target="#tab_1">(Table  IIa)</ref>, the radiologists are no better than random at differentiating between synthesized and real mammograms, with an average AUC of 0.54 and a precision of 0.55. While radiologist 2 manages to obtain an AUC of 0.74, performances of radiologists 3 and 4 hover below that of a random classifier defined as a performance with an AUC of 0.5. Radiologist 1 performs only slightly better than random with an AUC of 0.56.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. RESULTS</head><p>In the discrimination task <ref type="table" target="#tab_1">(Table IIb)</ref>, the radiologists struggled to identify the generated mammograms, with average performance lasting around 5.75 rounds. While radiologist 2 managed to reach fourteen rounds, the remaining radiologists never made it past the third round.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. DISCUSSION</head><p>Based on the Visual Turing Test results obtained, it is clear that the generative network has learned important visual features that enable it to generate mammograms indistinguishable from real ones at this resolution, even to expert radiologists. On average, classification performance is no better than random, with successful differentiation achievable mostly after lengthy deliberation. However, it is important to keep in mind that while experiments were carried out at resolutions of 512x512, radiologists typically work with mammograms exceeding 3000 pixels in both dimensions, and that classification and discrimination performances were obtained for only a small sample of radiologists. While previous works <ref type="bibr" target="#b20">[21]</ref> have successfully reported generating high-quality mammograms at greater resolutions, further work is needed to evaluate the quality of local and global editing operations to resolutions greater than 512 pixels.</p><p>Additionally, these methods of generation and editing pose some interesting challenges. While some attributes, such as the presence or absence of calcification, are strictly discrete, a learned latent space is usually continuous by nature, resulting in some generated images with attributes that lie in-between the discrete values. The resulting image may not truly reflect accurate pathophysiology or may even reveal some visual inconsistencies, such as the textual radiologic view labels on some mammograms that appear to be halfway between 'CC' and 'MLO'.</p><p>Moreover, despite demonstrating intrinsic disentangled semantic properties, global and local editing operations sometimes require supervised curation of the generated images, as the quality of the results depends heavily on the extent to which an object's representation is disentangled from other representations. Per-image fine-tuning of edit parameters is also sometimes necessary to obtain optimal results after local editing.</p><p>Despite these minor drawbacks, it is clear that image generation will play an important role in future clinical education. Medical GANs provide an opportunity to improve visual diagnosis through the generation of virtually unlimited, high-quality training examples, especially in the case of rare pathologies. The extension of these semantic editing operations to real patient mammograms through real image mapping in latent-space (Abdal et al. 2019) could allow for the modification of clinical attributes in real-time, for use in interactive learning experiences and prototyping such as cancer growth simulation, visualization and privacy preservation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VII. ACKNOWLEDGEMENTS</head></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 :</head><label>1</label><figDesc>Randomly sampled mammograms generated using a pre-specified random seed and a truncation value of 0.65.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 :</head><label>2</label><figDesc>Uncurated rows of global edits which illustrate the six largest principal components in the intermediate W latent space of StyleGAN2, which span the major variations expected of mammograms such as radiologic view and breast density. At each row, the image at 0.00 is the original image along the edit direction. et al. [26] demonstrate the use of Principal Components Analysis (PCA) in the activation space of specific layers, allowing high-level control over image attributes without any supervision. In short, PCA analysis is performed on w i = M (z i ) values of N randomly sampled z 1:N vectors to obtain a matrix V . Given a new image defined by w, emerging high-level attributes be edited by varying the PCA coordinates of x:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 3 :</head><label>3</label><figDesc>Characteristics of interest such as breast shape and tissue are transferred to the target images by primarily affecting the region of interest. This method allows necessary global changes to the resulting image in order to preserve anatomy and photorealism.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 1</head><label>1</label><figDesc>depicts forty randomly sampled mammograms from the GAN, along with disentangled global and local edit directions in figures 2 and 3 respectively. Visual inspection of the mammograms reveals a variety of styles and pathological features with no signs of obvious mode collapse.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>TABLE II :</head><label>II</label><figDesc>Performance of four expert radiologists on different classification tasks on a dataset composed of 100 real, synthesized and edited mammograms.</figDesc><table /><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>TABLE I :</head><label>I</label><figDesc></figDesc><table /><note>Radiologist and dataset summary statistics</note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1">Faculty of Medicine, American University of Beirut, Lebanon 2 Department of Diagnostic Radiology, American University of Beirut Medical Center, Lebanon</note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This research was made possible thanks to important contributions from Shawn Presser and Aydao, as well as the computational resources provided by Google's TensorFlow Research Cloud (TFRC).</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">When Radiologists Perform Best: The Learning Curve in Screening Mammogram Interpretation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><forename type="middle">L</forename><surname>Miglioretti</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/radiol.2533090070</idno>
+		<ptr target="https://doi.org/10.1148/radiol.2533090070" />
+	</analytic>
+	<monogr>
+		<title level="j">Radiology</title>
+		<imprint>
+			<biblScope unit="volume">253</biblScope>
+			<biblScope unit="page" from="632" to="640" />
+			<date type="published" when="2009-12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Machine learning and radiology</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><forename type="middle">M</forename><surname>Summers</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.media.2012.02.005</idno>
+		<ptr target="https://doi.org/10.1016/j.media.2012.02.005" />
+	</analytic>
+	<monogr>
+		<title level="j">Medical Image Analysis</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="page" from="933" to="951" />
+			<date type="published" when="2012-07" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">If You Don&apos;t Find It Often, You Often Don&apos;t Find It: Why Some Cancers Are Missed in Breast Cancer Screening</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><forename type="middle">K</forename><surname>Evans</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><forename type="middle">L</forename><surname>Birdwell</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">M</forename><surname>Wolfe</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pone.0064366</idno>
+		<ptr target="https://doi.org/10.1371/journal.pone.0064366" />
+	</analytic>
+	<monogr>
+		<title level="j">PLoS ONE</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<date type="published" when="2013-05" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Generative Adversarial Networks. ArXiv abs/1406</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014" />
+			<biblScope unit="page">2661</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Conditional Generative Adversarial Nets</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Osindero</surname></persName>
+		</author>
+		<idno type="arXiv">abs/1411.1784.arXiv:1411.1784</idno>
+		<ptr target="http://arxiv.org/abs/1411.1784" />
+		<imprint>
+			<date type="published" when="2014" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">De-identification of Medical Images with Retention of Scientific Research Value</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">M</forename><surname>Moore</surname></persName>
+		</author>
+		<idno type="DOI">10.1148/rg.2015140244</idno>
+		<ptr target="https://doi.org/10.1148/rg.2015140244" />
+	</analytic>
+	<monogr>
+		<title level="j">Radio-Graphics</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="727" to="735" />
+			<date type="published" when="2015-05" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Medical Image Synthesis with Context-Aware Generative Adversarial Networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Nie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Trullo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Petitjean</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Ruan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Shen</surname></persName>
+		</author>
+		<idno type="arXiv">abs/1612.05362.arXiv:1612.05362</idno>
+		<ptr target="http://arxiv.org/abs/1612.05362" />
+		<imprint>
+			<date type="published" when="2016" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Invertible Conditional GANs for image editing</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Perarnau</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Van De Weijer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Raducanu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">M</forename><surname>Alvarez</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1611.06355</idno>
+		<ptr target="http://arxiv.org/abs/1611.06355" />
+		<imprint>
+			<date type="published" when="2016" />
+		</imprint>
+	</monogr>
+	<note type="report_type">CoRR abs/1611.06355.</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Generative Visual Manipulation on the Natural Image Manifold</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Krähenbühl</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Shechtman</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">A</forename><surname>Efros</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1609.03552</idno>
+		<ptr target="http://arxiv.org/abs/1609.03552" />
+		<imprint>
+			<date type="published" when="2016" />
+		</imprint>
+	</monogr>
+	<note type="report_type">CoRR abs/1609.03552.</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Generative Adversarial Networks: An Overview</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Creswell</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1710.07035</idno>
+		<ptr target="http://arxiv.org/abs/1710.07035" />
+		<imprint>
+			<date type="published" when="2017" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Deep MR to CT Synthesis using Unpaired Data</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">M</forename><surname>Wolterink</surname></persName>
+		</author>
+		<idno type="arXiv">abs/1708.01155.arXiv:1708.01155</idno>
+		<ptr target="http://arxiv.org/abs/1708.01155" />
+		<imprint>
+			<date type="published" when="2017" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Do GANs learn the distribution?</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Arora</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Risteski</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<ptr target="https://openreview.net/forum?id=BJehNfW0-" />
+	</analytic>
+	<monogr>
+		<title level="m">Some Theory and Empirics in International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Opportunities and obstacles for deep learning in biology and medicine</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Ching</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J R Soc Interface</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<date type="published" when="2018-04" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Deep Feature Factorization For Concept Discovery in ECCV</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Collins</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Achanta</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Süsstrunk</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title/>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">G</forename><surname>Finlayson</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><forename type="middle">S</forename><surname>Kohane</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Oakden-Rayner</surname></persName>
+		</author>
+		<idno type="arXiv">abs/1812.01547.arXiv:1812.01547</idno>
+		<ptr target="http://arxiv.org/abs/1812.01547" />
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Opportunities in Machine Learning for Healthcare</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Naumann</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Schulam</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">L</forename><surname>Beam</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Ranganath</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1806.00388</idno>
+		<ptr target="http://arxiv.org/abs/1806.00388" />
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+	<note type="report_type">CoRR abs/1806.00388.</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Generation of Synthetic Electronic Medical Record Text</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE International Conference on Bioinformatics and Biomedicine (BIBM)</title>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="374" to="380" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">A Style-Based Generator Architecture for Generative Adversarial Networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Karras</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Laine</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Aila</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1812.04948</idno>
+		<ptr target="http://arxiv.org/abs/1812.04948" />
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Medical Image Synthesis for Data Augmentation and Anonymization using Generative Adversarial Networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Shin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.10225</idno>
+		<ptr target="http://arxiv.org/abs/1807.10225" />
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Opportunities and challenges in developing deep learning models using electronic health records data: a systematic review</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/jamia/ocy068</idno>
+		<ptr target="https://doi.org/10.1093/jamia/ocy068" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Medical Informatics Association</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="1419" to="1428" />
+			<date type="published" when="2018-06" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Korkinof</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Heindl</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Rijken</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Harvey</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Glocker</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Mammo{gan}</surname></persName>
+		</author>
+		<ptr target="https://openreview.net/forum?id=SJeichaN5E" />
+		<title level="m">High-Resolution Synthesis of Realistic Mammograms in International Conference on Medical Imaging with Deep Learning -Extended Abstract Track</title>
+		<meeting><address><addrLine>London, United Kingdom</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019-07" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title/>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><forename type="middle">R</forename><surname>Ranschaert</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Morozov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">R</forename><surname>Algra</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-3-319-94878-2</idno>
+		<ptr target="https://doi.org/10.1007/978-3-319-94878-2" />
+	</analytic>
+	<monogr>
+		<title level="j">Artificial Intelligence in Medical Imaging</title>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>Springer International Publishing</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Data augmentation using generative adversarial networks (CycleGAN) to improve generalizability in CT segmentation tasks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">V</forename><surname>Sandfort</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">J</forename><surname>Pickhardt</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><forename type="middle">M</forename><surname>Summers</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41598-019-52737-x</idno>
+		<ptr target="https://doi.org/10.1038/s41598-019-52737-x" />
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<date type="published" when="2019-11" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Interpreting the Latent Space of GANs for Semantic Face Editing</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Zhou</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1907.10786</idno>
+		<ptr target="http://arxiv.org/abs/1907.10786" />
+		<imprint>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+	<note type="report_type">CoRR abs/1907.10786.</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Collins</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Bala</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Price</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Süsstrunk</surname></persName>
+		</author>
+		<title level="m">Style: Uncovering the Local Semantics of GANs. 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="5770" to="5779" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Härkönen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Hertzmann</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Lehtinen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Paris</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Ganspace</surname></persName>
+		</author>
+		<idno>abs/2004.02546</idno>
+		<title level="m">Discovering Interpretable GAN Controls. ArXiv</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Analyzing and Improving the Image Quality of StyleGAN</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Karras</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="8107" to="8116" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

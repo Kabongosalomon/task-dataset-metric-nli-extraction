@@ -8,6 +8,7 @@ import spacy
 import torch
 import optuna
 import pickle
+import re
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -347,3 +348,29 @@ def compute_metrics(list_gold, list_pred, model_name, output_path):
         text_file.write(f"{val_macro_avg_p}\t{val_macro_avg_r}\t{val_macro_avg_f1}\t{val_micro_avg_p}\t{val_micro_avg_r}\t{val_micro_avg_f1}\n")
 
         text_file.write(f"{classification_report(y, y_pred, target_names=['true', 'false'], output_dict=False)}")
+
+def get_start_lenght(dictionary, limit="", title="", plot=False):
+    # Stats
+    len_context= []
+    for context in dictionary.values():
+        len_context.append(len(context.split()))
+    
+    print(f"Context TDM limit {limit}:")
+    print(f"Mean lenght: {np.mean(len_context)}")
+    print(f"Max lenght: {np.max(len_context)}")
+    print(f"Min lenght: {np.min(len_context)}")
+    print(f"Std lenght: {np.std(len_context)}")
+    
+    if plot:
+        x = np.arange(1, len(len_context)+1, 1)
+        y = len_context
+
+        plt.plot(x, y)
+
+        plt.title(title)
+        plt.xlabel("number of papers")
+        plt.ylabel("lenght DocTAET")
+        plt.savefig(fname=re.sub(r"[0-9]+", '', title).strip())
+        plt.show()
+    
+    return len_context

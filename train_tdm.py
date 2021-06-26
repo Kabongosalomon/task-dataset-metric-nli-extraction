@@ -138,6 +138,10 @@ if __name__ == '__main__':
     model = selected_processor[1].from_pretrained(
                                     selected_processor[2], num_labels=2)
 
+    # TODO Longformer https://github.com/huggingface/transformers/issues/10832 (not working)
+    # if model_name == "Longformer":
+    #     model.resize_token_embeddings(len(tokenizer))
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if torch.cuda.device_count() > 1:
@@ -216,4 +220,5 @@ if __name__ == '__main__':
 
     runtime = round(time.time() - start_time, 3)
     print("runtime: %s seconds " % (runtime))
+    print(args)
     print('done.')
