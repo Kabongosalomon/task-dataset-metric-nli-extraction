@@ -122,9 +122,12 @@ def train(model, iterator, optimizer, scheduler, epoch):
         # loss, prediction = model(pair_token_ids, 
         #                     token_type_ids=seg_ids, 
         #                     attention_mask=mask_ids, 
-        #                     labels=labels).values()          
-        
-        loss.backward()
+        #                     labels=labels).values()  
+                
+        if torch.cuda.device_count() > 1:
+            loss.sum().backward()
+        else:
+            loss.backward()        
 
         # # New
         # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -142,7 +145,12 @@ def train(model, iterator, optimizer, scheduler, epoch):
         
 
         train_acc.update(prediction.eq(labels.view_as(prediction)).sum().item()/len(labels)) # accuracy_score(labels.cpu(), prediction.cpu())
-        train_loss.update(loss.item())  
+        
+        if torch.cuda.device_count() > 1:
+            train_loss.update(loss.sum().item())
+        else:
+            loss.item() 
+          
         
         if (batch_idx + 1) % 1000 == 0:
             print(f"[epoch {epoch+1}] [iter {(batch_idx + 1)}/{len(iterator)}]")

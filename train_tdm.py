@@ -215,5 +215,8 @@ if __name__ == '__main__':
             print('****************************************************************************')
 
     runtime = round(time.time() - start_time, 3)
-    print("runtime: %s seconds " % (runtime))
+    print("runtime: %s minutes " % (runtime/60))
+    print("#####################################")
+    print(args)
+    print("#####################################")
     print('done.')
