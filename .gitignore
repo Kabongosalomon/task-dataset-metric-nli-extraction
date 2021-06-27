@@ -130,3 +130,5 @@ dmypy.json
 
 /data
 *.out
+
+note.md
