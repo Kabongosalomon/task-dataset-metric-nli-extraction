@@ -209,7 +209,7 @@ if __name__ == '__main__':
         if valid_metric_avg > best_valid_metric_avg : #and abs(valid_loss - best_valid_loss) < 1e-1
             best_valid_metric_avg = valid_metric_avg
 
-            print('Saving Model ...')
+            print(f'Saving Model {model_name} to {output_path} ...')
             torch.save(model.state_dict(), f'{output_path}Model_{model_name}_Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt')
 
             print('****************************************************************************')
@@ -217,6 +217,10 @@ if __name__ == '__main__':
             print(f"Macro Precision : {val_macro_avg_p}; Macro Recall : {val_macro_avg_r}; Macro F1 : {val_macro_avg_f1}")
             print(f"Micro Precision : {val_micro_avg_p}; Micro Recall : {val_micro_avg_r}; Micro F1 : {val_micro_avg_f1}")
             print('****************************************************************************')
+        elif (abs(valid_metric_avg - best_valid_metric_avg) < 1e-2):
+            print(f'Saving Model {model_name} to {output_path} ...')
+            torch.save(model.state_dict(), f'{output_path}Model_{model_name}_Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt')
+
 
     runtime = round(time.time() - start_time, 3)
     print("runtime: %s minutes " % (runtime/60))

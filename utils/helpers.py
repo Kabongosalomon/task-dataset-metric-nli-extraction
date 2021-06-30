@@ -105,7 +105,12 @@ def train(model, iterator, optimizer, scheduler, epoch):
         #                     attention_mask=mask_ids, 
         #                     labels=labels).values()          
         
-        loss.backward()
+        # loss.backward()
+
+        if torch.cuda.device_count() > 1:
+            loss.sum().backward()
+        else:
+            loss.backward()   
         # New
         # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
@@ -118,7 +123,12 @@ def train(model, iterator, optimizer, scheduler, epoch):
         prediction = torch.log_softmax(prediction, dim=1).argmax(dim=1)       
 
         train_acc.update(prediction.eq(labels.view_as(prediction)).sum().item()/len(labels)) # accuracy_score(labels.cpu(), prediction.cpu())
-        train_loss.update(loss.item())  
+        # train_loss.update(loss.item())  
+        
+        if torch.cuda.device_count() > 1:
+            train_loss.update(loss.sum().item())
+        else:
+            train_loss.update(loss.item())
 
         train_macro_p.update(precision_score(labels.cpu(), prediction.cpu(), average ='macro'))
         train_macro_r.update(recall_score(labels.cpu(), prediction.cpu(), average ='macro'))
