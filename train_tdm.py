@@ -46,9 +46,10 @@ if __name__ == '__main__':
     parser.add_argument("-pvalid", "--path_valid", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/dev.tsv", help="Path to the dev file")
     parser.add_argument("-m", "--model_name", default="SciBert", help="Huggingface model name")
     parser.add_argument("-init_pt", "--model_init_checkpoint", default=None, help="A checkpoint to start training the model from")
-
+    parser.add_argument("-make_pred", "--make_prediction_checkpoint", default=True, help="If we want to make prediction per saved checkpoint")
     parser.add_argument("-ne", "--numb_epochs", default=2, help="Number of Epochs")
     parser.add_argument("-bs", "--batch_size", default=32, help="Batch size")
+    parser.add_argument("-n", "--number_top_tdm", default=5, help="Number of top TDM predicted")
     parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
     parser.add_argument("-o", "--output", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/", help="Output Path to save the trained model and other metadata")
 
@@ -61,7 +62,9 @@ if __name__ == '__main__':
     model_init_checkpoint = args.model_init_checkpoint
     output_path = args.output
     bs = int(args.batch_size)
+    top_n = int(args.number_top_tdm)
     max_input_len = int(args.max_input_len)
+    make_prediction_checkpoint = args.make_prediction_checkpoint
 
     if not os.path.exists(f"{output_path}"):
         os.makedirs(f"{output_path}")
@@ -212,6 +215,22 @@ if __name__ == '__main__':
             print(f'Saving Model {model_name} to {output_path} ...')
             torch.save(model.state_dict(), f'{output_path}Model_{model_name}_Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt')
 
+            if make_prediction_checkpoint:
+                # Rm the testfile if it exist already
+                if os.path.exists(f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/test_results_{model_name}.tsv"):
+                    os.remove(f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/test_results_{model_name}.tsv")
+
+                if not os.path.exists(f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/"):
+                    os.makedirs(f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/")
+
+                predict_TDM_from_pdf(model, tokenizer, valid_loader, model_name, f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/")
+
+                results_tdm = get_top_n_prediction_label(
+                    path_to_test_file=valid_path,
+                    model_name=model_name, 
+                    output_path=f"{output_path}Epoch_{epoch}_avg_metric_{round(best_valid_metric_avg, 4)}.pt/",
+                    n = top_n)
+
             print('****************************************************************************')
             print('best record: [epoch %d], [val loss %.5f], [val acc %.5f], [val avg. metric %.5f]' % (epoch, valid_loss, valid_acc, valid_metric_avg))
             print(f"Macro Precision : {val_macro_avg_p}; Macro Recall : {val_macro_avg_r}; Macro F1 : {val_macro_avg_f1}")
@@ -220,6 +239,22 @@ if __name__ == '__main__':
         elif (abs(valid_metric_avg - best_valid_metric_avg) < 1e-2):
             print(f'Saving Model {model_name} to {output_path} ...')
             torch.save(model.state_dict(), f'{output_path}Model_{model_name}_Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt')
+            
+            if make_prediction_checkpoint:
+                # Rm the testfile if it exist already
+                if os.path.exists(f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/test_results_{model_name}.tsv"):
+                    os.remove(f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/test_results_{model_name}.tsv")
+
+                if not os.path.exists(f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/"):
+                    os.makedirs(f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/")
+
+                predict_TDM_from_pdf(model, tokenizer, valid_loader, model_name, f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/")
+
+                results_tdm = get_top_n_prediction_label(
+                    path_to_test_file=valid_path,
+                    model_name=model_name, 
+                    output_path=f"{output_path}Epoch_{epoch}_avg_metric_{round(valid_metric_avg, 4)}.pt/",
+                    n = top_n)
 
 
     runtime = round(time.time() - start_time, 3)

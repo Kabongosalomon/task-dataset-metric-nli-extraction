@@ -1,7 +1,13 @@
 # task-dataset-metric-nli-extraction
 
-This program produces the test data for classification over a set of predefined task#dataset#metrics#software labels.
-Given input a pdf file, it scrapes the text from the file using the Grobid parser, subsequently generating the test data file for input to the neural network classifier.
+This is the official github code for the paper `Automated Mining of  Leaderboards forEmpirical AI Research`.
+
+This program assume the availability of training and testing data, and allows to do Sequence Classification for `task-dataset-metric` extraction using different transformer models. 
+
+If you need to generate the train data yourself, you can clone `https://github.com/Kabongosalomon/task-dataset-metric-extraction` and follow the instructions. 
+
+<!-- produces the test data for classification over a set of predefined task#dataset#metrics#software labels.
+Given input a pdf file, it scrapes the text from the file using the Grobid parser, subsequently generating the test data file for input to the neural network classifier. -->
 
 ## Train
 
@@ -69,7 +75,14 @@ Given input a pdf file, it scrapes the text from the file using the Grobid parse
 `sbatch SciBert_80_Neg_600_full_test_v2.sh python train_tdm.py -m SciBert -bs 24 -ne 5 -ptrain /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/new_pwc_ibm_150/600Neg600unk/trainOutput.tsv -pvalid /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/test_v2.tsv -o /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/new_pwc_ibm_150/600Neg600unk/`
 
 
-    
+## Steps to run the program
+ 
+The following procedure, suppose that you are using a linux OS, if otherwise kindly just clone the repo and rebuild the project. 
+
+1. Clone this repository (https://github.com/Kabongosalomon/task-dataset-metric-extraction/tree/trainTest) or clone a particular branch `git clone -b trainTest https://github.com/Kabongosalomon/task-dataset-metric-extraction.git`.
+2. move to the cloned directory `cd task-dataset-metric-extraction`
+3. run the command `bash starter.sh`
+
 
 ## Acknowledgement: 
 This program reuses code modules from IBM's science-result-extractor (https://github.com/IBM/science-result-extractor). A reference url to their paper on the ACL anthology is https://www.aclweb.org/anthology/P19-1513

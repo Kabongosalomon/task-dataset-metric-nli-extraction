@@ -84,13 +84,13 @@ if __name__ == '__main__':
                                         limit="Target",
                                        title="Target")
 
-    train_target_f1_pd["Context"] = train_target_f1_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] else "None", axis=1)
-    dev_target_f1_pd["Context"] = dev_target_f1_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] else "None", axis=1)
+    train_target_f1_pd["Context"] = train_target_f1_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] in dict_target_paper_context.keys() else x['title'], axis=1)
+    dev_target_f1_pd["Context"] = dev_target_f1_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] in dict_target_paper_context.keys() else x['title'], axis=1)
 
-    train_target_f2_pd["Context"] = train_target_f2_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] else "None", axis=1)
-    dev_target_f2_pd["Context"] = dev_target_f2_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] else "None", axis=1)
+    train_target_f2_pd["Context"] = train_target_f2_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] in dict_target_paper_context.keys() else x['title'], axis=1)
+    dev_target_f2_pd["Context"] = dev_target_f2_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] in dict_target_paper_context.keys() else x['title'], axis=1)
 
-    trainOutput_target_pd["Context"] = trainOutput_target_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] else "None", axis=1)
+    trainOutput_target_pd["Context"] = trainOutput_target_pd.apply(lambda x : dict_target_paper_context[x['title']] if x['title'] in dict_target_paper_context.keys() else x['title'], axis=1)
 
 
     train_target_f1_pd.to_csv(path_or_buf=f"{target_path}twofoldwithunk/fold1/train.tsv", 
