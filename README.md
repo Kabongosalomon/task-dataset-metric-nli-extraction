@@ -9,7 +9,7 @@ The following procedure, suppose that you are using a linux OS, if otherwise kin
 
 This repository is the official implementation of the paper [`Automated Mining of  Leaderboards forEmpirical AI Research`.]().
 
-![pipeline](https://user-images.githubusercontent.com/13535078/81287158-33e01000-905a-11ea-8573-d716373efbdd.png)
+![pipeline](https://raw.githubusercontent.com/Kabongosalomon/task-dataset-metric-nli-extraction/main/images/overview.png)
 
 If you need to generate the train data yourself, you can clone [`https://github.com/Kabongosalomon/task-dataset-metric-extraction`](https://github.com/Kabongosalomon/task-dataset-metric-extraction) and follow the instructions. 
 
@@ -52,10 +52,7 @@ See the [evaluation](notebooks/evaluation.ipynb) notebook for the full example o
 
 - `sbatch tdm.sh python predict_tdm.py -m SciBert -bs 32 -ptest path_to/task-dataset-metric-nli-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/test.tsv -pt path_to/task-dataset-metric-nli-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/torch/SciBert/Model_SciBert_Epoch_12_avg_metric_0.8212.pt -n 5 -o path_to/task-dataset-metric-nli-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/torch/SciBert/Model_SciBert_Epoch_12_avg_metric_0.8212/`
 
-You can download pretrained models here:
-
-- [axcell](https://github.com/paperswithcode/axcell/releases/download/v1.0/models.tar.xz) &mdash; an archive containing the taxonomy, abbreviations, table type classifier and table segmentation model. See the [results-extraction](notebooks/results-extraction.ipynb) notebook for an example of how to load and run the models 
-- [language model](https://github.com/paperswithcode/axcell/releases/download/v1.0/lm.pth.xz) &mdash; [ULMFiT](https://arxiv.org/abs/1801.06146) language model pretrained on the ArxivPapers dataset
+You can download pretrained models here
 
 ## Results
 
