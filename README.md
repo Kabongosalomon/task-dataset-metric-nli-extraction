@@ -21,7 +21,7 @@ Install requirements run:
 pip install -r requirements-cpu.txt
 ```
 
-or if yuou have cuda installed in your OS.
+or if you have cuda installed in your OS.
 
 ```setup
 pip install -r requirements.txt
