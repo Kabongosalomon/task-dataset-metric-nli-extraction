@@ -18,12 +18,20 @@ If you need to generate the train and test data yourself, you can clone [`https:
 Install requirements run:
 
 ```setup
+pip install -r requirements-cpu.txt
+```
+
+or if yuou have cuda installed in your OS.
+
+```setup
 pip install -r requirements.txt
 ```
 
 ## Datasets
 We publish the following datasets:
 * [ORKG-TDM](http://doi.org/10.5281/zenodo.5105798)
+
+* Run `bash data.sh` to download and copy the data in the appopriate location.     
 
 
 Note: The metrics evaluation used in the paper uses a modified version of the original [IBM Science-result-extractor](https://github.com/IBM/science-result-extractor) java code base that can be accessed [here](https://github.com/Kabongosalomon/task-dataset-metric-extraction/blob/master/src/main/java/eu/tib/sre/tdmsie/TEModelEvalOnNLPTDMS.java)
