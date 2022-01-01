@@ -116,11 +116,11 @@ if __name__ == '__main__':
     # Model loading
     if os.path.exists(f"{selected_processor[2]}_model/"):
         model = selected_processor[1].from_pretrained(
-                                    f"{selected_processor[2]}/", num_labels=2)
+                                    f"{selected_processor[2]}_model/", num_labels=2)
     else:
         model = selected_processor[1].from_pretrained(
                                     selected_processor[2], num_labels=2)
-        model.save_pretrained(f"{selected_processor[2]}_model/")
+#         model.save_pretrained(f"{selected_processor[2]}_model/")
 
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
