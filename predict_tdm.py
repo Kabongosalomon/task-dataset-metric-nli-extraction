@@ -4,7 +4,7 @@ import os
 import json
 import argparse
 import time
-# import ipdb
+import ipdb
 import spacy
 import torch
 import optuna
@@ -22,7 +22,7 @@ import torch.optim as optim
 from torchtext import data
 import torch.nn as nn
 import torch.nn.functional as F
-# from torchsummary import summary
+from torchsummary import summary
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from transformers import RobertaTokenizer, BertModel, TransfoXLTokenizer, TransfoXLModel, AdamW
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     max_input_len = int(args.max_input_len)
 
     if not os.path.exists(f"{output_path}"):
-        os.makedirs(f"{output_path}")
+        os.mkdir(f"{output_path}")
 
 
     if model_name in processors.keys():
@@ -76,9 +76,17 @@ if __name__ == '__main__':
 
     # tokenizer = BertTokenizer.from_pretrained(model_key)
     if model_name == "SciBert":
-        tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
+        if os.path.exists(f"bert-base-uncased/"):
+            tokenizer = selected_processor[0].from_pretrained("bert-base-uncased/")
+        else:            
+            tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
+            tokenizer.save_pretrained("bert-base-uncased/")
     else:
-        tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
+        if os.path.exists(f"{selected_processor[2]}/"):
+            tokenizer = selected_processor[0].from_pretrained(f"{selected_processor[2]}/")
+        else:  
+            tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
+            tokenizer.save_pretrained(f"{selected_processor[2]}/")
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
@@ -106,8 +114,16 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # Model loading
+#     if os.path.exists(f"{selected_processor[2]}/"):
+#         model = selected_processor[1].from_pretrained(
+#                                     f"{selected_processor[2]}/", num_labels=2)
+#     else:
+#         model = selected_processor[1].from_pretrained(
+#                                     selected_processor[2], num_labels=2)
+#         model
+
     model = selected_processor[1].from_pretrained(
-                                    selected_processor[2], num_labels=2)
+                                    f"{selected_processor[2]}/", num_labels=2)
 
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
