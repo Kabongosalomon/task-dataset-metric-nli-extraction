@@ -76,9 +76,15 @@ if __name__ == '__main__':
 
     # tokenizer = BertTokenizer.from_pretrained(model_key)
     if model_name == "SciBert":
-        tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
+        if not os.path.exists(f"bert-base-uncased/"):
+            tokenizer = selected_processor[0].from_pretrained("bert-base-uncased/")
+        else:            
+            tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
     else:
-        tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
+        if not os.path.exists(f"{selected_processor[2]}/"):
+            tokenizer = selected_processor[0].from_pretrained(f"{selected_processor[2]}/")
+        else:  
+            tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
