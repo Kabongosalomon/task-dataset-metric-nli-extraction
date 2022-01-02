@@ -83,7 +83,7 @@ if __name__ == '__main__':
             tokenizer.save_pretrained(f"./local/bert-base-uncased/")
     else:
         if os.path.exists(f"./local/{selected_processor[2]}/"):
-            tokenizer = selected_processor[0].from_pretrained(f"{selected_processor[2]}/")
+            tokenizer = selected_processor[0].from_pretrained(f"./local/{selected_processor[2]}/")
         else:  
             tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
             tokenizer.save_pretrained(f"./local/{selected_processor[2]}/")
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     # Model loading
     if os.path.exists(f"./local/{selected_processor[2]}_model/"):
         model = selected_processor[1].from_pretrained(
-                                    f"{selected_processor[2]}_model/", num_labels=2)
+                                    f"./local/{selected_processor[2]}_model/", num_labels=2)
     else:
         model = selected_processor[1].from_pretrained(
                                     selected_processor[2], num_labels=2)
