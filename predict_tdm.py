@@ -76,17 +76,17 @@ if __name__ == '__main__':
 
     # tokenizer = BertTokenizer.from_pretrained(model_key)
     if model_name == "SciBert":
-        if os.path.exists(f"bert-base-uncased/"):
+        if os.path.exists(f"./local/bert-base-uncased/"):
             tokenizer = selected_processor[0].from_pretrained("bert-base-uncased/")
         else:            
             tokenizer = selected_processor[0].from_pretrained("bert-base-uncased")
-#             tokenizer.save_pretrained("bert-base-uncased/")
+            tokenizer.save_pretrained(f"./local/bert-base-uncased/")
     else:
-        if os.path.exists(f"{selected_processor[2]}/"):
+        if os.path.exists(f"./local/{selected_processor[2]}/"):
             tokenizer = selected_processor[0].from_pretrained(f"{selected_processor[2]}/")
         else:  
             tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
-            tokenizer.save_pretrained(f"{selected_processor[2]}/")
+            tokenizer.save_pretrained(f"./local/{selected_processor[2]}/")
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
@@ -114,13 +114,13 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # Model loading
-    if os.path.exists(f"{selected_processor[2]}_model/"):
+    if os.path.exists(f"./local/{selected_processor[2]}_model/"):
         model = selected_processor[1].from_pretrained(
                                     f"{selected_processor[2]}_model/", num_labels=2)
     else:
         model = selected_processor[1].from_pretrained(
                                     selected_processor[2], num_labels=2)
-#         model.save_pretrained(f"{selected_processor[2]}_model/")
+        model.save_pretrained(f"./local/{selected_processor[2]}_model/")
 
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
