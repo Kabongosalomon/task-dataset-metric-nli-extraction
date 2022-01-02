@@ -86,7 +86,7 @@ if __name__ == '__main__':
             tokenizer = selected_processor[0].from_pretrained(f"{selected_processor[2]}/")
         else:  
             tokenizer = selected_processor[0].from_pretrained(selected_processor[2])
-#             tokenizer.save_pretrained(f"{selected_processor[2]}/")
+            tokenizer.save_pretrained(f"{selected_processor[2]}/")
 
     init_token = tokenizer.cls_token
     eos_token = tokenizer.sep_token
