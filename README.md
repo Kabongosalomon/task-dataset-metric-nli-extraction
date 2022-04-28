@@ -1,13 +1,6 @@
-<!-- ## Steps to run the program
- 
-The following procedure, suppose that you are using a linux OS, if otherwise kindly just clone the repo and rebuild the project. 
-
-1. Clone this repository (https://github.com/Kabongosalomon/task-dataset-metric-extraction/tree/trainTest) or clone a particular branch `git clone -b trainTest https://github.com/Kabongosalomon/task-dataset-metric-extraction.git`.
-2. move to the cloned directory `cd task-dataset-metric-extraction`
-3. run the command `bash starter.sh` -->
 # Task Dataset Metric NLI Extraction
 
-This repository is the official implementation of the paper [`Automated Mining of  Leaderboards forEmpirical AI Research`.]().
+This repository is the official implementation of the paper [`Automated Mining of  Leaderboards forEmpirical AI Research`.](https://link.springer.com/chapter/10.1007/978-3-030-91669-5_35) (Best Paper Award [ICADL 2021](https://icadl.net/icadl2021/))
 
 ![pipeline](https://raw.githubusercontent.com/Kabongosalomon/task-dataset-metric-nli-extraction/main/images/overview.png)
 
@@ -68,9 +61,20 @@ See the [evaluation](notebooks/evaluation.ipynb) notebook for the full example o
 
 ## Citation
 ```bibtex
-@inproceedings{axcell,
-    title={Automated Mining of  Leaderboards forEmpirical AI Research},
-    author={Salomon Kabongo, Jennifer D’Souza and Sören Auer},
-    year={2021}
+@InProceedings{10.1007/978-3-030-91669-5_35,
+author="Kabongo, Salomon
+and D'Souza, Jennifer
+and Auer, S{\"o}ren",
+editor="Ke, Hao-Ren
+and Lee, Chei Sian
+and Sugiyama, Kazunari",
+title="Automated Mining of Leaderboards for Empirical AI Research",
+booktitle="Towards Open and Trustworthy Digital Societies",
+year="2021",
+publisher="Springer International Publishing",
+address="Cham",
+pages="453--470",
+isbn="978-3-030-91669-5"
 }
 ```
+
