@@ -1,6 +1,6 @@
 # Task Dataset Metric NLI Extraction
 
-This repository is the official implementation of the paper [`Automated Mining of  Leaderboards forEmpirical AI Research`.](https://link.springer.com/chapter/10.1007/978-3-030-91669-5_35) (Best Paper Award [ICADL 2021](https://icadl.net/icadl2021/))
+This repository is the official implementation of the paper [`Automated Mining of  Leaderboards forEmpirical AI Research`.](https://link.springer.com/chapter/10.1007/978-3-030-91669-5_35) ([ICADL 2021](https://icadl.net/icadl2021/) 🏆 Best Paper Award )
 
 ![pipeline](https://raw.githubusercontent.com/Kabongosalomon/task-dataset-metric-nli-extraction/main/images/overview.png)
 
@@ -56,7 +56,6 @@ See the [evaluation](notebooks/evaluation.ipynb) notebook for the full example o
 
 
 ## License
-
 [Apache 2.0 license](LICENSE).
 
 ## Citation
