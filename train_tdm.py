@@ -6,7 +6,6 @@ import time
 import ipdb
 import spacy
 import torch
-import optuna
 import pickle
 import logging
 
@@ -44,15 +43,24 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run TDM")
     parser.add_argument("-ptrain", "--path_train", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/train.tsv", help="path to train file")
     parser.add_argument("-pvalid", "--path_valid", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/dev.tsv", help="Path to the dev file")
-    parser.add_argument("-m", "--model_name", default="SciBert", help="Huggingface model name")
+    parser.add_argument("-m", "--model_name", default="SciBert", help="Huggingface model name, available model : Bert, SciBert, XLNet, BigBird and Longformer")
     parser.add_argument("-init_pt", "--model_init_checkpoint", default=None, help="A checkpoint to start training the model from")
     parser.add_argument("-make_pred", "--make_prediction_checkpoint", default=True, help="If we want to make prediction per saved checkpoint")
     parser.add_argument("-ne", "--numb_epochs", default=2, help="Number of Epochs")
     parser.add_argument("-bs", "--batch_size", default=32, help="Batch size")
     parser.add_argument("-n", "--number_top_tdm", default=5, help="Number of top TDM predicted")
-    parser.add_argument("-maxl", "--max_input_len", default=512, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
+    parser.add_argument("-maxl", "--max_input_len", default=None, help="Manual insert of the max input lenght in case this is not encoded in the model (e.g. XLNet)")
     parser.add_argument("-o", "--output", default="/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/paperwithcode/new/60Neg800unk/twofoldwithunk/fold1/", help="Output Path to save the trained model and other metadata")
-
+    
+    """
+    Bert         : 512
+    SciBert      : 512
+    XLNet        : None (512) 
+    BigBird      : 4096
+    Longformer   : 4096
+    """
+    
+     
     args = parser.parse_args()
 
     train_path = args.path_train
@@ -95,11 +103,16 @@ if __name__ == '__main__':
     pad_token_idx = tokenizer.convert_tokens_to_ids(pad_token)
     unk_token_idx = tokenizer.convert_tokens_to_ids(unk_token)
 
-    if model_name == "SciBert":
+    # Prioritize the lenght provided as params
+    if max_input_len:
+        max_input_length = max_input_len
+    elif model_name == "SciBert":
         max_input_length = tokenizer.max_model_input_sizes["bert-base-uncased"]
     else:
         max_input_length = tokenizer.max_model_input_sizes[selected_processor[2]]
     
+    # TODO: this may thow an error if the mode max_model_input_sizes
+    # is None and the max_input_len was not provided 
     if not max_input_length:
         max_input_length = max_input_len
 

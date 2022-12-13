@@ -6,7 +6,6 @@ import time
 import ipdb
 import spacy
 import torch
-import optuna
 import pickle
 import re
 

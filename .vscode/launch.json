@@ -18,12 +18,11 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "-m", "SciBert",
                 "-bs", "16",
-                "-ne", "5",
-                "-ptrain", "/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/train.tsv",
-                "-pvalid", "/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/test.tsv",
-                "-o", "/nfs/home/kabenamualus/Research/task-dataset-metric-extraction/data/ibm/exp/few-shot-setup/NLP-TDMS/paperVersion/"
+                "-n", "3",
+                "-ptest", "/nfs/home/kabenamualus/Research/task-dataset-metric-nli-extraction/data/zero-shot/clearned/full_zero_shot/testOutput.tsv",
+                "-pt", "/nfs/home/kabenamualus/Research/task-dataset-metric-nli-extraction/data/pwc_ibm_150_5_10_10000/10Neg10000unk/twofoldwithunk/fold1/torch/Bert/Model_Bert_Epoch_13_avg_metric_0.9587.pt",
+                "-o", "/nfs/home/kabenamualus/Research/task-dataset-metric-nli-extraction/data/zero-shot/clearned/full_zero_shot/"
             ],
         }
     ]

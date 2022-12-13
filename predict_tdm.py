@@ -1,13 +1,12 @@
 # Imports 
 
-import os
+import os, csv
 import json
 import argparse
 import time
 import ipdb
 import spacy
 import torch
-import optuna
 import pickle
 
 
@@ -15,11 +14,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
 import numpy as np
-from tqdm import tqdm
+# from tqdm import tqdm
 from collections import deque
 
 import torch.optim as optim
-from torchtext import data
+# from torchtext import data
 import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
@@ -140,7 +139,8 @@ if __name__ == '__main__':
 
     
     test_df = pd.read_csv(test_path, 
-                    sep="\t", names=["label", "title", "TDM", "Context"])
+                          quoting=csv.QUOTE_NONE,
+                          sep="\t", names=["label", "title", "TDM", "Context"])
 
     test_df.head()
 
@@ -148,12 +148,15 @@ if __name__ == '__main__':
 
     # It doesnt make sens to save the test_loader as the test file will
     # often be different 
-    # if os.path.exists(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth'):
-    #     test_loader = torch.load(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
-    # else:
-    #     test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
-    #     # Save dataloader
-    #     torch.save(test_loader, f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
+    if os.path.exists(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth'):
+        
+        print(f"Using Preload modelfrom: {output_path}test_loader{bs}_seq_{max_input_length}.pth")
+        
+        test_loader = torch.load(f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
+    else:
+        test_loader = TDM_dataset.get_valid_data(test_df, batch_size=bs, shuffle=False) # this shuffle should be false to preserve the order 
+        # Save dataloader
+        torch.save(test_loader, f'{output_path}test_loader{bs}_seq_{max_input_length}.pth')
     
     # Rm the testfile if it exist already
     if os.path.exists(f"{output_path}test_results_{model_name}.tsv"):

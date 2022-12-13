@@ -18,7 +18,7 @@ from tqdm import tqdm
 from collections import deque
 
 import torch.optim as optim
-from torchtext import data
+# from torchtext import data
 import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
