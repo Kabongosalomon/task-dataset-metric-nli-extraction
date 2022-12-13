@@ -1,0 +1,1220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/../grobid-0.6.0/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">MTet: Multi-domain Translation for English and Vietnamese</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Chinh</forename><surname>Ngo</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Trieu</forename><forename type="middle">H</forename><surname>Trinh</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Long</forename><surname>Phan</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hieu</forename><surname>Tran</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tai</forename><surname>Dang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hieu</forename><surname>Nguyen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Minh</forename><surname>Nguyen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Minh-Thang</forename><surname>Luong</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VietAI Research</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">MTet: Multi-domain Translation for English and Vietnamese</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+
+		<encodingDesc>
+			<appInfo>
+				<application version="0.6.0" ident="GROBID-SDO" when="2022-11-11T18:57+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid-sdo"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We introduce MTet, the largest publicly available parallel corpus for English-Vietnamese translation. MTet consists of 4.2M highquality training sentence pairs and a multidomain test set refined by the Vietnamese research community. Combining with previous works on English-Vietnamese translation, we grow the existing parallel dataset to 6.2M sentence pairs. We also release the first pretrained model EnViT5 for English and Vietnamese languages. Combining both resources, our model significantly outperforms previous state-of-the-art results by up to 2 points in translation BLEU score, while being 1.6 times smaller.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Machine Translation is an impactful subdomain of Natural Language Processing that directly benefits the world's interconnected regions and nations, especially so for fast-developing economies such as Vietnam <ref type="bibr" target="#b2">(Baum, 2020)</ref>. Neural machine translation, however, is hindered for many pairs of languages due to their scarce availability. The literature tackling this problem consists mainly of regularization and data augmentation methods <ref type="bibr" target="#b27">(Provilkov et al., 2019;</ref><ref type="bibr" target="#b23">Nguyen and Salazar, 2019a;</ref><ref type="bibr" target="#b7">Clark et al., 2018)</ref>. Recently a more datacentric view with more successful results arises: directly growing the small existing datasets <ref type="bibr" target="#b13">(Fan et al., 2020;</ref><ref type="bibr" target="#b22">Ngo and Trinh, 2021;</ref><ref type="bibr" target="#b8">Cruz and Cheng, 2021)</ref> and better pretraining methodologies to extract value from large corpora <ref type="bibr" target="#b20">(Liu et al., 2020;</ref><ref type="bibr" target="#b18">Lample and Conneau, 2019;</ref><ref type="bibr" target="#b34">Song et al., 2019)</ref>.</p><p>In this work, we introduce EnViT5, the first pretrained Transformer-based encoder-decoder model for English-Vietnamese, and MTet -Multi-domain Translation for English-VieTnamese, the largest high-quality multi-domain corpus for English-Vietnamese translation of size 4.2M. Notably, MTet * The first four authors contributed equally to this work also focuses on highly technical, impactful yet mostly neglected domains due to their expensiveto-obtain nature such as law and biomedical bitexts. We also introduce a test set of four distinctively different domains, refined and cross-checked by human experts through a data crowdsourcing platform. Our final model, pretrained on EnViT5 and finetuned on MTet + phoMT <ref type="bibr" target="#b9">(Doan et al., 2021a)</ref> outperforms previous results by a significant margin of up to 2 points in BLEU score. Finally, we perform experiments to confirm that with the same amount of training data, a multi-domain training set results in a better test performance as shown in Section 6, further supporting the multi-domain nature of MTet.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Related Works</head><p>In recent years, research works focusing on improving Machine Translation Systems for Low-Resource Languages have received a lot of attention from both academia and the industry <ref type="bibr" target="#b14">Gu et al., 2018;</ref><ref type="bibr">Nasir and Mchechesi, 2022)</ref>. Prior works include collecting more parallel translation data <ref type="bibr" target="#b35">(Thu et al., 2016;</ref><ref type="bibr" target="#b1">Ba??n et al., 2020;</ref><ref type="bibr" target="#b31">S?nchez-Cartagena et al.)</ref>, training large multilingual models <ref type="bibr" target="#b13">(Fan et al., 2020;</ref><ref type="bibr" target="#b20">Liu et al., 2020)</ref>, and utilizing data augmentation or regularization techniques <ref type="bibr" target="#b11">Edunov et al., 2018;</ref><ref type="bibr" target="#b27">Provilkov et al., 2019)</ref>. Previous works from ParaCrawl <ref type="bibr" target="#b1">(Ba??n et al., 2020)</ref> and BiCleaner (S?nchez-Cartagena et al.) focused on mass crawling parallel translation data for many low-resource language pairs. Yet, previous work <ref type="bibr" target="#b10">(Doan et al., 2021b)</ref> shows that crawling at scale still has limitation and affect downstream translation performance. We also compare our high-quality MTet with other crawling at-scale datasets in Section 3.</p><p>Encouraging results have also been achieved in low-resource English-Vietnamese translation. The most popular and well-adopted translation dataset for English-Vietnamese is IWSLT15 <ref type="bibr">(Cettolo et al.,</ref> arXiv:2210.05610v2 [cs.CL] 19 Oct 2022 2015b), which consists of 133K text pairs collected from TED talk transcripts. Some studies <ref type="bibr" target="#b28">(Provilkov et al., 2020;</ref><ref type="bibr" target="#b24">Nguyen and Salazar, 2019b)</ref> show decent improvements through different regularization techniques. Recently, PhoMT <ref type="bibr" target="#b10">(Doan et al., 2021b)</ref> and VLSP2020 <ref type="bibr" target="#b15">(Ha et al., 2020)</ref> released larger parallel datasets of size 3M and 4M text pairs, extracted from publicly available resources for the English-Vietnamese translation. mBART model trained on PhoMT sets the current state-of-the-art results</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">MTet: a Machine Translation dataset in English and Vietnamese</head><p>In this section, we describe in details our MTet -Multidomain Translation for English-vieTnamese dataset. We curated a total of 4.2M training examples 1 . Based on the curation methodology, we divide this data into four types.</p><p>Combining existing sources This includes sources from the Open Parallel corPUS (Tiedemann, 2012), spanning across different domains such as educational videos <ref type="bibr" target="#b0">(Abdelali et al., 2014)</ref>, software user interface (GNOME, KDE4, Ubuntu), COVID-related news articles (ELRC), religious texts <ref type="bibr" target="#b6">(Christodouloupoulos and Steedman, 2015)</ref>, subtitles (Tatoeba), Wikipedia <ref type="bibr" target="#b39">(Wo?k and Marasek, 2014)</ref>, TED Talks <ref type="bibr" target="#b30">(Reimers and Gurevych, 2020)</ref>. Together with the original IWSLT'15 <ref type="bibr" target="#b3">(Cettolo et al., 2015a)</ref> training set, the total dataset reaches 1.2M training examples. We train a base Transformer on this data, denoted bT A , to aid the collection of other data sources described below.</p><p>Scoring and filtering Another large source from OPUS is OpenSubtitles <ref type="bibr" target="#b19">(Lison and Tiedemann, 2016)</ref> and CCAlign-envi (El-Kishky et al., 2020) of sizes 3.5M and 9.3M respectively. For OpenSubtitles, manual inspection showed inaccurate translations similar to the previous observations in <ref type="bibr" target="#b10">Doan et al. (2021b)</ref>. Including CCAlign-envi as-is will significantly reduce the model test performance in test set (Appendix C). For this reason, we make use of bT A to score each bitext by computing the loss of all text pairs and select the best 700K training examples using cross-validation on the tst2013 test set 2 . CCAlign-envi, on the other hand, is entirely discarded through the same process.</p><p>Dynamic Programming style alignment Another large source of parallel data but trickier to extract comes from weakly-aligned books and articles <ref type="bibr" target="#b17">(Ladhak et al., 2020)</ref>. This includes many mismatches at sentence and paragraph levels due to versioning, translator formatting, extra headers and page footers information. We propose a dynamic-programming style alignment algorithm detailed in Algorithm 1, a simplified version of BleuAlign <ref type="bibr" target="#b32">(Sennrich and Volk, 2011)</ref>, to filter and align sentences between each pair of documents, maximizing the total BLEU score after alignment.</p><p>In total, we collected 900K training examples from 300 bilingual books and news articles.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Manual crawl and clean</head><p>For this source, we focus on more technical and high-impact domains, this include law documents and biomedical scientific articles. We manually crawl and clean across 20 different websites of public biomedical journals and law document libraries, treating them individually due to their significantly different formatting. We also manually crawl and clean some other available websites that are more straightforward to process, as detailed in Appendix D. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">EnViT5</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Model</head><p>EnViT5 is a Text-to-Text Transfer Transformer model follows the encoder-decoder architecture proposed by <ref type="bibr" target="#b37">(Vaswani et al., 2017)</ref> and the T5 framework proposed by <ref type="bibr" target="#b29">(Raffel et al., 2019)</ref>. The original works of T5 proposed five different configurations in model size: small, base, large, 3B, and 11B. For the practical purpose of the study, we adapt the base architecture for EnViT5 and save the bigger models for future works. We train EnViT5 models from scratch with the input and output length of 1024 tokens and batch size of 256. For the self-supervised learning objectives, we use the span-corruption objective with a corruption rate of 15%.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Pretraining data</head><p>We use the CC100 Dataset (Monolingual Datasets from Web Crawl Data)  for pre-training the model. The corpus contains monolingual data for over 100 languages. The corpus was constructed using the pipeline provided by  through processing January-December 2018 Commoncrawl snapshots. Following the discussion regarding the importance of long context sequences during pretraining for T5 models from previous works <ref type="bibr" target="#b25">(Phan et al., 2022)</ref>, we process and filter for 80GB of long sequence (fit in 1024-length embedding) for each language.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Benchmarking EnViTand MTet</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Experimental settings</head><p>To develop our analysis, we conduct experiments to verify the quality of our MTet dataset and our pretrained bilingual model EnViT5 on both Englishto-Vietnamese and Vietnamese-to-English translation. We are interested in the final performance of EnViT5 trained on MTet and PhoMT and aim to demonstrate the best results for both research communities and industry applications.</p><p>We compare EnViT5 against well-known engines and baseline models: Google Translate, Bing Translator, Transformer-base, Transformer-large <ref type="bibr" target="#b37">(Vaswani et al., 2017)</ref>, and mBART <ref type="bibr" target="#b10">(Doan et al., 2021b)</ref>. All our models are trained for 30 epochs with a batch size of 256. We use SacreBLEU <ref type="bibr" target="#b26">(Post, 2018)</ref> to compute the case-sensitive BLEU score on the PhoMT test set <ref type="bibr" target="#b10">(Doan et al., 2021b)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Results</head><p>Table 1 presents BLEU scores of our models on both translation directions. A first takeaway is that the large finetuned English-Vietnamese translation dataset accounts for the significant improvement of both En-Vi and Vi-En translations. Both Transformer models <ref type="bibr" target="#b37">(Vaswani et al., 2017)</ref> and EnViT5 models <ref type="bibr" target="#b29">(Raffel et al., 2019)</ref> without self-supervised learning steps still achieve notable results on translations compared to current famous translation models from Google Translate and Bing Translator. Our EnViT5 base model when training on a combination of MTet and the released PhoMT achieves state-of-the-art results on low-resource English-Vietnamese translation (45.47 and 40.57 for En-Vi and Vi-En respectively). EnViT5 models outperform current existing multilingual models mBART and M2M100 while being significantly smaller in parameter size (275M parameters compared to 448M and 1.2B). This allows our models not only be able to scale in academia but also very promising for industry and community applications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Evaluating multi-domain training data</head><p>In this section, we investigate the importance of multi-domain in training data for a Machine Translation. Since each domain tends to be different in textual structure and style, the ability to generalize across domains will makes translation models more practical in real-world applications.</p><p>For fair comparison between different do-  <ref type="bibr" target="#b37">(Vaswani et al., 2017)</ref> and compare the following three training data on our multidomain test set described in Section 3: <ref type="formula">(1)</ref>  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">A time budget comparison of self-supervised and supervised data</head><p>In this experiment, we first start with IWSLT'15 of 133K training examples and follow two separate processes to improve test performance on top of this initial data point: (1) we pretrain the model on an amount of non-aligned bilingual texts described in section 4.2 before further fine-tuning it on the IWSLT'15 training set for one epoch;</p><p>(2) we simply grow the IWSLT'15 training set by an amount of high-quality parallel text before training for one epoch from random weights.</p><p>In both methods, we measure the improvement in BLEU score at various amounts of additional data. Following this, we are able to measure the amount of training wall time needed to achieve the target BLEU score. This time is also directly proportional to the added amount of data.</p><p>As reported in <ref type="figure">Figure 1</ref>, we first confirmed that BLEU score on the test set steadily improved as both types of data grows, albeit at vastly different rates. BLEU scores improvement from pretraining quickly diminishes, eventually hitting a wall. After this point, it becomes infeasible to reach further target BLEU scores by pure pretraining, a 1.5X <ref type="figure">Figure 1</ref>: Improvement on 133k bitexts increase in pretraining data does not lead to any meaningful improvement. At a target BLEU score of 34, we found that it took close to 1000X the amount of data and 2000X training wall time for pretraining to reach the same performance as supervised training.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8">Conclusion</head><p>In this work, we released a state-of-the-art pretrained Transformer model and the largest multidomain parallel dataset for English-Vietnamese translation. Namely, MTet consists of 4.2M highquality training sentence pairs collected using various methods across multiple domains of data. Combining with phoMT, the total training data grow to 6.2M sentence pairs, currently the largest publicly available dataset. Further, we released EnviT5, the first pretrained model for English and Vietnamese languages. Finetuning EnviT5 on MTet, we obtained state-of-the-art results with improvements up to 2 points in BLEU score for English-Vietnamese Translation and 1 BLEU score in Vietnamese-English translation. With much better test results, our model is also 1.6 times smaller than previous translation models with much faster inference time.</p><p>Although we conjecture that behaviors observed in our work will exhibit similarly in other lowresource language pairs, there are legitimate reasons to believe different languages might behave differently due to their own unique morphology. Generalizing our work to other pairs requires nontrivial effort and we leave this for future investigation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10">Acknowledgements</head><p>We would like to thank the Google TPU Research Cloud (TRC) program, Soonson Kwon (Google ML Ecosystem programs Lead) and Ba Ngoc Nguyen (Google Developer Experts in ML) for their support. This project also receives generous support from Cohost.ai, specifically Mr. Kim Cuong Pham, and dataset.vn, for managing and labeling our multi-domain test data. We appreciate the effort of volunteers who refine the multidomain test dataset: H?n Th? Ho?, Tr?n Vi?t ??nh, D??ng Ng?c Doanh, Nguy?n B?i Thi?n Anh, Nguy?n C?ng Khanh, Tri?u Kh?c ??c, Tr?n Th? L?nh, Ho?ng An, H?u Doanh, Ng?c Kh?nh, Tr?ng V?n, Hu?nh Anh, Thu Huy?n.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B Data collection time</head><p>We record human time as the time spent developing different code bases for crawlers, inspecting manually, cleaning of different data sources, aggregating website sources, and converting files to appropriate text format. Machine time is execution time for long-running jobs such as crawling and rendering millions of websites, batch downloading files, preprocessing large volumes of texts, running inference for millions of sentences on Transformer models, and computing BLEU scores between billions of pairs of sentences. The recorded time is shown in <ref type="figure">Figure 3</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C Quality of existing BiText Mining Datasets</head><p>MultiCCAligned (El-Kishky et al., 2020) massively crawled the Web and aligned bilingual texts using the auto-metric of embedding-based document similarity. This results in 9.3M English-Vietnamese text pairs -the largest collection available to the public at the moment 3 . However, autometric-based alignment produces data of lower quality than our carefully hand-curated collection, Algorithm 1: Alignment algorithm for weaklyaligned pairs of documents. The algorithm strips away a portion of sentences in each document and matches the remaining sentences into pairs, aiming to maximize the total BLEU score with respect to a given translation model. many pairs in MultiCCAligned are themselves lowquality machine translated. Training on MultiC-CAligned, therefore, gives a much lower BLEU score, while incorporating MultiCCAligned into our own data slightly decreases our result.   <ref type="formula">(1)</ref> combine existing opensourced corpora, (2) score and filter noisy sources, (3) DP alignment from weakly-aligned documents, and (4) manual crawl and clean. With comparable outputs, the time invested is vastly different between them. The most expensive approach is manual crawl and clean, while the most scalable is DP alignment.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D Data sources for Manual Crawl and Clean</head><p>? https://jns.vn </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 :Figure 3 :</head><label>23</label><figDesc>Training data distribution across multiple domains Time required to 4.2M bitexts, color-coded for four tiers of data sources</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head></head><label></label><figDesc>Overall, this source contributed another 1.2M training examples. We utilize dataset.vn to distribute 4K test examples held out from the collected data to 13 human experts to further refine its content. These domains include biomedical, religion, law, and news.Overall, we collected 4.2M training examples across all sources. After combining MTet with PhoMT and IWSLT'15, we grew the existing training set from 3M to 6M training examples. Compared to the existing data sources, this dataset is both larger and much more diverse, with the inclusion of technical, impactful, yet so far mostly neglected domains such as law and biomedical data.</figDesc><table><row><cell>Data crowdsourcing for MTet multi-domain</cell></row><row><cell>test set</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 :</head><label>1</label><figDesc>Results on PhoMT English-Vietnamese Translation Test Set</figDesc><table><row><cell>Model</cell><cell cols="2"># Params Pretrained</cell><cell>Finetuned Dataset</cell><cell># pairs</cell><cell>En-Vi Vi-En</cell></row><row><cell>M2M100</cell><cell>1.2B</cell><cell>-</cell><cell cols="2">CCMatrix + CCAligned 7.5B</cell><cell>35.83 31.15</cell></row><row><cell>Google Translate</cell><cell>-</cell><cell>-</cell><cell>-</cell><cell></cell><cell>39.86 35.76</cell></row><row><cell>Bing Translator</cell><cell>-</cell><cell>-</cell><cell>-</cell><cell></cell><cell>40.37 35.74</cell></row><row><cell>Transformer-base</cell><cell>65M</cell><cell>-</cell><cell>PhoMT</cell><cell>3M</cell><cell>42.12 37.19</cell></row><row><cell>Transformer-big</cell><cell>213M</cell><cell>-</cell><cell>PhoMT</cell><cell>3M</cell><cell>42.94 37.83</cell></row><row><cell>mBART  ?</cell><cell>448M</cell><cell>CC25</cell><cell>PhoMT</cell><cell>3M</cell><cell>43.46 39.78</cell></row><row><cell>EnViT5-base</cell><cell>275M</cell><cell>CC100</cell><cell>MTet MTet + PhoMT</cell><cell>4.2M 6.2M</cell><cell>43.87 39.57 45.47 40.57</cell></row></table><note>Notes: The best scores are in bold and second best scores are underlined. ( ?) mBART trained on PhoMT train set are published work (Doan et al., 2021b) that previously achieved state-of-the-art results on English-Vietnamese translation.</note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 2 :</head><label>2</label><figDesc>BLEU scores of Transformer base on MTet Multi-Domain Test Set</figDesc><table><row><cell>Dataset</cell><cell cols="8">En-Vi Law Religion News Medical Law Religion News Medical Vi-En</cell></row><row><cell cols="2">300K Ted-talk 16.43</cell><cell>20.55</cell><cell>27.74</cell><cell>14.68</cell><cell>10.92</cell><cell>18.54</cell><cell>20.50</cell><cell>7.61</cell></row><row><cell>300K Law</cell><cell>20.6</cell><cell>5.2</cell><cell cols="3">13.07 14.035 19.15</cell><cell>4.97</cell><cell cols="2">11.275 12.535</cell></row><row><cell cols="2">Multi-domain 22.07</cell><cell>34.77</cell><cell>34.77</cell><cell>28.76</cell><cell>20.45</cell><cell>32.21</cell><cell>28.66</cell><cell>22.4</cell></row><row><cell cols="4">mains, pretraining is not used. We start from</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>Transformer base</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 2 .</head><label>2</label><figDesc>There is a significant increase in BLEU scores across all domains when the model is trained on a Multi-domain training set. Surprisingly, training on Multi-domain data gives better performance on the Law domain than training on the pure Law parallel training dataset itself. This result indicates that multi-domain data during supervised training does indeed lead to better test set performance.</figDesc><table><row><cell>300k</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head></head><label></label><figDesc>Data:(le, lv) : a weakly-aligned pair of documents. le = ordered list of N English sentences. lv = ordered list of M Vietnamese sentences. t src?dst : translation model from src to dst. Result: p = ordered list of aligned text pairs (e ? le, v ? lv)</figDesc><table><row><cell>that maximizes (e,v)?p s(e, v), where</cell></row><row><cell>s(e, v) =</cell></row><row><cell>BLEU(e, tvi?en(v)) + BLEU(ten?vi(e), v)</cell></row><row><cell>Initialize table dp[0 .. M , 0 .. N ] with 0s;</cell></row><row><cell>for m = 1 ? M do</cell></row><row><cell>for n = 1 ? N do</cell></row><row><cell>dp[m, n] = max(</cell></row><row><cell>dp[m ? 1, n]</cell></row><row><cell>dp[m, n ? 1]</cell></row><row><cell>dp[m ? 1, n ? 1] + s(le[m], lv[n])</cell></row><row><cell>);</cell></row><row><cell>end</cell></row><row><cell>end</cell></row><row><cell>m = M ;</cell></row><row><cell>n = N ;</cell></row><row><cell>p = [];</cell></row><row><cell>while m &gt; 1, n &gt; 1 do</cell></row><row><cell>if case 1 then</cell></row><row><cell>m = m ? 1</cell></row><row><cell>else if case 2 then</cell></row><row><cell>n = n ? 1</cell></row><row><cell>else</cell></row><row><cell>add pair (le[m], lv[n]) to p;</cell></row><row><cell>m = m ? 1;</cell></row><row><cell>n = n ? 1;</cell></row><row><cell>end</cell></row><row><cell>return p;</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head></head><label></label><figDesc>Medical? https://yhoctphcm.ump.edu.vn? http://jmp.huemed-univ.edu.vn ? http://tonghoiyhoc.vn ? http://hoinhikhoavn.com ? http://hoiyhoctphcm.org.vn</figDesc><table /><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head></head><label></label><figDesc>? https://jprp.vn? http://hocvienquany.edu.vn ? https://sinhlyhoc.com.vn ? https://tapchinghiencuuyhoc.vn ? http://tapchi.vienbongquocgia.vn ? http://vienduoclieu.org.vn ? https://vjpm.vn/index.php ? http://vjfc.nifc.gov.vn ? https://vjs.ac.vn ? http://vutm.edu.vn</figDesc><table /><note>? https://jcmhch.com</note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1">Our work started and progress concurrently to PhoMT, therefore a significant chunk of our data is overlapped. After deduplication, 3M new training examples are contributed on top of PhoMT existing training set. 2 https://github.com/stefan-it/nmt-en-vi</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3">The MultiCCAligned paper reported 12.4M pairs, we detected and removed duplicates, which accounted for nearly one quarter of their released data.</note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A Dataset Statistics</head><p>The data distribution of our MTet dataset is described in <ref type="figure">Figure 2.</ref> </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">The AMARA corpus: Building parallel language resources for the educational domain</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>Abdelali</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzman</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hassan</forename><surname>Sajjad</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Stephan</forename><surname>Vogel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Ninth International Conference on Language Resources and Evaluation (LREC&apos;14)</title>
+		<meeting>the Ninth International Conference on Language Resources and Evaluation (LREC&apos;14)<address><addrLine>Reykjavik, Iceland</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2014" />
+			<biblScope unit="page" from="1856" to="1862" />
+		</imprint>
+	</monogr>
+	<note>European Language Resources Association (ELRA</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">ParaCrawl: Web-scale acquisition of parallel corpora</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marta</forename><surname>Ba??n</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Pinzhen</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Barry</forename><surname>Haddow</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kenneth</forename><surname>Heafield</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hieu</forename><surname>Hoang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Miquel</forename><surname>Espl?-Gomis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mikel</forename><forename type="middle">L</forename><surname>Forcada</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Amir</forename><surname>Kamran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Faheem</forename><surname>Kirefu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Philipp</forename><surname>Koehn</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergio</forename><forename type="middle">Ortiz</forename><surname>Rojas</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Leopoldo</forename><forename type="middle">Pla</forename><surname>Sempere</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Gema</forename><surname>Ram?rez-S?nchez</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2020.acl-main.417</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics</title>
+		<meeting>the 58th Annual Meeting of the Association for Computational Linguistics<address><addrLine>Elsa Sarr?as, Marek Strelec, Brian Thompson, William Waites, Dion Wiggins, and Jaume Zaragoza</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="4555" to="4567" />
+		</imprint>
+	</monogr>
+	<note>Online. Association for Computational Linguistics</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Vietnam&apos;s Development Success Story and the Unfinished SDG Agenda. IMF Working Papers</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Anja</forename><surname>Baum</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="1" to="31" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">The IWSLT 2015 Evaluation Campaign</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Cettolo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Niehues</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>St?ker</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Bentivogli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Cattoni</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marcello</forename><surname>Federico</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Workshop on Spoken Language Translation</title>
+		<meeting>the International Workshop on Spoken Language Translation</meeting>
+		<imprint>
+			<date type="published" when="2015" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">The IWSLT 2015 evaluation campaign</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mauro</forename><surname>Cettolo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jan</forename><surname>Niehues</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sebastian</forename><surname>St?ker</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Luisa</forename><surname>Bentivogli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Roldano</forename><surname>Cattoni</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marcello</forename><surname>Federico</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th International Workshop on Spoken Language Translation: Evaluation Campaign</title>
+		<meeting>the 12th International Workshop on Spoken Language Translation: Evaluation Campaign<address><addrLine>Da Nang, Vietnam</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015" />
+			<biblScope unit="page" from="2" to="14" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Facebook ai&apos;s WAT19 myanmar-english translation task submission</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Peng-Jen</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiajun</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Matt</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>El-Kishky</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guillaume</forename><surname>Wenzek</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marc&amp;apos;aurelio</forename><surname>Ranzato</surname></persName>
+		</author>
+		<idno>abs/1910.06848</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">A massively parallel corpus: the bible in 100 languages. Language resources and evaluation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Christos</forename><surname>Christodouloupoulos</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mark</forename><surname>Steedman</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015" />
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page" from="375" to="395" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Semi-supervised sequence modeling with cross-view training</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kevin</forename><surname>Clark</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Minh-Thang</forename><surname>Luong</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Christopher</forename><forename type="middle">D</forename><surname>Manning</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Quoc</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<idno>abs/1809.08370</idno>
+		<imprint>
+			<date type="published" when="2018" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Improving large-scale language models and resources for filipino</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jan</forename><forename type="middle">Christian</forename></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Blaise</forename><surname>Cruz</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Charibeth</forename><surname>Cheng</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2111.06053</idno>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">PhoMT: A high-quality and large-scale benchmark dataset for Vietnamese-English machine translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Long</forename><surname>Doan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Linh</forename><forename type="middle">The</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nguyen</forename><surname>Luong Tran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thai</forename><surname>Hoang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Dat Quoc</forename><surname>Nguyen</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2021.emnlp-main.369</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing</title>
+		<meeting>the 2021 Conference on Empirical Methods in Natural Language Processing<address><addrLine>Dominican Republic</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2021" />
+			<biblScope unit="page" from="4495" to="4503" />
+		</imprint>
+		<respStmt>
+			<orgName>Online and Punta Cana</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Phomt: A high-quality and large-scale benchmark dataset for vietnamese-english machine translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Long</forename><surname>Doan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Linh</forename><forename type="middle">The</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nguyen</forename><surname>Luong Tran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thai</forename><surname>Hoang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Dat Quoc</forename><surname>Nguyen</surname></persName>
+		</author>
+		<idno>abs/2110.12199</idno>
+		<imprint>
+			<date type="published" when="2021" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Understanding back-translation at scale. CoRR</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Auli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">David</forename><surname>Grangier</surname></persName>
+		</author>
+		<idno>abs/1808.09381</idno>
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">CCAligned: A massive collection of cross-lingual web-document pairs</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>El-Kishky</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzm?n</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Philipp</forename><surname>Koehn</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2020.emnlp-main.480</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP 2020)</title>
+		<meeting>the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP 2020)</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="5960" to="5969" />
+		</imprint>
+	</monogr>
+	<note>Online. Association for Computational Linguistics</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Beyond english-centric multilingual machine translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Angela</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Shruti</forename><surname>Bhosale</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Holger</forename><surname>Schwenk</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Zhiyi</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>El-Kishky</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Siddharth</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mandeep</forename><surname>Baines</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Onur</forename><surname>Celebi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guillaume</forename><surname>Wenzek</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Naman</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tom</forename><surname>Birch</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vitaliy</forename><surname>Liptchinsky</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Edouard</forename><surname>Grave</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Auli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Armand</forename><surname>Joulin</surname></persName>
+		</author>
+		<idno>abs/2010.11125</idno>
+		<imprint>
+			<date type="published" when="2020" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Universal neural machine translation for extremely low resource languages</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiatao</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hany</forename><surname>Hassan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jacob</forename><surname>Devlin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">O</forename><forename type="middle">K</forename><surname>Victor</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/N18-1032</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</title>
+		<meeting>the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies<address><addrLine>Long Papers; New Orleans, Louisiana</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="344" to="354" />
+		</imprint>
+	</monogr>
+	<note>Association for Computational Linguistics</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Goals, Challenges and Findings of the VLSP 2020 English-Vietnamese News Translation Shared Task</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thanh-Le</forename><surname>Ha</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kim-Anh</forename><surname>Van-Khanh Tran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Nguyen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 7th International Workshop on Vietnamese Language and Speech Processing -VLSP 2020</title>
+		<meeting>the 7th International Workshop on Vietnamese Language and Speech Processing -VLSP 2020</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Revisiting self-training for neural sequence generation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Junxian</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiatao</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiajun</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marc&amp;apos;aurelio</forename><surname>Ranzato</surname></persName>
+		</author>
+		<idno>abs/1909.13788</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Faisal</forename><surname>Ladhak</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Esin</forename><surname>Durmus</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Claire</forename><surname>Cardie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kathleen</forename><surname>Mckeown</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.03093</idno>
+		<title level="m">Wikilingua: A new benchmark dataset for cross-lingual abstractive summarization</title>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Crosslingual language model pretraining</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guillaume</forename><surname>Lample</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alexis</forename><surname>Conneau</surname></persName>
+		</author>
+		<idno>abs/1901.07291</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">OpenSub-titles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Pierre</forename><surname>Lison</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J?rg</forename><surname>Tiedemann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Tenth International Conference on Language Resources and Evaluation</title>
+		<meeting>the Tenth International Conference on Language Resources and Evaluation</meeting>
+		<imprint>
+			<date type="published" when="2016" />
+			<biblScope unit="page" from="923" to="929" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Multilingual Denoising Pre-training for Neural Machine Translation. Transactions of the Association for</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Yinhan</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiatao</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Naman</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Xian</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marjan</forename><surname>Ghazvininejad</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mike</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Luke</forename><surname>Zettlemoyer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Linguistics</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="726" to="742" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">Geographical distance is the new hyperparameter: A case study of finding the optimal pretrained language for english-isizulu machine translation</title>
+		<idno type="DOI">10.48550/ARXIV.2205.08621</idno>
+		<editor>Muhammad Umair Nasir and Innocent Amos Mchechesi</editor>
+		<imprint>
+			<date type="published" when="2022" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Chinh</forename><surname>Ngo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Trieu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Trinh</surname></persName>
+		</author>
+		<title level="m">Styled augmented translation (sat)</title>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Transformers without tears: Improving the normalization of self-attention</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Q</forename><surname>Toan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Julian</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Salazar</surname></persName>
+		</author>
+		<idno>abs/1910.05895</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Transformers without tears: Improving the normalization of self-attention</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Q</forename><surname>Toan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Julian</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Salazar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 16th International Conference on Spoken Language Translation, Hong Kong. Association for Computational Linguistics</title>
+		<meeting>the 16th International Conference on Spoken Language Translation, Hong Kong. Association for Computational Linguistics</meeting>
+		<imprint>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Vit5: Pretrained text-to-text transformer for vietnamese language generation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Long</forename><surname>Phan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hieu</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hieu</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Trieu</forename><forename type="middle">H</forename><surname>Trinh</surname></persName>
+		</author>
+		<idno type="DOI">10.48550/ARXIV.2205.06457</idno>
+		<imprint>
+			<date type="published" when="2022" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">A call for clarity in reporting BLEU scores</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Matt</forename><surname>Post</surname></persName>
+		</author>
+		<idno>abs/1804.08771</idno>
+		<imprint>
+			<date type="published" when="2018" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Bpe-dropout: Simple and effective subword regularization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ivan</forename><surname>Provilkov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Dmitrii</forename><surname>Emelianenko</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Elena</forename><surname>Voita</surname></persName>
+		</author>
+		<idno>abs/1910.13267</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">BPE-dropout: Simple and effective subword regularization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ivan</forename><surname>Provilkov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Dmitrii</forename><surname>Emelianenko</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Elena</forename><surname>Voita</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2020.acl-main.170</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics</title>
+		<meeting>the 58th Annual Meeting of the Association for Computational Linguistics</meeting>
+		<imprint>
+			<publisher>Online. Association for Computational Linguistics</publisher>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="1882" to="1892" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Exploring the limits of transfer learning with a unified text-to-text transformer</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Colin</forename><surname>Raffel</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Adam</forename><surname>Roberts</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Katherine</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sharan</forename><surname>Narang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Matena</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Yanqi</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Wei</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Peter</forename><forename type="middle">J</forename><surname>Liu</surname></persName>
+		</author>
+		<idno>abs/1910.10683</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Making monolingual sentence embeddings multilingual using knowledge distillation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nils</forename><surname>Reimers</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Iryna</forename><surname>Gurevych</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing. Association for Computational Linguistics</title>
+		<meeting>the 2020 Conference on Empirical Methods in Natural Language Processing. Association for Computational Linguistics</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Prompsit&apos;s submission to wmt 2018 parallel corpus filtering shared task</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>V?ctor</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marta</forename><surname>S?nchez-Cartagena</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergio</forename><surname>Ba??n</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Gema</forename><surname>Ortiz-Rojas</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Ram?rez-S?nchez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Third Conference on Machine Translation</title>
+		<meeting>the Third Conference on Machine Translation<address><addrLine>Brussels, Belgium</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Iterative, mt-based sentence alignment of parallel texts</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Rico</forename><surname>Sennrich</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Martin</forename><surname>Volk</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NODALIDA</title>
+		<imprint>
+			<date type="published" when="2011" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">The source-target domain mismatch problem in machine translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiajun</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Peng-Jen</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Matt</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Junxian</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiatao</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Auli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marc&amp;apos;aurelio</forename><surname>Ranzato</surname></persName>
+		</author>
+		<idno>abs/1909.13151</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">MASS: masked sequence to sequence pre-training for language generation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kaitao</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Xu</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tao</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jianfeng</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tie-Yan</forename><surname>Liu</surname></persName>
+		</author>
+		<idno>abs/1905.02450</idno>
+		<imprint>
+			<date type="published" when="2019" />
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Introducing the Asian language treebank (ALT)</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ye</forename><surname>Kyaw Thu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Win</forename><forename type="middle">Pa</forename><surname>Pa</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Masao</forename><surname>Utiyama</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Andrew</forename><surname>Finch</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Eiichiro</forename><surname>Sumita</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC&apos;16)</title>
+		<meeting>the Tenth International Conference on Language Resources and Evaluation (LREC&apos;16)<address><addrLine>Portoro?, Slovenia</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016" />
+			<biblScope unit="page" from="1574" to="1578" />
+		</imprint>
+	</monogr>
+	<note>European Language Resources Association (ELRA</note>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Parallel data, tools and interfaces in opus</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J?rg</forename><surname>Tiedemann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Eight International Conference on Language Resources and Evaluation (LREC&apos;12)</title>
+		<meeting>the Eight International Conference on Language Resources and Evaluation (LREC&apos;12)<address><addrLine>Istanbul, Turkey</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2012" />
+		</imprint>
+	</monogr>
+	<note>European Language Resources Association (ELRA</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Attention is all you need</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Llion</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">?ukasz</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Illia</forename><surname>Polosukhin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017" />
+			<biblScope unit="page" from="5998" to="6008" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">CCNet: Extracting high quality monolingual datasets from web crawl data</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guillaume</forename><surname>Wenzek</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marie-Anne</forename><surname>Lachaux</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alexis</forename><surname>Conneau</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzm?n</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Armand</forename><surname>Joulin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Edouard</forename><surname>Grave</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th Language Resources and Evaluation Conference</title>
+		<meeting>the 12th Language Resources and Evaluation Conference<address><addrLine>Marseille, France</addrLine></address></meeting>
+		<imprint>
+			<publisher>European Language Resources Association</publisher>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="4003" to="4012" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Building subject-aligned comparable corpora and mining it for truly parallel sentence pairs</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Krzysztof</forename><surname>Wo?k</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Krzysztof</forename><surname>Marasek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Procedia Technology</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="126" to="132" />
+			<date type="published" when="2014" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Understanding and Improving Layer Normalization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jingjing</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Xu</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Zhiyuan</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Guangxiang</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Junyang</forename><surname>Lin</surname></persName>
+		</author>
+		<ptr target="http://www.yhth.vn?https://sj.ctu.edu.vn?https://radiology.com.vn?https://vjol.info.vn?http://www.vjph.vnOtherswebsites?https://vietanhsongngu.com?https://baosongngu.com?https://sachsongngu.top?https://tvpl.vn?http://vbpl.vn?http://automation.net?http://tapchixaydungbxd.vn?https://duytan.edu.vn?https://tapchikhcn.haui.edu.vn?https://tapchivatuyentap.tlu.edu.vn?http://tapchimoitruong.vn?https://translations.launchpad.net?https://translationproject.org?https://issuu.com/?https://lyricstranslate.com?https://www.wikihow.com?https://d2l.aivivn.com" />
+	</analytic>
+	<monogr>
+		<title level="m">Performance comparison between parallel datasets</title>
+		<meeting><address><addrLine>Red Hook, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Curran Associates Inc</publisher>
+			<date type="published" when="2019" />
+			<biblScope unit="volume">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

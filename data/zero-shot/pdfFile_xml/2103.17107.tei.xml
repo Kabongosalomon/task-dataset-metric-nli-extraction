@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/../grobid-0.6.0/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Facial expression and attributes recognition based on multi-task learning of lightweight neural networks</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Andrey</forename><forename type="middle">V</forename><surname>Savchenko</surname></persName>
+							<email>avsavchenko@hse.ru</email>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Laboratory of Algorithms and Technologies for Network Analysis</orgName>
+								<orgName type="institution">HSE University</orgName>
+								<address>
+									<settlement>Nizhny Novgorod</settlement>
+									<country key="RU">Russia</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Facial expression and attributes recognition based on multi-task learning of lightweight neural networks</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+
+		<encodingDesc>
+			<appInfo>
+				<application version="0.6.0" ident="GROBID-SDO" when="2022-11-11T10:27+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid-sdo"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Facial analytics ? Mobile devices ? Facial expression recogni- tion ? Age</term>
+					<term>gender</term>
+					<term>race classification ? AffectNet ? AFEW (Acted Facial Expression In The Wild) ? VGAF (Video-level Group AFfect)</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In this paper, the multi-task learning of lightweight convolutional neural networks is studied for face identification and classification of facial attributes (age, gender, ethnicity) trained on cropped faces without margins. The necessity to fine-tune these networks to predict facial expressions is highlighted. Several models are presented based on MobileNet, EfficientNet and RexNet architectures. It was experimentally demonstrated that they lead to near state-of-the-art results in age, gender and race recognition on the UTKFace dataset and emotion classification on the AffectNet dataset. Moreover, it is shown that the usage of the trained models as feature extractors of facial regions in video frames leads to 4.5% higher accuracy than the previously known stateof-the-art single models for the AFEW and the VGAF datasets from the EmotiW challenges. The models and source code are publicly available at https://github.com/HSE-asavchenko/face-emotion-recognition.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>A lot of modern intelligent systems implements facial analytics in images and videos <ref type="bibr" target="#b0">[1]</ref>, such as age, gender, ethnicity and emotion prediction <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b2">3]</ref>. Thousands of papers appear every year to present all the more difficult techniques and models based on deep convolutional neural network (CNN) <ref type="bibr" target="#b3">[4]</ref>. Ensembles of complex CNNs won prestigious challenges and contests <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b5">6]</ref>.</p><p>It is known that such methods may be too complicated for their practical usage in mobile applications <ref type="bibr" target="#b6">[7]</ref> or edge devices. As a result, there is a huge demand in development of simple easy-to-use solutions, such as multi-task learning and/or sequential training of models on different problems of facial analysis <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b7">8]</ref>, that preserve the state-of-the-art quality and do not require fine-tuning on every new task and/or dataset. Unfortunately, existing techniques are rather complex due to the usage of difficult loss functions with many hyper-parameters or various tricks to distill the knowledge of previously trained neural network to pack multiple modules <ref type="bibr" target="#b8">[9]</ref>.</p><p>The main contribution of this paper is a simplified training procedure that leads to the lightweight but very accurate CNN for multiple facial analysis tasks. The network is pre-trained on large facial dataset <ref type="bibr" target="#b9">[10]</ref>. In contrast to existing studies, it is proposed to classify carefully cropped faces using precise regions at the output of face detectors without additional margins. Though the face recognition quality becomes slightly worth when compared to training on larger facial regions, the fine-tuning of the resulted network leads to more accurate ethnicity classification and emotion recognition. Moreover, the features extracted by the latter network make it possible to achieve the state-of-the-art results among single models in video-based emotion recognition. The best trained models and Android demo application are publicly available 1 . The training code using Python 3.x with both TensorFlow 2.x and PyTorch 1.x frameworks is also available. Hence, are suitable for broad international interest and applications.</p><p>The rest part of the paper is organized as follows. A brief survey of related literature and datasets is presented in Section 2. Section 3 includes detailed description of the proposed approach and training procedures. Section 4 contains experimental results for facial expression classification and age, gender and ethnicity recognition. Concluding comments are discussed in Section 5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Related Works</head><p>The best results of emotion classification on static images are usually reported on the AffectNet dataset <ref type="bibr" target="#b2">[3]</ref>. The excellent accuracy is obtained by the pyramid with super resolution (PSR) based on large VGG-16 network <ref type="bibr" target="#b10">[11]</ref>, deep attentive center loss (DACL) <ref type="bibr" target="#b11">[12]</ref> and the ARM method, which learns the facial representations extracted by ResNet-18 via de-albino and affinity <ref type="bibr" target="#b12">[13]</ref>. The state-of-the-art results for 7 emotional classes is obtained by EmotionGCN <ref type="bibr" target="#b13">[14]</ref>, which exploits the dependencies between these two models using a Graph Convolutional Network. The best accuracy for complete dataset with 8 categories is obtained by the DAN ( Distract your Attention Network) <ref type="bibr" target="#b14">[15]</ref> that uses feature clustering, multi-head cross attention and attention fusion networks.</p><p>The video-based emotion recognition is typically examined on the AFEW (Acted Facial Expression In The Wild) <ref type="bibr" target="#b15">[16]</ref> from the EmotiW (Emotion Recognition in the Wild) 2019 challenge. The DenseNet-161 was used to extract multiple facial features from each frame <ref type="bibr" target="#b16">[17]</ref>. Even better results are reported for an ensemble model with VGG13, VGG16 and ResNet <ref type="bibr" target="#b4">[5]</ref>. One of the best single models for the AFEW is obtained via the noisy student training using body language <ref type="bibr" target="#b17">[18]</ref>. Recently, the group emotions has become analyzed on the VGAF (Video-level Group AFfect) <ref type="bibr" target="#b18">[19]</ref> datasets from the EmotiW 2020. The winner of this challenge developed an ensemble of hybrid networks <ref type="bibr" target="#b5">[6]</ref> for audio and video modalities. Remarkable performance is reached by K-injection network <ref type="bibr" target="#b19">[20]</ref> and activity recognition networks <ref type="bibr" target="#b20">[21]</ref>.</p><p>Recognition of facial attributes, such as age, gender, ethnicity, is typically implemented using the CNNs trained on either the IMDB-Wiki <ref type="bibr" target="#b21">[22]</ref> or the UTKFace <ref type="bibr" target="#b22">[23]</ref>. Most of existing publicly-available age/gender prediction models, namely, MobileNet v2 (Agegendernet) 2 , FaceNet 3 , ResNet-50 from InsightFace <ref type="bibr" target="#b23">[24]</ref>: original and "new" fast CNN 4 , gender net and age net <ref type="bibr" target="#b24">[25]</ref> trained on the Adience dataset <ref type="bibr" target="#b25">[26]</ref>, and Deep expectation (DEX) VGG16 networks do not use large-scale face recognition datasets for pre-training. However, several papers <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b7">8]</ref> clearly demonstrated the benefits of such a pre-training. The similarity among the facial processing tasks can be exploited to learn efficient face representations which boosts up their individual performances. There exist several studies, which use such a multi-task approach. For instance, self-supervised co-training in multi-task learning manner reached an excellent performance in emotion recognition <ref type="bibr" target="#b26">[27]</ref>. Face recognition, gender identification and facial expression understanding are run simultaneously in the PAENet <ref type="bibr" target="#b8">[9]</ref> by using a continual learning approach that learns new tasks without forgetting. Unfortunately, the running-time of the best CNNs used in the above-mentioned papers is usually too high for many practical applications <ref type="bibr" target="#b27">[28]</ref>. Hence, in this paper we decided to concentrate on lightweight architectures of CNNs, such as EfficientNet and RexNet.</p><formula xml:id="formula_0">(a) (b) (c) (d)</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Proposed Approach</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Multi-task networks</head><p>In this paper a multi-task neural network <ref type="bibr" target="#b7">[8]</ref> is adapted to solve several facial attributes recognition problems <ref type="figure" target="#fig_1">(Fig. 2)</ref>. The disjoint features among the tasks are exploited to increase the accuracies <ref type="bibr" target="#b1">[2]</ref>. At first, traditional approach is used: the base CNN is pre-trained on face identification using very large VGGFace2 dataset <ref type="bibr" target="#b9">[10]</ref>. Though the center crop of 224x224 region in each photo <ref type="figure" target="#fig_0">(Fig. 1a</ref>,c) is traditionally used as a pre-processing, it is highlighted in this paper that the higher quality is achieved using the multi-task CNN (MTCNN) face detection without (w/o) any margins ( <ref type="figure" target="#fig_0">Fig. 1b,d</ref>).</p><p>As this paper is concentrated on lightweight CNNs, it was decided to use such architectures as MobileNet, EfficientNet and RexNet as a backbone face recognition network. The resulted neural net extracts facial features x that are suitable to discriminate one subject from another. These features can be used to predict the attributes that are stable for a given person, i.e., gender and ethnicity, with a simple classifier, i.e., one fully connected (FC) layer. The age of the same subject is not constant but it is changed very slow. Hence, this attribute can be predicted based on the same feature vector x, but with additional layers before the final FC layer ( <ref type="figure" target="#fig_1">Fig. 2</ref>). Though the age prediction is a special case of regression problem, it is considered as a multi-class classification with C a different ages, so that it is required to predict if an observed person is 1, 2, . . . or C a years old <ref type="bibr" target="#b7">[8]</ref>.</p><p>It is important to emphasize that many other facial attributes are changed rapidly, so that the facial features from face recognition should remain identical with respect to such changes. An example is the emotion recognition task: inter-class distance between face identification features of the same person with different emotions should remain much lower than the intra-class distance between different persons even with the same facial expressions. Hence, it is claimed in this paper that the facial features extracted by CNN trained on identification task cannot be directly used for emotion recognition. At the same time, lower layers of such CNN consist of feature such as edges and corners that may be better for the latter task when compared to CNN pre-trained on the dataset unrelated to faces, e.g., ImageNet. Hence, in this paper the face recognition CNN is fine-tuned on emotion dataset to either use valuable information about facial features, or predict the facial attributes that are orthogonal to the identity.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Training details</head><p>In order to simplify the training procedure, the CNNs are trained sequentially starting from face identification problem and further tuning on different facial attribute recognition tasks <ref type="bibr" target="#b8">[9]</ref>. At first, the face recognition CNN was trained using the VGGFace2 dataset. The training set contain 3,067,564 photos of 9131 subjects, while the remaining 243,722 images fill the testing set. The new head, i.e., FC layer with 9131 outputs and softmax activation, was added to the network pre-trained on ImageNet. The weights of the base net were frozen and the head was learned during 1 epoch. The categorical cross-entropy loss function was optimized using contemporary SAM (Sharpness-Aware Minimization) <ref type="bibr" target="#b28">[29]</ref> and Adam with learning rate equal to 0.001. Next, the whole CNN was trained in 10 epochs in the same way but with learning rate 0.0001. The models with the highest accuracy on validation set, namely, 92.1%, 95.4%/95.6% and 96.7% for MobileNet-v1, EfficientNet-B0/B2 and RexNet-150, respectively, were further used.</p><p>Next, separate heads for age, gender and ethnicity prediction were added ( <ref type="figure" target="#fig_1">Fig. 2)</ref> and their weights were learned. The training dataset was populated by 300K frontal cropped facial images from the IMDB-Wiki dataset <ref type="bibr" target="#b21">[22]</ref> to predict age and gender <ref type="bibr" target="#b7">[8]</ref>. Unfortunately, the age groups in this dataset are very imbalanced, so the trained models work incorrectly for faces of very young or old people. Hence, we decided to add all (15K) images from the Adience dataset <ref type="bibr" target="#b25">[26]</ref>. As the latter contains only age intervals, e.g., "(60-100)", we put all images from this interval to the average age, i.e. "80". The weights of the base model were frozen so that only new heads were updated. The binary cross-entropy loss was used for gender recognition. After 3 epochs, the resulted MobileNet-based model obtained 97% and 13% validation accuracies for gender and age classification, respectively. In order to make a final age prediction, only L ? {1, 2, ..., C a } indices {a 1 , ..., a L } with the maximal posterior probabilities p a l at the output of the CNN were chosen, and the mean expectation <ref type="bibr" target="#b7">[8]</ref> is computed:</p><formula xml:id="formula_1">a = L l=1 a l ? p a l L l=1 p a l .</formula><p>(1)</p><p>Ethnicity classifier was trained on the subset of the UTKFace dataset <ref type="bibr" target="#b22">[23]</ref> with different class weights in order to achieve better performance for imbalanced classes. Conventional set of 23,708 images from the "Aligned &amp; cropped faces" UTKFace was divided into 20,149 training images and 3559 testing images with C r = 5 races (White, Black, Asian, Indian and Latino/Middle Eastern).</p><p>Finally, the network is fine-tuned for emotion recognition on the AffectNet dataset <ref type="bibr" target="#b2">[3]</ref>. The training set provided by the authors of this dataset contains 287,651 and 283,901 images for C e = 8 classes (Neutral, Happy, Sad, Surprise, Fear, Anger, Disgust, Contempt) and 7 primary expressions (the same without Contempt), respectively. The official validation set consists of 500 images per each class, i.e. 4000 and 3500 images for 8 and 7 classes. We rotate the facial images to align them based on the position of the eyes similarly to the approach from <ref type="bibr" target="#b13">[14]</ref> but without data augmentation. Two ways to classify 7 emotions were studied, namely, 1) train the model on reduced training set with 7 classes; and 2) train the model on the whole training set with 8 classes, but use only 7 scores from the last (Softmax) layer. In both cases, the weighted categorical cross-entropy (softmax) loss was optimized <ref type="bibr" target="#b2">[3]</ref>:</p><formula xml:id="formula_2">L(X, y) = ? log sof tmax(z y ) ? max c?{1,...,Ce} N c /N y ,<label>(2)</label></formula><p>where X is the training image, y ? {1, ..., C e } is its emotional class label, N y is the total number of training examples of the y-th class, z y is the y-th output of the penultimate (logits) layer, and sof tmax is the softmax activation function. The training procedure remains similar to the initial pre-training of face recognition CNN. At first, the new head with C e outputs was added, the remaining weights were frozen and the new head was learned in 3 epochs using the SAM <ref type="bibr" target="#b28">[29]</ref>. Finally, all weights were learned during 10 epochs.</p><p>The obtained models are used in the mobile demo application ( <ref type="figure" target="#fig_2">Fig. 3)</ref> with the publicly-available Java source code 5 . It can process any photo from the gallery and predict either age/gender/ethnicity or emotional state of all detected faces.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Video-based facial attribute recognition</head><p>The datasets for the video-based emotion classification tasks, i.e., the AFEW and the VGAF, contain video clips that can be used to train a classifier. The features from each frame were extracted by the networks that have been previously finetuned on AffectNet dataset. The largest facial region from each frame from the AFEW is fed into such CNN, and the D-dimensional output of its penultimate layers is stored in a frame descriptor. The video descriptor <ref type="bibr" target="#b0">[1]</ref> with dimensionality 4D, e.g, 4 ? 1280 = 5120 for EfficientNet-B0, is computed as a concatenation of statistical functions (mean, max, min and standard deviation) <ref type="bibr" target="#b6">[7]</ref> applied to their frame descriptors. As a result of mistakes in face detection, facial regions have not been detected in all frames of several videos. They were completely ignored in the training set. However, though 4 validation videos does not have detected faces, they were assigned to zero descriptors with the same dimensionality as normal video descriptors, so that the validation accuracy is directly comparable with existing papers. The videos were classified with either LinearSVC or Random Forests with 1000 trees trained on the L 2 -normed video descriptors.</p><p>The group-level video emotion recognition task is solved similarly, though each frame may contain several facial regions. Hence, the video descriptor is computed as follows. At first, statistical functions (mean and standard deviation) of emotion features of all faces in a single frame are concatenated to obtain a descriptor of this frame. Next, all frame descriptors are aggregated using the same mean and standard deviation functions. Maximum and minimum aggregation functions are not used here in order to reduce the dimensionality of the final descriptor. Unfortunately, the clips have rather low resolution, so that only 2,619 training and 741 validation videos has at least one detected face in at least one frame. Hence, the same procedure as described for the AFEW dataset was used: the training videos without faces were ignored, and 28 validation images without faces were associated with zero descriptors.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Experimental Results</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Face identification</head><p>In the first experiment, the conventional protocol of face identification <ref type="bibr" target="#b0">[1]</ref> was used for the LFW (Labeled Faces in-the-Wild) dataset. In particular, C = 596 subjects who have at least two images in the LFW and at least one video in the YTF (YouTube Faces) database. Training set contains exactly one facial image, all other images from LFW were put into the testing set. The rank-1 face identification accuracies and their standard deviations of several CNN models pre-trained on the VGGFace2 dataset <ref type="bibr" target="#b9">[10]</ref> estimated by random 10- times repeated cross-validation are shown in <ref type="table" target="#tab_0">Table 1</ref>. The models trained by the proposed pipeline <ref type="figure" target="#fig_1">(Fig. 2)</ref> are marked by italics. As one can notice, conventional SENet-based facial descriptor <ref type="bibr" target="#b9">[10]</ref> is more accurate in this challenging task with only one training image per subject, especially if loosely cropped faces are recognized <ref type="figure" target="#fig_0">(Fig. 1a,c)</ref>. However, its error rate for faces cropped by face detector without margins ( <ref type="figure" target="#fig_0">Fig. 1b,d)</ref> is 0.5% higher. In contrast to this behavior, the accuracy of the proposed descriptors is increased on 1-2% when detected faces are classified instead of the usage of center crop. As a result, it is expected that the facial regions without background are more meaningful for other facial analytics tasks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Facial Expression Recognition on Single Images</head><p>In this subsection emotion classification models for 8 and 7 classes in the Af-fectNet dataset are studied. In addition, the models after the first training stage are analyzed, in which only the weights of the classification head were learned, while the other part of the model remains the same as in the pre-trained face recognition CNN (left part of <ref type="figure" target="#fig_1">Fig. 2)</ref>. As a result, the base network extracts features appropriate for face identification. In addition, several existing models have been trained on AffectNet similarly to the models trained by proposed pipeline <ref type="figure" target="#fig_1">(Fig. 2)</ref>. In particular, the following architectures have been studied: MobileNet, Inception, EfficientNet and NFNet-F0 pre-trained on ImageNet-1000 and SENet pre-trained on the VGGFace2 <ref type="bibr" target="#b9">[10]</ref>. <ref type="table" target="#tab_1">Table 2</ref> gives a summary of the CNNS trained with the proposed pipeline ( <ref type="figure" target="#fig_1">Fig. 2</ref>) compared with the known state-of-the-art methods. All these numbers are directly comparable with each other because they have been reported by all authors for the training and validation sets that have been determined by the authors of the AffectNet <ref type="bibr" target="#b2">[3]</ref>. The best result in each column is marked by bold.</p><p>As one can notice, the usage of a model trained on complete AffectNet training set with 8 classes for prediction of 7 emotional categories has slightly lower accuracy, though it is more universal as the same model can be used to predict either 8 or 7 emotions. Second, the experiment supports the claim that the identity features from pre-trained CNNs are not suitable for reliable facial expression recognition, though are models trained on the faces cropped by MTCNN are noticeably better. The most important property is the much higher accuracy of the models trained by the proposed approach when compared to CNNs pre-trained on ImageNet. Even the SENet model pre-trained on the VGGFace2 dataset,  <ref type="bibr" target="#b14">[15]</ref> 62.09 65.69 Distilled student <ref type="bibr" target="#b29">[30]</ref> 61.60 65.4 ARM (ResNet-18) <ref type="bibr" target="#b12">[13]</ref> 61.33 65.2 PSR (VGG-16) <ref type="bibr" target="#b10">[11]</ref> 60.68 -RAN <ref type="bibr" target="#b30">[31]</ref> 59.5 -Ensemble with Shared Representations <ref type="bibr" target="#b31">[32]</ref> 59.3 -Weighted-Loss (AlexNet) <ref type="bibr" target="#b2">[3]</ref> 58. that has significantly higher face identification accuracy when compared to the lightweight networks <ref type="table" target="#tab_0">(Table 1)</ref>, is characterized by much worth emotion classification error rate. It is very important to use the face detection procedure with choice of the predicted bounding box without addition of any margins <ref type="figure" target="#fig_0">(Fig. 1)</ref>. As a result, the EfficientNet-based models improved the known state-of-the-art accuracy on AffectNet for both 8 and 7 classes.</p><p>The performance of CNNs from <ref type="table" target="#tab_1">Table 2</ref> are shown in <ref type="table" target="#tab_3">Table 3</ref>. The running time to predict emotion of one facial image was measured on the MSI GP63 8RE laptop (CPU Intel Core i7-8750H 2.2GHz, RAM 16Gb). As expected, the number of parameters and the running time of trained CNNs is also rather small, though ResNet-18 has comparable speed.  <ref type="table">Table 4</ref>. Validation accuracy of single video-only models for AFEW.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Method</head><p>Accuracy, % Noisy student with iterative training <ref type="bibr" target="#b17">[18]</ref> 55.17 Noisy student w/o iterative training <ref type="bibr" target="#b17">[18]</ref> 52.49 DenseNet-161 <ref type="bibr" target="#b16">[17]</ref> 51.44 Frame attention network (FAN) <ref type="bibr" target="#b34">[35]</ref> 51.18 VGG-Face <ref type="bibr" target="#b35">[36]</ref> 49.00 VGG-Face + LSTM <ref type="bibr" target="#b36">[37]</ref> 48.60 DSN-HoloNet <ref type="bibr" target="#b37">[38]</ref> 46.47 LBP-TOP (baseline) <ref type="bibr" target="#b15">[16]</ref> 38 </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Video-based Facial Expression Recognition</head><p>The video-based emotion classification problem is examined on two datasets from the EmotiW challenges. At first, the AFEW 8.0 dataset <ref type="bibr" target="#b15">[16]</ref> of video clips extracted from movies is examined. The training and validation sets provided by the organizers of the EmotiW 2019 challenge contain 773 and 383 video files, respectively. Every sample belongs to one of the C e = 7 emotionals (Anger, Disgust, Fear, Happiness, Sadness, Surprise, and Neutral). The facial regions in each frame were detected using the MTCNN. If it detects multiple faces in a frame, the face with the largest bounding box is selected. The validation accuracy of single models is reported in <ref type="table">Table 4</ref>. As one can notice, the proposed approach provides the best known accuracy for AFEW dataset. Even the MobileNet is 0.18% more accurate than the ResNet-18 with attention and iterative pre-training on the body language dataset. The more powerful EfficientNet-B0 architecture has 4% higher accuracy. It practically reaches the best-known accuracy (59.42%) of ensemble model <ref type="bibr" target="#b4">[5]</ref>, though the whole validation set is not processed due to mistakes in face detection. If only 379 validation videos with faces are analyzed, the accuracies of EfficientNet-B0 and EfficientNet-B2 are equal to 59.89% and 59.63%, respectively. <ref type="table">Table 5</ref>. Validation accuracy of single video-only models for VGAF.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Method</head><p>Accuracy, % DenseNet-121 (FER+) <ref type="bibr" target="#b5">[6]</ref> 64.75 Activity Recognition Networks <ref type="bibr" target="#b20">[21]</ref> 62.40 Inception+LSTM (baseline) <ref type="bibr" target="#b18">[19]</ref> 52 Finally, group-level video-based emotion classification is studied on the recently introduced VGAF dataset <ref type="bibr" target="#b18">[19]</ref>. It has only C e = 3 emotion labels of a group of people, namely, Positive, Negative and Neutral. The validation set provided by the challenge's organizers contain 766 clips, while 2661 videos are available for training. The validation accuracies are presented in <ref type="table">Table 5</ref>.</p><p>One can notice that the proposed approach is the best known single model for this dataset. For example, it is 2-4% more accurate when compared to the DenseNet-121 facial model of the winner. Moreover, one can expect further improvements in group-level emotion classification by making face detection better. For example, if the models are tested on only 741 validation videos with at least one detected face, the overall accuracy is increased to 70.31% and 68.29% for MobileNet and EfficientNet-B0, respectively. Third, in contrast to all previous results, the accuracy of MobileNet features here is 2% higher when compared to EfficientNet-B0, so that both models have their advantages in various emotion recognition tasks. However, the deeper EfficientNet-B2 with higher resolution of the input image is still the best choice here. Finally, the accuracies of the trained models are higher when compared to all participants except the winner of this challenge <ref type="bibr" target="#b5">[6]</ref> who created an ensemble of Hybrid Networks for audio and video modalities and reached excellent 74.28% validation accuracy. For example, my model is much better than the results of the second place in this challenge <ref type="bibr" target="#b19">[20]</ref>. Their ensemble of K-injection networks had accuracy 66.19% even if audio modality was used together with the video.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4">Facial Attributes Recognition</head><p>Age/gender recognition. In order to test the quality of age and gender prediction, the images from complete ("In the Wild") set of UTKFace <ref type="bibr" target="#b22">[23]</ref> were preprocessed using the following procedure from the Agegendernet 2 : faces are detected and aligned with margin 0.4 using get face chip() function from DLib. Only 23,060 images with single face were used to test age and gender prediction quality. There was no fine-tuning on the UTKFace, so that the testing set contains all images from UTKFace. Results of comparison with open-source models described in Section 2 are shown in <ref type="table" target="#tab_6">Table 6</ref>.</p><p>The proposed model uses large-scale face recognition datasets for pre-training, so that it obtains the best results when compared to existing publicly-available models with at least 2.5% higher accuracy of gender classification and 0.6 lower MAE (mean absolute error) of age prediction than DEX due to exploitation of the potential of very large face recognition dataset to learn face representations. Moreover, the MobileNet-based model has 80-times lower parameters when compared to two VGG-16 DEX models. These results are even comparable with the state-of-the-art quality for the UTKFace dataset, which is achieved by training on the part of this dataset. For instance, if the testing set with 3,287 photos of persons from the age ranges <ref type="bibr" target="#b20">[21,</ref><ref type="bibr">60]</ref>, the MobileNet-based multi-task model achieves 97.5% gender recognition accuracy and age prediction MAE 5.39. It is lower than 5.47 MAE of the best CORAL-CNN <ref type="bibr" target="#b38">[39]</ref> on the same testing set, which was additionally trained on other subset of UTKFace. Ethnicity Recognition. The UTKFace dataset was used for ethnicity recognition. The proposed MobileNet-based model was compared with traditional classification of such facial features as VGGFace (VGG-16), VGGFace-2 (ResNet-50) and FaceNet (InceptionResNet v1 trained on VGGFace-2 dataset). The validation accuracies are shown in <ref type="table">Table 7</ref>. Here the model with new head (FC layer) and SVM with RBF kernel provides an appropriate quality even in comparison with the state-of-the-art facial embeddings.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>In this paper the novel training pipeline <ref type="figure" target="#fig_1">(Fig. 2)</ref> was proposed that leads to the state-of-the-art accuracy of the lightweight neural networks in facial expression recognition in images and videos for several datasets. It was shown that, in contrast to existing models, additional robustness to face extraction and alignment is provided, which can be explained by pre-training of facial feature extractor for face identification from very large VGGFace2 dataset. The cropped faces with regions returned by face detectors without adding margins <ref type="figure" target="#fig_0">(Fig. 1b,d)</ref> were used. As a result, not only high accuracy ( <ref type="table" target="#tab_1">Table 2,</ref>  <ref type="bibr" target="#b3">4,</ref><ref type="bibr" target="#b4">5)</ref>, but also excellent speed and model size <ref type="table" target="#tab_3">(Table 3)</ref> are observed. Hence, the models trained by the proposed approach can be used even for fast decision-making in embedded systems, e.g., in mobile intelligent systems <ref type="bibr" target="#b6">[7]</ref>.</p><p>Though the facial representations obtained by the trained lightweight models have rather high quality, only traditional classifiers (support vector machines, random forests, etc.) have been used in this paper, so that not all of our results reach performance of the state-of-the-art methods. In future, it is necessary to improve the overall quality of facial attributes and emotion recognition by using more complex classifiers on top of extracted features, for example, by using graph convolutional networks or transformers and frame/channel-level attention <ref type="bibr" target="#b39">[40]</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc>Sample images from LFW dataset: (a), (c) Center cropped; (b), (d) Cropped by MTCNN w/o margins.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 .</head><label>2</label><figDesc>The proposed multi-task facial expression and attributes recognition.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 3 .</head><label>3</label><figDesc>Sample UI of mobile demo application.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 .</head><label>1</label><figDesc>Rank-1 accuracy (%) in face identification for LFW.</figDesc><table><row><cell>CNN</cell><cell cols="2">Center crop Cropped by MTCNN w/o margins</cell></row><row><cell cols="2">SENet-50 [10] 97.21? 4.19</cell><cell>96.61? 2.02</cell></row><row><cell cols="2">MobileNet-v1 90.80?3.96</cell><cell>92.60?4.01</cell></row><row><cell cols="2">EfficientNet-B0 92.71?4.61</cell><cell>94.58?4.58</cell></row><row><cell cols="2">RexNet-150 94.76?4.45</cell><cell>96.59?3.95</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>Emotion recognition accuracy for AffectNet.</figDesc><table><row><cell></cell><cell>Accuracy, %</cell></row><row><cell>Method</cell><cell>8 classes 7 classes</cell></row><row><cell>DAN</cell><cell></cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 3 .</head><label>3</label><figDesc>Performance of emotion recognition models.</figDesc><table><row><cell>CNN</cell><cell cols="2">CPU Running time, ms Param count, MB</cell></row><row><cell>VGG-16</cell><cell>224.7</cell><cell>134.3</cell></row><row><cell>ResNet-18</cell><cell>58.7</cell><cell>11.7</cell></row><row><cell>Inception-v3</cell><cell>160.4</cell><cell>19.7</cell></row><row><cell>NFNet-F0</cell><cell>621.1</cell><cell>66.4</cell></row><row><cell>SENet-50</cell><cell>128.4</cell><cell>25.5</cell></row><row><cell>MobileNet-v1</cell><cell>40.6</cell><cell>3.2</cell></row><row><cell>EfficientNet-B0</cell><cell>54.8</cell><cell>4.3</cell></row><row><cell>RexNet-150</cell><cell>104.0</cell><cell>8.3</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 6 .</head><label>6</label><figDesc>Age/gender recognition results for UTKFace.</figDesc><table><row><cell>Model</cell><cell></cell><cell>Gender ac-</cell><cell cols="2">Age MAE Param</cell></row><row><cell></cell><cell></cell><cell>curacy, %</cell><cell></cell><cell>count, MB</cell></row><row><cell>FaceNet</cell><cell></cell><cell>89.54</cell><cell>8.58</cell><cell>12.3</cell></row><row><cell cols="3">MobileNet v2 (Agegendernet) 91.47</cell><cell>7.29</cell><cell>7.1</cell></row><row><cell cols="2">ResNet-50 (InsightFace)</cell><cell>87.52</cell><cell>8.57</cell><cell>60.1</cell></row><row><cell cols="3">"New" model from InsightFace 84.69</cell><cell>8.44</cell><cell>0.3</cell></row><row><cell>gender net</cell><cell></cell><cell>87.32</cell><cell>-</cell><cell>11.2</cell></row><row><cell cols="2">VGG-16 (DEX)</cell><cell>91.05</cell><cell>6.48</cell><cell>262.5</cell></row><row><cell cols="2">MobileNet-v1</cell><cell>93.79</cell><cell>5.74</cell><cell>3.2</cell></row><row><cell cols="5">Table 7. Ethnicity recognition accuracy (%) for UTKFace.</cell></row><row><cell>Classifier</cell><cell cols="4">VGGFace VGGFace-2 FaceNet MobileNet</cell></row><row><cell>Random Forest</cell><cell>83.5</cell><cell>87.6</cell><cell>84.3</cell><cell>83.8</cell></row><row><cell>SVM RBF</cell><cell>78.8</cell><cell>82.4</cell><cell>86.2</cell><cell>87.7</cell></row><row><cell>LinearSVC</cell><cell>79.5</cell><cell>83.1</cell><cell>85.6</cell><cell>85.6</cell></row><row><cell>New FC layer</cell><cell>80.4</cell><cell>86.4</cell><cell>84.4</cell><cell>87.6</cell></row></table><note></note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1">https://github.com/HSE-asavchenko/face-emotion-recognition</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2">https://github.com/dandynaufaldi/Agendernet 3 https://github.com/BoyuanJiang/Age-Gender-Estimate-TF 4 https://github.com/deepinsight/InsightFace/</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5">https://github.com/HSE-asavchenko/face-emotion-recognition/tree/main/ mobile_app</note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Acknowledgements</head><p>The work is supported by RSF (Russian Science Foundation) grant 20-71-10010.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Granular computing and sequential analysis of deep embeddings in fast still-to-video face recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">V</forename><surname>Savchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 12th International Symposium on Applied Computational Intelligence and Informatics (SACI)</title>
+		<meeting>12th International Symposium on Applied Computational Intelligence and Informatics (SACI)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="515" to="000520" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Multi-task face analyses through adversarial learning</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Hao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Liang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="volume">114</biblScope>
+			<biblScope unit="page">107837</biblScope>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">AffectNet: A database for facial expression, valence, and arousal computing in the wild</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Mollahosseini</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Hasani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><forename type="middle">H</forename><surname>Mahoor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Affective Computing</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="18" to="31" />
+			<date type="published" when="2017" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Q</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Yao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><forename type="middle">W</forename><surname>Schuller</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2103.10798</idno>
+		<title level="m">Computational emotion analysis from images: Recent advances and future directions</title>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Emotion recognition in the wild from videos using images</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">A</forename><surname>Bargal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Barsoum</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">C</forename><surname>Ferrer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 18th ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the 18th ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2016" />
+			<biblScope unit="page" from="433" to="436" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Group level audio-video emotion recognition using hybrid networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Tang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="807" to="812" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">MobileEmotiFace: Efficient facial image representations in video-based emotion recognition on mobile devices</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Demochkina</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">V</forename><surname>Savchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ICPR International Workshops and Challenges, Part V</title>
+		<meeting>ICPR International Workshops and Challenges, Part V</meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2021" />
+			<biblScope unit="page" from="266" to="274" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Efficient facial representations for age, gender and identity recognition in organizing photo albums using multi-output ConvNet</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">V</forename><surname>Savchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PeerJ Computer Science</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">197</biblScope>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Increasingly packing multiple facial-informatics modules in a unified deep-learning model via lifelong learning</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">C</forename><surname>Hung</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">H</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><forename type="middle">S</forename><surname>Wan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><forename type="middle">M</forename><surname>Chan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">S</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Multimedia Retrieval (ICMR)</title>
+		<meeting>the International Conference on Multimedia Retrieval (ICMR)</meeting>
+		<imprint>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="339" to="343" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Vggface2: A dataset for recognising faces across pose and age</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Q</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">O</forename><forename type="middle">M</forename><surname>Parkhi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Zisserman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of International Conference on Automatic Face &amp; Gesture Recognition (FG)</title>
+		<meeting>International Conference on Automatic Face &amp; Gesture Recognition (FG)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="67" to="74" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Pyramid with super resolution for in-the-wild facial expression recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><forename type="middle">H</forename><surname>Vo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><forename type="middle">S</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><forename type="middle">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="131988" to="132001" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Facial expression recognition in the wild via deep attentive center loss</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">H</forename><surname>Farzaneh</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Qi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Winter Conference on Applications of Computer Vision (WACV)</title>
+		<meeting>the Winter Conference on Applications of Computer Vision (WACV)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2021" />
+			<biblScope unit="page" from="2402" to="2411" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Learning to amend facial expression representation via de-albino and affinity</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Zhu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2103.10189</idno>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Exploiting emotional dependencies with graph convolutional networks for facial expression recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Antoniadis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><forename type="middle">P</forename><surname>Filntisis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Maragos</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2106.03487</idno>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Distract your attention: Multi-head cross attention network for facial expression recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Z</forename><surname>Wen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Xu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2109.07270</idno>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Automatic emotion, engagement and cohesion prediction tasks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Dhall</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<publisher>EmotiW</publisher>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="546" to="550" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Multi-feature based emotion recognition for video clips</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Lv</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 20th ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the 20th ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="630" to="634" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Noisy student training using body language dataset improves facial expression recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">V</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Rao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the European Conference on Computer Vision (ECCV)</title>
+		<meeting>the European Conference on Computer Vision (ECCV)</meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="756" to="773" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Automatic group level affect and cohesion prediction in videos</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Ghosh</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Dhall</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 8th International Conference on Affective Computing and Intelligent Interaction Workshops and Demos</title>
+		<meeting>the 8th International Conference on Affective Computing and Intelligent Interaction Workshops and Demos</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="161" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Implicit knowledge injectable cross attention audiovisual model for group emotion recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Heracleous</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wada</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Kimura</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Kurihara</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="827" to="834" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Audiovisual classification of group emotion valence using activity recognition networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">R</forename><surname>Pinto</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Gon?alves</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Pinto</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Sanhudo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Fonseca</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Gon?alves</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Carvalho</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><forename type="middle">S</forename><surname>Cardoso</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 4th International Conference on Image Processing, Applications and Systems (IPAS)</title>
+		<meeting>the 4th International Conference on Image Processing, Applications and Systems (IPAS)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="114" to="119" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">DEX: Deep expectation of apparent age from a single image</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Rothe</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Timofte</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Van Gool</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Computer Vision (CVPR) Workshops</title>
+		<meeting>the International Conference on Computer Vision (CVPR) Workshops</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015" />
+			<biblScope unit="page" from="10" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Age progression/regression by conditional adversarial autoencoder</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Qi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<meeting>the Conference on Computer Vision and Pattern Recognition (CVPR)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017" />
+			<biblScope unit="page" from="5810" to="5818" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Arcface: Additive angular margin loss for deep face recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Niannan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Zafeiriou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<meeting>the Conference on Computer Vision and Pattern Recognition (CVPR)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Age and gender classification using convolutional neural networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><surname>Levi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Hassner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Conference on Computer Vision and Pattern Recognition (CVPR) Workshops</title>
+		<meeting>the Conference on Computer Vision and Pattern Recognition (CVPR) Workshops</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015" />
+			<biblScope unit="page" from="34" to="42" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Age and gender estimation of unfiltered faces</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Eidinger</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Enbar</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">T</forename><surname>Hassner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Forensics and Security</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="2170" to="2179" />
+			<date type="published" when="2014" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Using self-supervised co-training to improve facial representation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Pourmirzaei</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Esmaili</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">G</forename><forename type="middle">A</forename><surname>Montazer</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2105.06421</idno>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Fast inference in convolutional neural networks based on sequential three-way decisions</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><forename type="middle">V</forename><surname>Savchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Sciences</title>
+		<imprint>
+			<biblScope unit="volume">560</biblScope>
+			<biblScope unit="page" from="370" to="385" />
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Sharpness-aware minimization for efficiently improving generalization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Foret</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Kleiner</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Mobahi</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">B</forename><surname>Neyshabur</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.01412</idno>
+		<imprint>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Leveraging recent advances in deep learning for audio-visual emotion recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Schoneveld</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Othmani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Abdelkawy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition Letters</title>
+		<imprint>
+			<date type="published" when="2021" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Region attention networks for pose and occlusion robust facial expression recognition</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Qiao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Image Processing</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="4057" to="4069" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Efficient facial feature learning with wide ensemble-based convolutional neural networks</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">H</forename><surname>Siqueira</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Magg</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wermter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the AAAI conference on Artificial Intelligence</title>
+		<meeting>the AAAI conference on Artificial Intelligence</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="page" from="5800" to="5809" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><forename type="middle">C</forename><surname>Hung</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">H</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">E</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><forename type="middle">M</forename><surname>Chan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><forename type="middle">S</forename><surname>Chen</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1910.06562</idno>
+		<title level="m">Compacting, picking and growing for unforgetting continual learning</title>
+		<imprint>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">Cake: Compact and accurate k-dimensional representation of emotion</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">C</forename><surname>Kervadec</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">V</forename><surname>Vielzeuf</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Pateux</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Lechervy</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Jurie</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.11215</idno>
+		<imprint>
+			<date type="published" when="2018" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Frame attention networks for facial expression recognition in videos</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">X</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">K</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Qiao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Image Processing (ICIP)</title>
+		<meeting>the International Conference on Image Processing (ICIP)</meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="3866" to="3870" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Emotion recognition with spatial attention and temporal softmax pooling</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Aminbeidokhti</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Pedersoli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Cardinal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">E</forename><surname>Granger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Image Analysis and Recognition (ICIAR)</title>
+		<meeting>the International Conference on Image Analysis and Recognition (ICIAR)</meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="323" to="331" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Temporal multimodal fusion for video emotion classification in the wild</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">V</forename><surname>Vielzeuf</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Pateux</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">F</forename><surname>Jurie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 19th ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the 19th ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2017" />
+			<biblScope unit="page" from="569" to="576" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Learning supervised scoring ensemble for emotion recognition in the wild</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">A</forename><surname>Yao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 19th ACM International Conference on Multimodal Interaction (ICMI)</title>
+		<meeting>the 19th ACM International Conference on Multimodal Interaction (ICMI)</meeting>
+		<imprint>
+			<date type="published" when="2017" />
+			<biblScope unit="page" from="553" to="560" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">W</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">V</forename><surname>Mirjalili</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>Raschka</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.07884</idno>
+		<title level="m">Consistent rank logits for ordinal regression with convolutional neural networks</title>
+		<imprint>
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Online supervised attention-based recurrent depth estimation from monocular video</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D</forename><surname>Maslov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">I</forename><surname>Makarov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PeerJ Computer Science</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page">317</biblScope>
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 /nfs/home/kabenamualus/Research/task-dataset-metric-extraction/../grobid-0.6.0/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">PhoMT: A High-Quality and Large-Scale Benchmark Dataset for Vietnamese-English Machine Translation</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Long</forename><surname>Doan</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VinAI Research</orgName>
+								<address>
+									<settlement>Hanoi</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Linh</forename><forename type="middle">The</forename><surname>Nguyen</surname></persName>
+							<email>v.nguyentl12@vinai.io</email>
+							<affiliation key="aff0">
+								<orgName type="institution">VinAI Research</orgName>
+								<address>
+									<settlement>Hanoi</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nguyen</forename><surname>Luong Tran</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VinAI Research</orgName>
+								<address>
+									<settlement>Hanoi</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thai</forename><surname>Hoang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VinAI Research</orgName>
+								<address>
+									<settlement>Hanoi</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Dat</forename><forename type="middle">Quoc</forename><surname>Nguyen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">VinAI Research</orgName>
+								<address>
+									<settlement>Hanoi</settlement>
+									<country key="VN">Vietnam</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">PhoMT: A High-Quality and Large-Scale Benchmark Dataset for Vietnamese-English Machine Translation</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+
+		<encodingDesc>
+			<appInfo>
+				<application version="0.6.0" ident="GROBID-SDO" when="2022-11-12T06:14+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid-sdo"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We introduce a high-quality and large-scale Vietnamese-English parallel dataset of 3.02M sentence pairs, which is 2.9M pairs larger than the benchmark Vietnamese-English machine translation corpus IWSLT15. We conduct experiments comparing strong neural baselines and well-known automatic translation engines on our dataset and find that in both automatic and human evaluations: the best performance is obtained by fine-tuning the pretrained sequence-to-sequence denoising autoencoder mBART. To our best knowledge, this is the first large-scale Vietnamese-English machine translation study. We hope our publicly available dataset and study can serve as a starting point for future research and applications on Vietnamese-English machine translation. We release our dataset at: https:// github.com/VinAIResearch/PhoMT.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Vietnam has achieved rapid economic growth in the last two decades <ref type="bibr" target="#b3">(Baum, 2020)</ref>. It is now an attractive destination for trade and investment. Due to the language barrier, foreigners usually rely on automatic machine translation (MT) systems to translate Vietnamese texts into their native language or another language they are familiar with, e.g. the global language English, so they could quickly catch up with ongoing events in Vietnam. Thus the demand for high-quality Vietnamese-English MT has rapidly increased. However, state-of-theart MT models require high-quality and large-scale corpora for training to be able to reach near humanlevel translation quality <ref type="bibr" target="#b33">(Wu et al., 2016;</ref><ref type="bibr" target="#b19">Ott et al., 2018)</ref>. Despite being one of the most spoken languages in the world with about 100M speakers, Vietnamese is referred to as a low-resource language in MT research because publicly available * The first three authors contributed equally to this work. ? Work done during internship at VinAI Research. Email: qthai912@cs.washington.edu parallel corpora for Vietnamese in general and in particular for Vietnamese-English MT are not large enough or have low-quality translation pairs, including those with different sentence meaning (i.e. misalignment).</p><p>Two main concerns are detailed as follows:</p><p>? High-quality Vietnamese-English parallel corpora are either not publicly available or smallscale. <ref type="bibr" target="#b15">Ngo et al. (2013)</ref> and <ref type="bibr" target="#b21">Phan-Vu et al. (2019)</ref> present two corpora each comprising of 800K sentence pairs, however, these two corpora are not publicly available. Thus, the Vietnamese-English parallel corpus IWSLT15 <ref type="bibr" target="#b5">(Cettolo et al., 2015)</ref> of 133K sentence pairs extracted from TED-Talks transcripts is still considered as the standard benchmark for MT when it comes to Vietnamese. Recently, the OPUS project (Tiedemann, 2012) provides 300K+ sentence pairs extracted from the TED2020 v1 corpus of TED-Talks transcripts <ref type="bibr" target="#b23">(Reimers and Gurevych, 2020)</ref>.</p><p>? Larger Vietnamese-English parallel corpora are noisy, e.g. see discussions on the 300K-600K sentence pair corpora of JW300 <ref type="bibr" target="#b1">(Agi? and Vuli?, 2019)</ref>, OPUS's GNOME and QED <ref type="bibr" target="#b0">(Abdelali et al., 2014)</ref> in Section 2.1, and on the OpenSubtitles corpus <ref type="bibr" target="#b12">(Lison and Tiedemann, 2016)</ref> in Section 2.2. Recently, CCAligned <ref type="bibr" target="#b7">(El-Kishky et al., 2020)</ref> and WikiMatrix <ref type="bibr" target="#b24">(Schwenk et al., 2021)</ref> are created by using LASER sentence embeddings <ref type="bibr" target="#b2">(Artetxe and Schwenk, 2019)</ref> and margin-based sentence alignment to mine parallel sentences from comparable web-document pairs. Though containing millions of Vietnamese-English parallel sentence pairs, they still have a large proportion of misalignment and low-quality translation pairs. In particular, we randomly sample from each corpus 100 sentence pairs and manually inspect their quality. We find that only 37/100 CCAligned pairs and 31/100 WikiMatrix pairs are at a high-quality translation level.</p><p>As the first contribution, to help handle the two concerns above, we present a high-quality and large-scale Vietnamese-English parallel dataset, named PhoMT, that consists of 3.02M sentence pairs. Here, from PhoMT, we also prepare 38K sentence pairs with manually qualitative inspection, that are used for validation and test. We believe that our dataset construction process will help develop more efficient data creation strategies for other low-resource languages. As the second contribution, we empirically investigate strong baselines on our dataset, including Transformer-base, Transformer-big <ref type="bibr" target="#b31">(Vaswani et al., 2017)</ref> and the pre-trained sequence-to-sequence denoising autoencoder mBART <ref type="bibr" target="#b13">(Liu et al., 2020)</ref>, and compare these baselines with well-known automatic translation engines. We find that mBART obtains the highest scores in terms of both automatic and human evaluations on both translation directions. To the best of our knowledge, this is the first largescale empirical study for Vietnamese-English MT. As our final contribution, we publicly release our PhoMT dataset for research or educational purposes. We hope PhoMT together with our empirical study can serve as a starting point for future Vietnamese-English MT research and applications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Our PhoMT dataset</head><p>Our dataset construction process consists of 4 phases. The 1st phase is to collect parallel document pairs. The 2nd phase is a pre-processing step that is to produce cleaned and high-quality parallel document pairs and then extract sentences from these pairs. The 3rd phase is to align parallel sentences within a pair of parallel documents. The 4th phase is a post-processing step that is to filter out duplicated parallel sentence pairs and manually verify the quality of validation and test sets.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Collecting parallel document pairs</head><p>We collect the parallel document pairs from publicly available resources that contain original English documents and their corresponding Vietnamese-translated version. WikiHow: It is an online knowledge base of how-to guides that are available in multiple languages. We employ a multilingual WikiHow-based document summarization corpus <ref type="bibr" target="#b11">(Ladhak et al., 2020)</ref> that contains 6616 pairs of WikiHow English articles and their Vietnamese-translated variant. TED-Talks: We use the TED2020 v1 corpus <ref type="bibr" target="#b23">(Reimers and Gurevych, 2020</ref>) that includes 3123 English-Vietnamese subtitle pairs of TED talks. OpenSubtitles: We employ the latest version v2018 of the OpenSubtitles corpus <ref type="bibr" target="#b12">(Lison and Tiedemann, 2016</ref>) that contains 3886 parallel movie and TV subtitles. MediaWiki: We also use parallel documents from the MediaWiki content translation data dump. News &amp; Blogspot: We collect English and Vietnamese-translated versions of news and Blogspot articles from eight websites for English learners. See URLs for the described resources in the Appendix.</p><p>Here, we do not include available corpora of JW300 <ref type="bibr" target="#b1">(Agi? and Vuli?, 2019)</ref>, OPUS's GNOME and QED <ref type="bibr" target="#b0">(Abdelali et al., 2014)</ref>. We manually check 100 randomly sampled pairs from the 600K Vietnamese-English sentence pair corpus JW300 and find that there are 71 high-quality translation pairs. However, it is worth noting that JW300 can introduce potential bias because of its religious domain. GNOME from OPUS contains 600K sentences pairs, in which most Vietnamese target sentences include many original translatable technical English words, thus not natural. QED has 340K sentence pairs, however, our investigation finds that about a half of the QED pairs are from the TED-Talks transcripts <ref type="bibr" target="#b23">(Reimers and Gurevych, 2020)</ref>; and from the remaining sentence pairs, we randomly sample 100 pairs and find that only 43 pairs have a high-quality translation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Pre-processing</head><p>We find that not all of 3886 English-Vietnamese parallel document pairs in OpenSubtitles have a high-quality translation. We manually inspect each OpenSubtitles pair and remove 574/3886 (15%) document pairs with a low-quality translation, thus remaining 3312 pairs. In MediaWiki, there are original English paragraphs appearing in some Vietnamese target documents, that have not been translated into Vietnamese yet. We employ the language identification module of fastText <ref type="bibr" target="#b9">(Joulin et al., 2017)</ref> to identify and filter those English paragraphs out of the Vietnamese documents. We also remove reference sections and tables that appear in some MediaWiki and Blogspot documents.</p><p>To extract sentences for parallel sentence alignment in the next phase, we perform (tokenization and) sentence segmentation by using the Stanford CoreNLP toolkit <ref type="bibr" target="#b14">(Manning et al., 2014)</ref> and <ref type="bibr">RDRSegmenter (Nguyen et al., 2018)</ref>   <ref type="table">Table 1</ref>: Our dataset statistics. "#doc", "#pair", "#en/s" and "#vi/s" denote the number of parallel document pairs, the number of aligned parallel sentence pairs, the average number of word tokens per English sentence and the average number of syllable tokens per Vietnamese sentence, respectively. "OpenSub" abbreviates OpenSubtitles.</p><p>CoreNLP toolkit  for English and Vietnamese, respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Aligning parallel sentence pairs</head><p>To align parallel sentences within a parallel document pair, our approach first employs the strong neural MT engine Google Translate to translate each English source sentence into Vietnamese. Then we use three toolkits of Hunalign <ref type="bibr" target="#b30">(Varga et al., 2007)</ref>, Gargantua <ref type="bibr" target="#b4">(Braune and Fraser, 2010)</ref> and Bleualign <ref type="bibr" target="#b27">(Sennrich and Volk, 2011)</ref> to perform sentence alignment via alignment between the Google-translated variants of the English source sentences and the Vietnamese target sentences. Finally, we only select sentence pairs that are aligned by at least two out of three toolkits as the output of our alignment process. The quality of our sentence alignment output is shown in Section 2.4. Here, we discuss alignment coverage rates. On the same TED2020 v1 corpus, the automatic alignment approach OPUS <ref type="bibr" target="#b29">(Tiedemann, 2012)</ref>, based on word alignments and phrase tables, aligns a total of 326K Vietnamese sentences, 1 while our approach aligns 350K Vietnamese ones (i.e. a 7.5% relative improvement). <ref type="bibr">2</ref> Note that from each resource domain except OpenSubtitles, our approach selects 99+% of Vietnamese sentences to be included in the output of our alignment process. Particularly, a total of 14.6K Vietnamese sentences (i.e. 0.86%) are not selected from five resource domains of News, Blogspot, TED-Talks, MediaWiki and WikiHow. When it comes to OpenSubtitles, the rate reduces to 95% (here, 120K Vietnamese sentences are not included in our alignment output). On average, the align- To qualify our dataset, we manually inspect each sentence pair in the validation and test sets. Here, each pair is inspected by two out of the first three co-authors independently: one inspector checks about (18876 + 19291) ? 2 / 3 = 25K sentence pairs in 125 hours on average (i.e. 200 sentences/hour). After cross-checking, we find that in the validation set, 32 sentence pairs (0.17%) are misaligned (i.e. completely different sentence meaning or partly preserving the sentence meaning); and 125 pairs (0.66%) are low-quality translation ones (i.e. mostly or completely preserving the sentence meaning, however, the Vietnamese target sentence is not naturally smooth). In the test set, there are 27 misaligned sentence pairs (0.14%) and 113 low-quality translation pairs (0.59%). Note that performing a similar manual inspection on the training set is beyond our current human resource; however, with small proportions of misalignment and low-quality  3 Experiments</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Experimental setup</head><p>We conduct experiments on our PhoMT dataset to study: (i) a comparison between the wellknown automatic translation engines (here, Google Translate and Bing Translator) and strong neural MT baselines, and (ii) the usefulness of pre-trained sequence-to-sequence denoising autoencoder. In particular, we use the baseline models: Transformer-base, Transformer-big <ref type="bibr" target="#b31">(Vaswani et al., 2017)</ref>, and the pre-trained denoising auto-encoder mBART <ref type="bibr" target="#b13">(Liu et al., 2020)</ref>. We report standard metrics TER <ref type="bibr" target="#b28">(Snover et al., 2006)</ref> and BLEU <ref type="bibr" target="#b20">(Papineni et al., 2002)</ref>, in which lower TER and higher BLEU indicate better performances. We compute the case-sensitive BLEU score using SacreBLEU <ref type="bibr" target="#b22">(Post, 2018)</ref>. See the Appendix for implementation details. Here, we select the model checkpoint that obtains the highest BLEU score on the validation set to apply to the test set.   Google Translate and Bing Translator, in which Transformer-big outperforms Transformer-base. In addition, mBART achieves the best performance among all models, reconfirming the quantitative effectiveness of multilingual denoising pre-training for neural MT <ref type="bibr" target="#b13">(Liu et al., 2020)</ref>. We present BLEU scores on the Vi-to-En test set for each resource domain and sentence length bucket in <ref type="table" target="#tab_5">Tables 3 and 4</ref>, respectively. <ref type="table" target="#tab_5">Table 3</ref> shows that the highest BLEU scores are reported for MediaWiki (wherein documents share and link common events or topics), followed by the ones reported for News and TED-Talks. Three remaining resource domains Blogspot, WikiHow and Open-Subtitles contain less common topic-specific document pairs, thus resulting in lower scores. In <ref type="table" target="#tab_6">Table  4</ref>, we find that models produce lower BLEU scores for short-and medium-length sentences (i.e. &lt; 20 tokens) than for long sentences. This is not surprising as a major proportion of short-and medium-  <ref type="figure">Figure 1</ref> presents BLEU scores of Transformerbase on the validation set for the Vi-to-En setup when varying the numbers of training sentence pairs. Those scores clearly show the effectiveness of larger training sizes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Automatic evaluation results</head><p>We also perform an experiment to additionally show that our curation effort has paid off. In particular, as not all of our data are overlapping with OPUS, for a fair comparison, we sample a set of 1.55M non-duplicate Vietnamese-English sentence pairs from OPUS's OpenSubtitles, which has the same size as our PhoMT's OpenSubtitles training subset and do not contain pairs appearing in our OpenSubtitles validation and test subsets. We train two Transformer-base models for Vi-to-En translation: one trained using the sampled OPUS's Open-Subtitles set and another one trained using our OpenSubtitles training subset. Hyper-parameter tuning is performed using our OpenSubtitles validation subset in the same manner as presented in the Appendix. We evaluate the models using our Open-Subtitles test subset. We find that Transformer-base trained using the sampled OPUS's OpenSubtitles set produces a significantly lower Vi-to-En BLEU score on our OpenSubtitles test subset than the one trained using our OpenSubtitles training subset (29.72 vs. 31.11), clearly showing the effectiveness of our quality control. Note that as shown in <ref type="table" target="#tab_5">Table 3</ref>, Transformer-base trained using the whole PhoMT's training set obtains a higher Vi-to-En BLEU score at 32.29 on our OpenSubtitles test subset. Thus this experiment also reconfirms the positive effect of a larger training size.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Human evaluation results</head><p>We also conduct a human-based manual comparison between the outputs generated by the two automatic translation systems and our three neural baselines. For each translation direction, we randomly sample 100 source sentences in the test set; and for each sentence sample, we anonymously shuffle the translation outputs from five systems. Here, each sampled pair satisfies that any two out of five translation outputs are not exactly the same. We then ask three external Vietnamese annotators to choose which translation they think is the best. 4 The inter-annotator agreement score computed for Fleiss' kappa coefficient <ref type="bibr" target="#b8">(Fleiss, 1971)</ref> between the three annotators is 0.63 which is relatively substantial. Our fourth co-author hosts and participates in a discussion session with the three annotators to resolve annotation conflicts. 5 <ref type="table" target="#tab_3">Table 2</ref> shows final results, where mBART gains the highest human evaluation scores, thus demonstrating its qualitative effectiveness for both En-to-Vi and Vi-to-En translation. <ref type="table" target="#tab_3">Table 2</ref> also shows that human preference is not always correlated with the automatic metrics TER and BLEU. For example, in the En-to-Vi setup, though Transformer models have 2+ points better TER and BLEU than Google Translate, they are less preferred by humans than Google Translate (13 vs. 23 and 18 vs. 23). A detailed study is beyond the scope of our paper, but it is worth investigating in future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusion</head><p>We have presented PhoMT-a high-quality and large-scale Vietnamese-English parallel dataset of 3.02M sentence pairs. We empirically conduct experiments on our PhoMT dataset to compare strong baselines and demonstrate the effectiveness of the pre-trained denoising auto-encoder mBART for neural MT in both automatic and human evaluations. We hope that the public release of our dataset can serve as the starting point for further Vietnamese-English MT research and applications.</p><p>? https://www.jw.org/vi/tin-tuc/ phap-ly https://www.jw.org/vi/tin-tuc/ ve-nhan-chung https://www.jw.org/vi/tin-tuc/ tin-tuc Blogspot:</p><p>? https://gocsan.blogspot.com</p><p>Discussion on the alignment coverage rate OPUS <ref type="bibr" target="#b29">(Tiedemann, 2012)</ref> also provides a corpus of 350K sentence pairs extracted from a newer version of the MediaWiki content translation dump (version: 02 April 2021), 6 wherein duplicate pair removal is not performed. Note that the number of our MediaWiki sentence pairs is bigger at 500K (without taking duplicate pairs into account), thus again showing that our alignment approach is more effective than the OPUS alignment approach.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Discussion on the use of Google Translate</head><p>To align parallel sentences within a parallel document pair as described in Section 2.3, we first translate each English source sentence into Vietnamese by using Google Translate. Here, the use of Google Translate in this step is via utilizing the "Google-Translate" function in Google Sheets. However, we later find that this "GoogleTranslate" function in Google Sheets produces lower performance scores than using the Google Translate API in both automatic and human evaluation setups. Therefore, in our result tables, we report "Google Translate" scores accounted for the Google Translate API on the validation and test sets.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Implementation details</head><p>We employ Transformer and mBART implementations from fairseq <ref type="bibr" target="#b18">(Ott et al., 2019)</ref>. For both Transformer models <ref type="bibr" target="#b31">(Vaswani et al., 2017)</ref>, following <ref type="bibr" target="#b6">Ding et al. (2019)</ref>, we use subword-nmt to learn joint BPE with 32K merge operations <ref type="bibr" target="#b26">(Sennrich et al., 2016)</ref>. For mBART, we finetune the pre-trained sequence-to-sequence model mBART25 <ref type="bibr" target="#b13">(Liu et al., 2020)</ref>. Here, mBART25 is pre-trained on a Common Crawl dataset of 25 languages, which contains 300GB of English texts and 137 GB of Vietnamese texts. Following <ref type="bibr" target="#b31">Vaswani et al. (2017)</ref>, we use beam search with a beam size of 4 and length normalization of 0.6 for decoding. Due to the model size, we apply batch sizes of 16K tokens for Transformer-base, 8K tokens for Transformer-big and 4K tokens for mBART. We optimize the models using Adam <ref type="bibr" target="#b10">(Kingma and Ba, 2014)</ref> and run for 30 training epochs, wherein the Adam initial learning rate is warmed up for the first epoch. In addition, we also perform grid search to select the initial learning rate from {1e-4, 3e-4, 5e-4, 7e-4} for Transformer models and from {1e-5, 3e-5, 5e-5, 7e-5} for mBART. For both Englishto-Vietnamese and Vietnamese-to-English translation setups, the optimal learning rates selected for Transformer-base, Transformer-big and mBART are 5e-4, 3e-4 and 5e-5, respectively. Here, we evaluate each model 8 times during every training epoch, and then select the model checkpoint that obtains the highest BLEU score on the validation set to apply to the test set. We compute the detokenized and case-sensitive BLEU score using SacreBLEU (with the signature "BLEU+case.mixed+numrefs.1+smooth.exp+tok.1-3a+version.1.5.1"). 7 Similarly, we also compute the detokenized and case-sensitive TER score (with the option "-N" of normalization). 8</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Additional results</head><p>Tables 5 and 6 present details of TER and BLEU scores on the validation and test sets for each domain. In addition, we show TER and BLEU scores for each sentence length bucket in <ref type="table" target="#tab_11">Table 7</ref>      </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head></head><label></label><figDesc>from the Vn-</figDesc><table><row><cell>Domain</cell><cell>#doc</cell><cell>Total #pair</cell><cell>#pair</cell><cell cols="6">Training #en/s #vi/s #pair #en/s #vi/s #pair #en/s #vi/s Validation Test</cell></row><row><cell>News</cell><cell>2559</cell><cell>41504</cell><cell>40990</cell><cell>24.4</cell><cell>32.0 257</cell><cell>22.3</cell><cell>30.3 257</cell><cell>26.8</cell><cell>34.5</cell></row><row><cell>Blogspot</cell><cell>1071</cell><cell>93956</cell><cell>92545</cell><cell>25.0</cell><cell>34.6 597</cell><cell>26.4</cell><cell>37.8 814</cell><cell>23.7</cell><cell>31.5</cell></row><row><cell cols="2">TED-Talks 3123</cell><cell>320802</cell><cell>316808</cell><cell>19.8</cell><cell>23.8 1994</cell><cell>20.0</cell><cell>24.6 2000</cell><cell>22.0</cell><cell>27.9</cell></row><row><cell cols="3">MediaWiki 38969 496799</cell><cell>490505</cell><cell>26.0</cell><cell>32.8 3024</cell><cell>25.3</cell><cell>32.3 3270</cell><cell>27.0</cell><cell>33.7</cell></row><row><cell>WikiHow</cell><cell>6616</cell><cell>513837</cell><cell>507379</cell><cell>18.9</cell><cell>22.4 3212</cell><cell>17.9</cell><cell>21.5 3246</cell><cell>17.5</cell><cell>21.5</cell></row><row><cell>OpenSub</cell><cell>3312</cell><cell cols="3">1548971 1529772 9.7</cell><cell>11.1 9635</cell><cell>9.5</cell><cell>10.7 9564</cell><cell>10.0</cell><cell>11.4</cell></row><row><cell>All</cell><cell cols="4">55650 3015869 2977999 15.7</cell><cell cols="2">19.0 18719 15.3</cell><cell cols="2">18.7 19151 16.2</cell><cell>19.8</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head></head><label></label><figDesc>https://object.pouta.csc.fi/ OPUS-TED2020/v1/moses/en-vi.txt.zip wherein duplicate removal is not performed.</figDesc><table><row><cell>ment coverage rate for English is about 2% abso-</cell></row><row><cell>lute lower than the one for Vietnamese as there are</cell></row><row><cell>English source sentences that are not translated to</cell></row><row><cell>Vietnamese in the collected corpora.</cell></row><row><cell>2.4 Post-processing</cell></row><row><cell>On the alignment output from the previous phase,</cell></row><row><cell>we normalize punctuations, remove all duplicate</cell></row><row><cell>sentence pairs within and across all document pairs,</cell></row><row><cell>and also remove sentence pairs where the reference</cell></row><row><cell>English sentence contains either only a single word</cell></row><row><cell>token or swear words. 3 Then we randomly split</cell></row><row><cell>each domain into training/validation/test sets on</cell></row><row><cell>document level with a 98.75/0.60/0.65 ratio, re-</cell></row><row><cell>sulting in 2977999 training, 18876 validation and</cell></row><row><cell>19291 test sentence pairs.</cell></row></table><note>12 See the Appendix for an additional discussion.</note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 2 :</head><label>2</label><figDesc>Overall results. Each TER/BLEU score difference between two models is statistically significant (p-value &lt; 0.05 based on bootstrap resampling), except Google Translate and Bing Translator for Vi-to-En w.r.t. BLEU.</figDesc><table><row><cell>translation on the validation and test sets at the sen-</cell></row><row><cell>tence pair level, we believe that our training set</cell></row><row><cell>attains a high-quality standard. Lastly, we remove</cell></row><row><cell>those 32 + 125 + 27 + 113 = 297 pairs, resulting in</cell></row><row><cell>18719 validation and 19151 test sentence pairs of</cell></row><row><cell>high quality for final use.</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head>Table 2</head><label>2</label><figDesc></figDesc><table><row><cell>presents TER and BLEU scores obtained</cell></row><row><cell>by the automatic translation engines and the neu-</cell></row><row><cell>ral baselines on the validation and test sets for the</cell></row><row><cell>English-to-Vietnamese (En-to-Vi) and Vietnamese-</cell></row><row><cell>to-English (Vi-to-En) translation setups. Clearly,</cell></row><row><cell>the baselines obtain significantly better TER and</cell></row><row><cell>BLEU scores than the automatic translation en-</cell></row></table><note>gines for both En-to-Vi and Vi-to-En setups on both validation and test sets. It is likely because Google Translate and Bing Translator are trained on other parallel resources. Here, Transformer models obtain 1.5+ points absolute better than both</note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 3 :</head><label>3</label><figDesc></figDesc><table><row><cell></cell><cell></cell><cell></cell><cell cols="2">Vi-to-En</cell><cell></cell></row><row><cell>Model</cell><cell cols="5">&lt; 10 [10, 20) [20, 30) [30, 40) [40, 50) ? 50</cell></row><row><cell></cell><cell cols="5">48.77% 30.87% 13.65% 4.46% 1.45% 0.80%</cell></row><row><cell cols="2">Google Translate 32.27</cell><cell>34.24</cell><cell>37.47</cell><cell>38.17</cell><cell>37.94 38.30</cell></row><row><cell>Bing Translator</cell><cell>34.20</cell><cell>32.97</cell><cell>36.66</cell><cell>38.27</cell><cell>39.73 40.70</cell></row><row><cell cols="2">Transformer-base 36.78</cell><cell>34.99</cell><cell>38.27</cell><cell>38.86</cell><cell>38.76 39.46</cell></row><row><cell>Transformer-big</cell><cell>37.23</cell><cell>35.49</cell><cell>39.02</cell><cell>39.90</cell><cell>39.34 39.85</cell></row><row><cell>mBART</cell><cell>38.31</cell><cell>37.22</cell><cell>41.05</cell><cell>42.21</cell><cell>42.49 43.35</cell></row></table><note>BLEU scores for each resource domain on the test set. Here, "BloS", "TedT", "MedW", "WikH" and "OpeS" abbreviate Blogspot, TED-Talks, MediaWiki, WikiHow and OpenSubtitles, respectively.</note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 4 :</head><label>4</label><figDesc>BLEU scores on the test set w.r.t. sentence lengths of reference English sentences (i.e. the number of word tokens including punctuations). The number right below each length bucket denotes the percentage of sentences belonging to the bucket.</figDesc><table /><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head></head><label></label><figDesc>En News BloS TedT MedW WikH OpeS News BloS TedT MedW WikH OpeS Validation Google Translate 35.93 47.26 49.37 24.89 51.65 60.70 42.21 51.25 46.94 30.99 51.08 50.29 Bing Translator 36.07 47.47 50.51 23.17 55.53 57.43 42.72 52.38 49.46 30.17 55.92 48.57 Transformer-base 32.85 47.62 49.34 23.55 49.19 53.29 39.18 51.91 48.25 29.64 51.45 46.67 Transformer-big 32.56 46.91 48.78 22.57 48.96 52.65 37.68 50.89 47.49 29.94 50.95 46.28 mBART 30.97 45.78 47.87 22.26 47.71 52.67 36.16 48.98 45.75 27.54 49.01 45.56 Test Google Translate 45.46 53.05 46.45 27.02 53.32 60.71 49.78 56.60 45.22 33.38 52.80 51.27 Bing Translator 46.44 53.96 46.83 26.03 56.28 57.62 48.61 57.89 46.95 32.48 57.15 49.28 Transformer-base 44.42 53.21 45.95 26.56 51.30 53.21 48.69 55.64 45.84 32.17 52.85 47.20 Transformer-big 43.27 52.79 45.12 25.74 50.49 52.57 47.13 54.83 45.25 32.05 52.82 47.14 mBART 42.86 51.53 44.84 25.02 50.01 52.44 45.86 54.10 43.57 29.90 51.21 46.16</figDesc><table><row><cell>Model</cell><cell>En-to-Vi</cell><cell>Vi-to-</cell></row><row><cell></cell><cell></cell><cell>and Ta-</cell></row><row><cell></cell><cell>ble 8, respectively.</cell><cell></cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 5 :</head><label>5</label><figDesc>TER results on each domain. TedT MedW WikH OpeS News BloS TedT MedW WikH OpeS Validation Google Translate 50.28 35.67 33.62 63.43 33.60 22.37 41.12 31.85 32.21 51.32 30.48 29.18 Bing Translator 50.13 35.66 32.64 66.10 30.19 24.89 41.02 30.95 29.51 52.90 25.88 31.30 Transformer-base 52.63 35.24 33.51 65.60 35.32 27.42 43.54 30.61 30.67 53.50 30.39 32.87 Transformer-big 53.39 36.17 34.00 66.96 35.80 27.95 45.35 31.84 31.83 54.11 31.11 33.60 mBART 54.82 36.99 34.72 67.42 37.03 28.18 48.51 33.72 33.76 56.06 33.22 34.93 Test Google Translate 41.35 31.29 36.15 61.80 30.97 23.45 34.33 26.71 34.03 48.81 28.76 28.63 Bing Translator 40.63 30.55 35.58 63.36 28.29 25.67 35.05 25.91 32.03 50.29 24.78 30.56 Transformer-base 41.89 29.54 36.72 62.69 32.33 28.04 34.94 27.13 33.46 50.56 28.37 32.29 Transformer-big 43.33 30.37 37.66 63.58 33.31 28.58 36.14 28.26 34.46 51.20 28.86 32.69 mBART 43.93 31.39 38.01 64.67 33.97 29.01 37.04 29.26 36.43 53.93 30.63 34.13</figDesc><table><row><cell>Model</cell><cell>News BloS</cell><cell>En-to-Vi</cell><cell>Vi-to-En</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_10"><head>Table 6 :</head><label>6</label><figDesc>BLEU results on each domain. 77% 30.87% 13.65% 4.46% 1.45% 0.80% 48.77% 30.87% 13.65% 4.46% 1.45% 0.80%</figDesc><table><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="2">En-to-Vi</cell><cell></cell><cell></cell><cell></cell><cell cols="2">Vi-to-En</cell></row><row><cell></cell><cell>Model</cell><cell>?10</cell><cell cols="4">[10, 20) [20, 30) [30, 40) [40, 50) ? 50</cell><cell>?10</cell><cell cols="3">[10, 20) [20, 30) [30, 40) [40, 50) ? 50</cell></row><row><cell cols="3">Google Translate 58.35 Bing Translator 54.55 Transformer-base 50.00 Transformer-big 49.64 48.Validation mBART 49.77</cell><cell>51.61 51.47 47.26 46.68 46.07</cell><cell>43.33 44.04 41.34 40.64 39.84</cell><cell>39.31 39.40 38.01 37.46 36.74</cell><cell cols="2">37.77 35.68 47.78 38.15 35.14 46.28 37.61 35.93 44.03 36.79 34.88 43.60 35.93 34.38 43.16</cell><cell>45.44 47.02 44.56 44.04 42.72</cell><cell>42.72 44.89 42.92 42.64 40.55</cell><cell>42.68 42.81 41.69 41.40 38.76</cell><cell>42.62 39.93 42.16 38.83 42.09 39.74 43.20 39.29 39.11 36.18</cell></row><row><cell></cell><cell cols="2">Google Translate 59.34</cell><cell>52.68</cell><cell>44.78</cell><cell>40.29</cell><cell cols="2">39.37 37.83 48.80</cell><cell>47.05</cell><cell>43.87</cell><cell>43.84</cell><cell>43.56 43.39</cell></row><row><cell>Test</cell><cell cols="2">Bing Translator Transformer-base 50.40 55.24 Transformer-big 49.92</cell><cell>52.28 48.50 47.84</cell><cell>44.86 42.48 41.89</cell><cell>40.50 39.67 38.93</cell><cell cols="2">40.18 38.22 46.86 39.74 38.59 44.13 38.81 37.26 44.00</cell><cell>48.57 46.15 45.77</cell><cell>45.37 43.61 43.34</cell><cell>43.58 42.98 42.25</cell><cell>41.84 41.76 42.45 41.98 43.78 42.12</cell></row><row><cell></cell><cell>mBART</cell><cell>50.01</cell><cell>47.52</cell><cell>41.33</cell><cell>37.98</cell><cell cols="2">38.43 36.60 43.32</cell><cell>44.52</cell><cell>41.73</cell><cell>40.40</cell><cell>39.71 39.35</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_11"><head>Table 7 :</head><label>7</label><figDesc>TER results w.r.t. sentence lengths of reference English sentences. ? 50 48.77% 30.87% 13.65% 4.46% 1.45% 0.80% 48.77% 30.87% 13.65% 4.46% 1.45% 0.80%</figDesc><table><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="2">En-to-Vi</cell><cell></cell><cell></cell><cell cols="2">Vi-to-En</cell></row><row><cell cols="11">Model Google Translate 26.64 ?10 Bing Translator 29.23 Transformer-base 31.48 Transformer-big 31.92 [10, 20) [20, 30) [30, 40) [40, 50) Validation [10, 20) [20, 30) [30, 40) [40, 50) ? 50 ?10 38.72 44.62 48.28 49.72 52.05 32.06 35.95 39.01 39.43 39.70 41.75 38.93 44.76 48.37 49.04 53.15 34.26 34.83 37.33 39.43 40.31 43.68 41.65 47.22 49.44 49.19 52.01 36.28 36.87 39.32 40.41 39.89 43.16 42.29 47.90 49.98 50.67 53.59 36.94 37.69 40.03 41.04 41.82 43.75 mBART 32.73 42.95 48.63 50.65 51.40 54.08 37.99 39.60 41.90 43.64 43.31 46.29</cell></row><row><cell></cell><cell cols="2">Google Translate 27.00</cell><cell>37.17</cell><cell>44.20</cell><cell>46.58</cell><cell>48.52 50.57 32.27</cell><cell>34.24</cell><cell>37.47</cell><cell>38.17</cell><cell>37.94 38.30</cell></row><row><cell>Test</cell><cell cols="2">Bing Translator Transformer-base 32.03 29.68 Transformer-big 32.36</cell><cell>37.46 39.40 40.48</cell><cell>44.07 45.86 46.45</cell><cell>46.23 47.16 48.13</cell><cell>48.12 50.17 34.20 48.18 48.76 36.78 49.39 50.18 37.23</cell><cell>32.97 34.99 35.49</cell><cell>36.66 38.27 39.02</cell><cell>38.27 38.86 39.90</cell><cell>39.73 40.70 38.76 39.46 39.34 39.85</cell></row><row><cell></cell><cell>mBART</cell><cell>33.15</cell><cell>40.93</cell><cell>47.35</cell><cell>48.68</cell><cell>49.80 51.15 38.31</cell><cell>37.22</cell><cell>41.05</cell><cell>42.21</cell><cell>42.49 43.35</cell></row></table><note></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_12"><head>Table 8 :</head><label>8</label><figDesc>BLEU results w.r.t. sentence lengths of reference English sentences.</figDesc><table /><note></note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3">Regarding removals, punctuations are not taken into identifying sentence pair duplication or computing sentence length. On OpenSubtitles, we also remove sentence pairs where the reference English sentence consists of two tokens.</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4">Annotators have a proficient English level at IELTS 7.0+ with a reading score of 8.0+ (paid 0.25USD per sample).5  The fourth co-author is not involved in both the postprocessing step (Section 2.4) and the development of MT systems. He does not know which model produces which translation. He also has a proficient English level.</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="6">https://opus.nlpl.eu/ wikimedia-v20210402.php</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="7">https://github.com/mjpost/sacrebleu 8 https://github.com/jhclark/tercom</note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Acknowledgments</head><p>The authors would like to thank the anonymous reviewers for their helpful feedback.</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Appendix Parallel document-level corpora</head><p>Last access: 19/12/2020 WikiHow:</p><p>? https://github.com/esdurmus/ Wikilingua TED-talks:</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">The AMARA Corpus: Building Parallel Language Resources for the Educational Domain</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>Abdelali</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzman</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hassan</forename><surname>Sajjad</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Stephan</forename><surname>Vogel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Ninth International Conference on Language Resources and Evaluation</title>
+		<meeting>the Ninth International Conference on Language Resources and Evaluation</meeting>
+		<imprint>
+			<date type="published" when="2014" />
+			<biblScope unit="page" from="1856" to="1862" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">JW300: A Wide-Coverage Parallel Corpus for Low-Resource Languages</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Zeljko</forename><surname>Agi?</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ivan</forename><surname>Vuli?</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics</title>
+		<meeting>the 57th Annual Meeting of the Association for Computational Linguistics</meeting>
+		<imprint>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="3204" to="3210" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Massively multilingual sentence embeddings for zeroshot cross-lingual transfer and beyond</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mikel</forename><surname>Artetxe</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Holger</forename><surname>Schwenk</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Transactions of the Association for Computational Linguistics</title>
+		<imprint>
+			<date type="published" when="2019" />
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="597" to="610" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Vietnam&apos;s Development Success Story and the Unfinished SDG Agenda. IMF Working Papers</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Anja</forename><surname>Baum</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="1" to="31" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Improved Unsupervised Sentence Alignment for Symmetrical and Asymmetrical Parallel Corpora</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Fabienne</forename><surname>Braune</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alexander</forename><surname>Fraser</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 23rd International Conference on Computational Linguistics: Posters</title>
+		<meeting>the 23rd International Conference on Computational Linguistics: Posters</meeting>
+		<imprint>
+			<date type="published" when="2010" />
+			<biblScope unit="page" from="81" to="89" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">The IWSLT 2015 Evaluation Campaign</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">M</forename><surname>Cettolo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J</forename><surname>Niehues</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">S</forename><surname>St?ker</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Bentivogli</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">R</forename><surname>Cattoni</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marcello</forename><surname>Federico</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Workshop on Spoken Language Translation</title>
+		<meeting>the International Workshop on Spoken Language Translation</meeting>
+		<imprint>
+			<date type="published" when="2015" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">A Call for Prudent Choice of Subword Merge Operations in Neural Machine Translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Shuoyang</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Adithya</forename><surname>Renduchintala</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kevin</forename><surname>Duh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Proceedings of Machine Translation Summit XVII</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="204" to="213" />
+			<date type="published" when="2019" />
+			<publisher>Research Track</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">CCAligned: A Massive Collection of Cross-Lingual Web-Document Pairs</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ahmed</forename><surname>El-Kishky</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzm?n</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Philipp</forename><surname>Koehn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing</title>
+		<meeting>the 2020 Conference on Empirical Methods in Natural Language Processing</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="5960" to="5969" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Measuring nominal scale agreement among many raters</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">L</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Fleiss</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Psychological bulletin</title>
+		<imprint>
+			<biblScope unit="volume">76</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page">378</biblScope>
+			<date type="published" when="1971" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Bag of Tricks for Efficient Text Classification</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Armand</forename><surname>Joulin</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Edouard</forename><surname>Grave</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Piotr</forename><surname>Bojanowski</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Tomas</forename><surname>Mikolov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 15th Conference of the European Chapter</title>
+		<meeting>the 15th Conference of the European Chapter<address><addrLine>Short Papers</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2017" />
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="427" to="431" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Adam: A Method for Stochastic Optimization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P</forename><surname>Diederik</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jimmy</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Ba</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6980</idno>
+		<imprint>
+			<date type="published" when="2014" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">WikiLingua: A New Benchmark Dataset for Cross-Lingual Abstractive Summarization</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Faisal</forename><surname>Ladhak</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Esin</forename><surname>Durmus</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Claire</forename><surname>Cardie</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kathleen</forename><surname>Mckeown</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Findings of the Association for Computational Linguistics: EMNLP 2020</title>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="4034" to="4048" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">OpenSubti-tles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Pierre</forename><surname>Lison</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J?rg</forename><surname>Tiedemann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Tenth International Conference on Language Resources and Evaluation</title>
+		<meeting>the Tenth International Conference on Language Resources and Evaluation</meeting>
+		<imprint>
+			<date type="published" when="2016" />
+			<biblScope unit="page" from="923" to="929" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Multilingual Denoising Pre-training for Neural Machine Translation. Transactions of the Association for</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Yinhan</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jiatao</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Naman</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Xian</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Marjan</forename><surname>Ghazvininejad</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mike</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Luke</forename><surname>Zettlemoyer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Linguistics</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="726" to="742" />
+			<date type="published" when="2020" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">The Stanford CoreNLP Natural Language Processing Toolkit</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Christopher</forename><surname>Manning</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mihai</forename><surname>Surdeanu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">John</forename><surname>Bauer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jenny</forename><surname>Finkel</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Steven</forename><surname>Bethard</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">David</forename><surname>Mcclosky</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 52nd Annual Meeting of the Association for Computational Linguistics: System Demonstrations</title>
+		<meeting>52nd Annual Meeting of the Association for Computational Linguistics: System Demonstrations</meeting>
+		<imprint>
+			<date type="published" when="2014" />
+			<biblScope unit="page" from="55" to="60" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">EVBCorpus -A</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hung</forename><surname>Quoc</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Werner</forename><surname>Ngo</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Bartholom?us</forename><surname>Winiwarter</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Wloka</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">English-Vietnamese Bilingual Corpus for Studying Tasks in Comparative Linguistics</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Multi-Layer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 11th Workshop on Asian Language Resources</title>
+		<meeting>the 11th Workshop on Asian Language Resources</meeting>
+		<imprint>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">A Fast and Accurate Vietnamese Word Segmenter</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Dat Quoc Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thanh</forename><surname>Dai Quoc Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mark</forename><surname>Vu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mark</forename><surname>Dras</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Johnson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 11th International Conference on Language Resources and Evaluation</title>
+		<meeting>the 11th International Conference on Language Resources and Evaluation</meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="2582" to="2587" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">fairseq: A Fast, Extensible Toolkit for Sequence Modeling</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alexei</forename><surname>Baevski</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Angela</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sam</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nathan</forename><surname>Ng</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">David</forename><surname>Grangier</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Auli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Demonstrations</title>
+		<meeting>the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Demonstrations</meeting>
+		<imprint>
+			<date type="published" when="2019" />
+			<biblScope unit="page" from="48" to="53" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Scaling Neural Machine Translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Sergey</forename><surname>Edunov</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">David</forename><surname>Grangier</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Michael</forename><surname>Auli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Third Conference on Machine Translation: Research Papers</title>
+		<meeting>the Third Conference on Machine Translation: Research Papers</meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Bleu: a Method for Automatic Evaluation of Machine Translation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Kishore</forename><surname>Papineni</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Salim</forename><surname>Roukos</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Todd</forename><surname>Ward</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Wei-Jing</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 40th Annual Meeting of the Association for Computational Linguistics</title>
+		<meeting>the 40th Annual Meeting of the Association for Computational Linguistics</meeting>
+		<imprint>
+			<date type="published" when="2002" />
+			<biblScope unit="page" from="311" to="318" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Neural Machine Translation between Vietnamese and English: an Empirical Study</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hong-Hai</forename><surname>Phan-Vu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Viet Trung</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hoang</forename><surname>Van Nam Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Phan Thuan</forename><surname>Vu Dang</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Do</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computer Science and Cybernetics</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="147" to="166" />
+			<date type="published" when="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">A Call for Clarity in Reporting BLEU Scores</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Matt</forename><surname>Post</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Third Conference on Machine Translation: Research Papers</title>
+		<meeting>the Third Conference on Machine Translation: Research Papers</meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="186" to="191" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Making Monolingual Sentence Embeddings Multilingual using Knowledge Distillation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Nils</forename><surname>Reimers</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Iryna</forename><surname>Gurevych</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing</title>
+		<meeting>the 2020 Conference on Empirical Methods in Natural Language Processing</meeting>
+		<imprint>
+			<date type="published" when="2020" />
+			<biblScope unit="page" from="4512" to="4525" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Holger</forename><surname>Schwenk</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Vishrav</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Shuo</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Hongyu</forename><surname>Gong</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Francisco</forename><surname>Guzm?n</surname></persName>
+		</author>
+		<title level="m">Wiki-Matrix: Mining 135M Parallel Sentences</title>
+		<imprint>
+			<date type="published" when="2021" />
+			<biblScope unit="page">1620</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Language Pairs from Wikipedia</title>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume</title>
+		<meeting>the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume</meeting>
+		<imprint>
+			<biblScope unit="page" from="1351" to="1361" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Neural Machine Translation of Rare Words with Subword Units</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Rico</forename><surname>Sennrich</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Barry</forename><surname>Haddow</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Alexandra</forename><surname>Birch</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics</title>
+		<meeting>the 54th Annual Meeting of the Association for Computational Linguistics</meeting>
+		<imprint>
+			<publisher>Long Papers</publisher>
+			<date type="published" when="2016" />
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="1715" to="1725" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Iterative, MTbased Sentence Alignment of Parallel Texts</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Rico</forename><surname>Sennrich</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Martin</forename><surname>Volk</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 18th Nordic Conference of Computational Linguistics</title>
+		<meeting>the 18th Nordic Conference of Computational Linguistics</meeting>
+		<imprint>
+			<date type="published" when="2011" />
+			<biblScope unit="page" from="175" to="182" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">A study of translation edit rate with targeted human annotation</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Matthew</forename><surname>Snover</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Bonnie</forename><surname>Dorr</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Richard</forename><surname>Schwartz</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Linnea</forename><surname>Micciulla</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">John</forename><surname>Makhoul</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 7th Biennial Conference of the Association for Machine Translation in the Americas</title>
+		<meeting>the 7th Biennial Conference of the Association for Machine Translation in the Americas</meeting>
+		<imprint>
+			<date type="published" when="2006" />
+			<biblScope unit="page" from="223" to="231" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Parallel Data, Tools and Interfaces in OPUS</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">J?rg</forename><surname>Tiedemann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Eighth International Conference on Language Resources and Evaluation</title>
+		<meeting>the Eighth International Conference on Language Resources and Evaluation</meeting>
+		<imprint>
+			<date type="published" when="2012" />
+			<biblScope unit="page" from="2214" to="2218" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Parallel corpora for medium density languages</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">D?niel</forename><surname>Varga</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">P?ter</forename><surname>Hal?csy</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Andr?s</forename><surname>Kornai</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Viktor</forename><surname>Nagy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Current Issues in Linguistic Theory</title>
+		<imprint>
+			<biblScope unit="volume">292</biblScope>
+			<biblScope unit="page" from="247" to="258" />
+			<date type="published" when="2007" />
+		</imprint>
+	</monogr>
+	<note>L?szl? N?meth, and Viktor Tr?n</note>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Attention is All you Need</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Llion</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Illia</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Polosukhin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017" />
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="5998" to="6008" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">VnCoreNLP: A Vietnamese Natural Language Processing Toolkit</title>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Thanh</forename><surname>Vu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Dat Quoc Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mark</forename><surname>Dai Quoc Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mark</forename><surname>Dras</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><surname>Johnson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Demonstrations</title>
+		<meeting>the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Demonstrations</meeting>
+		<imprint>
+			<date type="published" when="2018" />
+			<biblScope unit="page" from="56" to="60" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+				<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Yonghui</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName xmlns="http://www.tei-c.org/ns/1.0"><forename type="first">Mike</forename><surname>Schuster</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1609.08144</idno>
+		<ptr target="https://dumps.wikimedia.org/other/contenttranslation(version" />
+		<title level="m">Google&apos;s Neural Machine Translation System: Bridging the Gap between Human and Machine Translation</title>
+		<imprint>
+			<date type="published" when="2016-11" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
